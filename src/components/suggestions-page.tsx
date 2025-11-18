@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,8 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "./ui/button";
+import { Loader2, Wand2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { generatePrepSuggestions, type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-suggestions";
+import { useToast } from "@/hooks/use-toast";
 
-const suggestions = [
+const generalSuggestions = [
   {
     title: "Understand Your Goal Clearly",
     points: [
@@ -109,6 +116,30 @@ const quickRecap = [
 ]
 
 export function SuggestionsPage() {
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [examType, setExamType] = useState("Both");
+    const [aiSuggestions, setAiSuggestions] = useState<GeneratePrepSuggestionsOutput | null>(null);
+    const { toast } = useToast();
+
+    const handleGenerate = async () => {
+        setIsGenerating(true);
+        setAiSuggestions(null);
+        try {
+            const result = await generatePrepSuggestions({ targetExam: examType });
+            setAiSuggestions(result);
+        } catch (error) {
+            console.error("Failed to generate suggestions", error);
+            toast({
+                variant: 'destructive',
+                title: 'Generation Failed',
+                description: 'Could not generate AI suggestions. Please try again.',
+            });
+        } finally {
+            setIsGenerating(false);
+        }
+    }
+
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
       <div>
@@ -120,58 +151,117 @@ export function SuggestionsPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        {suggestions.map((suggestion, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardTitle>
-                {index + 1}. {suggestion.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {suggestion.points.map((point, i) => (
-                  <li key={i}>{point}</li>
+      <Tabs defaultValue="ai-powered" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="ai-powered"><Wand2 className="mr-2"/> AI-Powered Suggestions</TabsTrigger>
+            <TabsTrigger value="general">General Tips</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ai-powered" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Personalized AI Suggestions</CardTitle>
+                    <CardDescription>Get suggestions tailored to your exam type from LIBRA AI.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-center gap-4">
+                    <Select value={examType} onValueChange={setExamType}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select Exam Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Railway">Railway</SelectItem>
+                            <SelectItem value="Bank">Bank</SelectItem>
+                            <SelectItem value="Both">Both</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={handleGenerate} disabled={isGenerating}>
+                        {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isGenerating ? "Generating..." : "Generate Suggestions"}
+                    </Button>
+                </CardContent>
+                {isGenerating && (
+                    <CardFooter>
+                        <div className="w-full flex justify-center items-center p-8">
+                            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                        </div>
+                    </CardFooter>
+                )}
+                {aiSuggestions && (
+                     <CardContent className="space-y-6 pt-0 border-t mt-4 pt-6">
+                        {aiSuggestions.suggestions.map((suggestion, index) => (
+                            <div key={index}>
+                                <h4 className="font-semibold text-lg">{index + 1}. {suggestion.title}</h4>
+                                <ul className="list-disc list-inside space-y-2 text-muted-foreground mt-2">
+                                    {suggestion.points.map((point, i) => (
+                                    <li key={i}>{point}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </CardContent>
+                )}
+                 {!aiSuggestions && !isGenerating && (
+                    <CardContent>
+                        <div className="text-center text-muted-foreground py-16">
+                            <p>Select an exam type and click "Generate Suggestions" to get started.</p>
+                        </div>
+                    </CardContent>
+                 )}
+            </Card>
+        </TabsContent>
+        <TabsContent value="general" className="mt-6">
+             <div className="space-y-6">
+                {generalSuggestions.map((suggestion, index) => (
+                <Card key={index}>
+                    <CardHeader>
+                    <CardTitle>
+                        {index + 1}. {suggestion.title}
+                    </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                        {suggestion.points.map((point, i) => (
+                        <li key={i}>{point}</li>
+                        ))}
+                    </ul>
+                    </CardContent>
+                </Card>
                 ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Quick Recap</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Area</TableHead>
-                        <TableHead>Suggestion</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {quickRecap.map((item) => (
-                        <TableRow key={item.area}>
-                            <TableCell className="font-medium">{item.area}</TableCell>
-                            <TableCell>{item.suggestion}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </CardContent>
-      </Card>
-      
-      <Card className="bg-primary text-primary-foreground">
-        <CardHeader>
-            <CardTitle>Final Suggestion</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p>Cracking a Railway or Bank job is all about planning, perseverance, and patience. Stay consistent, use authentic sources, and keep improving your weak areas. With dedication, success will follow.</p>
-        </CardContent>
-      </Card>
-
+            <Card className="mt-8">
+                <CardHeader>
+                    <CardTitle>Quick Recap</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Area</TableHead>
+                                <TableHead>Suggestion</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {quickRecap.map((item) => (
+                                <TableRow key={item.area}>
+                                    <TableCell className="font-medium">{item.area}</TableCell>
+                                    <TableCell>{item.suggestion}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+            
+            <Card className="mt-8 bg-primary text-primary-foreground">
+                <CardHeader>
+                    <CardTitle>Final Suggestion</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p>Cracking a Railway or Bank job is all about planning, perseverance, and patience. Stay consistent, use authentic sources, and keep improving your weak areas. With dedication, success will follow.</p>
+                </CardContent>
+            </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
