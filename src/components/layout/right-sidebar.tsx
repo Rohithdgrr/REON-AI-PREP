@@ -95,7 +95,7 @@ export function RightSidebar() {
 
   return (
     <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-2">
-      <div className="flex flex-col items-center gap-4 mt-14">
+      <div className="flex-1 flex flex-col items-center gap-4 pt-14">
         {/* Notes Tool */}
         <Sheet>
           <SheetTrigger asChild>
