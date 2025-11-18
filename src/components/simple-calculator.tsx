@@ -5,12 +5,14 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { cn } from "@/lib/utils";
+import { ChevronsRightLeft } from "lucide-react";
 
 export function SimpleCalculator() {
   const [expression, setExpression] = useState("");
   const [displayValue, setDisplayValue] = useState("0");
   const [history, setHistory] = useState("");
   const [isDeg, setIsDeg] = useState(true);
+  const [isAdvanced, setIsAdvanced] = useState(false);
 
   const handleAppend = (val: string) => {
     if (displayValue === "Error") {
@@ -119,52 +121,49 @@ export function SimpleCalculator() {
         <div className="h-20 bg-muted rounded-md p-4 text-right text-5xl font-mono overflow-x-auto whitespace-nowrap">
           {displayValue}
         </div>
-        <div className="grid grid-cols-5 gap-3">
-          {/* Row 1 */}
-          <Button onClick={() => handleAppend('sin(')} className={funcBtn}>sin</Button>
-          <Button onClick={() => handleAppend('cos(')} className={funcBtn}>cos</Button>
-          <Button onClick={() => handleAppend('tan(')} className={funcBtn}>tan</Button>
+        <div className={cn("grid gap-3", isAdvanced ? "grid-cols-5" : "grid-cols-4")}>
+          {isAdvanced && (
+            <>
+              <Button onClick={() => handleAppend('sin(')} className={funcBtn}>sin</Button>
+              <Button onClick={() => handleAppend('cos(')} className={funcBtn}>cos</Button>
+              <Button onClick={() => handleAppend('tan(')} className={funcBtn}>tan</Button>
+              <Button onClick={() => handleAppend('log(')} className={funcBtn}>log</Button>
+              <Button onClick={() => handleAppend('ln(')} className={funcBtn}>ln</Button>
+              <Button onClick={() => handleAppend('^')} className={funcBtn}>xʸ</Button>
+              <Button onClick={() => handleAppend('√(')} className={funcBtn}>√</Button>
+              <Button onClick={() => handleAppend('!')} className={funcBtn}>n!</Button>
+              <Button onClick={() => handleAppend('π')} className={funcBtn}>π</Button>
+              <Button onClick={() => handleAppend('e')} className={funcBtn}>e</Button>
+              <Button onClick={toggleDeg} className={cn(funcBtn, "text-xs")}>{isDeg ? 'DEG' : 'RAD'}</Button>
+              <Button onClick={() => handleAppend('%')} className={funcBtn}>%</Button>
+              <Button onClick={() => handleAppend('(')} className={specialBtn}>(</Button>
+              <Button onClick={() => handleAppend(')')} className={specialBtn}>)</Button>
+            </>
+          )}
+          
           <Button onClick={clearAll} className={cn(buttonStyle, "bg-destructive/80 text-destructive-foreground hover:bg-destructive/90")}>C</Button>
           <Button onClick={backspace} className={cn(buttonStyle, "bg-destructive/80 text-destructive-foreground hover:bg-destructive/90")}>⌫</Button>
-
-          {/* Row 2 */}
-          <Button onClick={() => handleAppend('^')} className={funcBtn}>xʸ</Button>
-          <Button onClick={() => handleAppend('log(')} className={funcBtn}>log</Button>
-          <Button onClick={() => handleAppend('ln(')} className={funcBtn}>ln</Button>
-          <Button onClick={() => handleAppend('(')} className={specialBtn}>(</Button>
-          <Button onClick={() => handleAppend(')')} className={specialBtn}>)</Button>
+          <Button onClick={() => setIsAdvanced(!isAdvanced)} className={opBtn}><ChevronsRightLeft className={cn("transition-transform", isAdvanced && "rotate-180")} /></Button>
+          <Button onClick={() => handleAppend('/')} className={opBtn}>÷</Button>
           
-          {/* Row 3 */}
-          <Button onClick={() => handleAppend('√(')} className={funcBtn}>√</Button>
           <Button onClick={() => handleAppend('7')} className={numBtn}>7</Button>
           <Button onClick={() => handleAppend('8')} className={numBtn}>8</Button>
           <Button onClick={() => handleAppend('9')} className={numBtn}>9</Button>
-          <Button onClick={() => handleAppend('/')} className={opBtn}>÷</Button>
+          <Button onClick={() => handleAppend('*')} className={opBtn}>×</Button>
           
-          {/* Row 4 */}
-          <Button onClick={() => handleAppend('!')} className={funcBtn}>n!</Button>
           <Button onClick={() => handleAppend('4')} className={numBtn}>4</Button>
           <Button onClick={() => handleAppend('5')} className={numBtn}>5</Button>
           <Button onClick={() => handleAppend('6')} className={numBtn}>6</Button>
-          <Button onClick={() => handleAppend('*')} className={opBtn}>×</Button>
+          <Button onClick={() => handleAppend('-')} className={opBtn}>-</Button>
           
-          {/* Row 5 */}
-          <Button onClick={() => handleAppend('π')} className={funcBtn}>π</Button>
           <Button onClick={() => handleAppend('1')} className={numBtn}>1</Button>
           <Button onClick={() => handleAppend('2')} className={numBtn}>2</Button>
           <Button onClick={() => handleAppend('3')} className={numBtn}>3</Button>
-          <Button onClick={() => handleAppend('-')} className={opBtn}>-</Button>
-          
-          {/* Row 6 */}
-          <Button onClick={toggleDeg} className={cn(funcBtn, "text-xs")}>{isDeg ? 'DEG' : 'RAD'}</Button>
-          <Button onClick={() => handleAppend('e')} className={funcBtn}>e</Button>
-          <Button onClick={() => handleAppend('0')} className={numBtn}>0</Button>
-          <Button onClick={() => handleAppend('.')} className={numBtn}>.</Button>
           <Button onClick={() => handleAppend('+')} className={opBtn}>+</Button>
-
-          {/* Row 7 */}
-           <Button onClick={() => handleAppend('%')} className={funcBtn}>%</Button>
-           <Button onClick={calculate} className={cn(buttonStyle, "bg-primary text-primary-foreground hover:bg-primary/90 col-span-4")}>=</Button>
+          
+          <Button onClick={() => handleAppend('0')} className={cn(numBtn, "col-span-2")}>0</Button>
+          <Button onClick={() => handleAppend('.')} className={numBtn}>.</Button>
+          <Button onClick={calculate} className={cn(buttonStyle, "bg-primary text-primary-foreground hover:bg-primary/90")}>=</Button>
         </div>
       </CardContent>
     </Card>
