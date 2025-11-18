@@ -1,115 +1,192 @@
+
 "use client";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { generatePersonalizedStudyPlan, GeneratePersonalizedStudyPlanInput } from "@/ai/flows/generate-personalized-study-plan";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, Circle, BookOpen, BrainCircuit, MessageSquare, Newspaper, Flag } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+
+const studyPlan = [
+  {
+    week: 1,
+    title: "Foundation & Basics",
+    status: "Completed",
+    subjects: [
+      { 
+        name: "Quantitative Aptitude", 
+        icon: BrainCircuit,
+        tasks: [
+          { description: "Number System & HCF/LCM", completed: true },
+          { description: "Simplification & Approximation", completed: true },
+          { description: "Percentage, Profit & Loss", completed: true },
+        ] 
+      },
+      { 
+        name: "Reasoning Ability", 
+        icon: BrainCircuit,
+        tasks: [
+          { description: "Coding-Decoding & Analogy", completed: true },
+          { description: "Blood Relations & Direction Sense", completed: true },
+        ] 
+      },
+      { 
+        name: "English Language",
+        icon: MessageSquare, 
+        tasks: [
+          { description: "Grammar Basics: Tenses & Parts of Speech", completed: true },
+        ] 
+      },
+       { 
+        name: "General Awareness",
+        icon: Newspaper, 
+        tasks: [
+          { description: "Indian History (Ancient & Medieval)", completed: true },
+        ] 
+      },
+    ]
+  },
+  {
+    week: 2,
+    title: "Core Concepts",
+    status: "In Progress",
+    subjects: [
+      { 
+        name: "Quantitative Aptitude", 
+        icon: BrainCircuit,
+        tasks: [
+          { description: "Ratio, Proportion & Averages", completed: true },
+          { description: "Time & Work, Speed, Time & Distance", completed: false },
+          { description: "Simple & Compound Interest", completed: false },
+        ] 
+      },
+      { 
+        name: "Reasoning Ability",
+        icon: BrainCircuit, 
+        tasks: [
+          { description: "Syllogism & Seating Arrangements", completed: true },
+          { description: "Puzzles (Floor, Box-based)", completed: false },
+        ] 
+      },
+      { 
+        name: "General Awareness", 
+        icon: Newspaper,
+        tasks: [
+          { description: "Indian Polity & Constitution", completed: true },
+          { description: "Current Affairs (Last 6 Months)", completed: false },
+        ] 
+      },
+    ]
+  },
+  {
+    week: 3,
+    title: "Advanced Topics & Practice",
+    status: "Not Started",
+    subjects: [
+      { 
+        name: "Quantitative Aptitude", 
+        icon: BrainCircuit,
+        tasks: [
+          { description: "Data Interpretation (Tables, Bar Graphs)", completed: false },
+          { description: "Algebra & Geometry Basics", completed: false },
+        ] 
+      },
+      { 
+        name: "Reasoning Ability", 
+        icon: BrainCircuit,
+        tasks: [
+          { description: "Input-Output & Data Sufficiency", completed: false },
+          { description: "Logical & Critical Reasoning", completed: false },
+        ] 
+      },
+      { 
+        name: "English Language",
+        icon: MessageSquare, 
+        tasks: [
+          { description: "Reading Comprehension & Para Jumbles", completed: false },
+        ] 
+      },
+    ]
+  },
+  {
+    week: 4,
+    title: "Revision & Mock Tests",
+    status: "Not Started",
+    subjects: [
+      { 
+        name: "Revision",
+        icon: BookOpen,
+        tasks: [
+          { description: "Full Syllabus Revision", completed: false },
+          { description: "Review Weak Areas from Radar", completed: false },
+        ] 
+      },
+      { 
+        name: "Mock Tests",
+        icon: Flag,
+        tasks: [
+          { description: "Attempt 5 Full-Length Mocks", completed: false },
+          { description: "Analyze Mock Performance", completed: false },
+        ] 
+      },
+    ]
+  },
+];
+
 
 export function RoadmapPage() {
-  const [formData, setFormData] = useState<GeneratePersonalizedStudyPlanInput>({
-    targetExam: "Railway NTPC",
-    weakSubjects: ["Reasoning", "English"],
-    availableHours: 4,
-    previousPerformance: "Scored 65/100 in last mock test. Weak in algebra and geometry."
-  });
-  const [studyPlan, setStudyPlan] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    if (id === "weakSubjects") {
-      setFormData((prev) => ({ ...prev, [id]: value.split(",").map(s => s.trim()) }));
-    } else if (id === "availableHours") {
-      setFormData((prev) => ({ ...prev, [id]: Number(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [id]: value }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setStudyPlan(null);
-    try {
-      const result = await generatePersonalizedStudyPlan(formData);
-      setStudyPlan(result.studyPlan);
-    } catch (error) {
-      console.error("Error generating study plan:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to generate study plan. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold font-headline tracking-tight">
-        Study Roadmap
-      </h1>
+      <div>
+        <h1 className="text-3xl font-bold font-headline tracking-tight">
+          Your Study Roadmap
+        </h1>
+        <p className="text-muted-foreground">
+          A 4-week structured plan to conquer the Railway NTPC exam.
+        </p>
+      </div>
       
-      <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-1 h-fit">
-          <CardHeader>
-            <CardTitle>Generate Your Plan</CardTitle>
-            <CardDescription>Fill in your details to get a personalized study roadmap from our AI.</CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="targetExam">Target Exam</Label>
-                <Input id="targetExam" value={formData.targetExam} onChange={handleInputChange} placeholder="e.g., Railway NTPC, SBI PO" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weakSubjects">Weak Subjects (comma-separated)</Label>
-                <Input id="weakSubjects" value={formData.weakSubjects.join(", ")} onChange={handleInputChange} placeholder="e.g., Reasoning, English" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="availableHours">Available Hours per Day</Label>
-                <Input id="availableHours" type="number" value={formData.availableHours} onChange={handleInputChange} placeholder="e.g., 4" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="previousPerformance">Previous Performance (Optional)</Label>
-                <Textarea id="previousPerformance" value={formData.previousPerformance} onChange={handleInputChange} placeholder="e.g., Scored 65/100, weak in algebra..." />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "Generating..." : "Generate Roadmap"}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
+      <div className="relative pl-6">
+        {/* Timeline */}
+        <div className="absolute left-[34px] top-0 h-full w-0.5 bg-border -translate-x-1/2" />
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Your Personalized Roadmap</CardTitle>
-            <CardDescription>Follow this plan to ace your exam. The plan will appear here once generated.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading && (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            )}
-            {studyPlan ? (
-              <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: studyPlan.replace(/\n/g, '<br />') }} />
-            ) : (
-              !isLoading && <p className="text-muted-foreground text-center py-16">Your AI-generated study plan will be displayed here.</p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-12">
+            {studyPlan.map((weekData) => (
+                <div key={weekData.week} className="relative">
+                    <div className="absolute left-[34px] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-primary ring-4 ring-background" />
+                    <Card className="ml-12">
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Week {weekData.week}: {weekData.title}</CardTitle>
+                                <CardDescription>Focus areas for this week.</CardDescription>
+                            </div>
+                            <Badge variant={weekData.status === "Completed" ? "default" : (weekData.status === "In Progress" ? "secondary" : "outline")}>{weekData.status}</Badge>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {weekData.subjects.map(subject => (
+                                <div key={subject.name}>
+                                    <h4 className="font-semibold text-lg flex items-center gap-2 mb-3">
+                                        <subject.icon className="h-5 w-5 text-primary" />
+                                        {subject.name}
+                                    </h4>
+                                    <div className="space-y-3">
+                                        {subject.tasks.map(task => (
+                                            <div key={task.description} className="flex items-center gap-3 text-sm">
+                                                {task.completed ? <CheckCircle className="h-5 w-5 text-green-500" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
+                                                <span className={task.completed ? 'text-muted-foreground line-through' : 'text-foreground'}>{task.description}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Separator className="mt-6" />
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
+            ))}
+        </div>
       </div>
     </div>
   );
 }
+
