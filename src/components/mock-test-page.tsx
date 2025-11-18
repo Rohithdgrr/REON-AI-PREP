@@ -98,21 +98,24 @@ export function MockTestPage() {
   const [customDifficulty, setCustomDifficulty] = useState<"Hard">("Hard");
   const [customSpecialization, setCustomSpecialization] = useState("Based on previous year papers");
   
-  const handleGenerateAndStart = async (topic: string, numQuestions: number) => {
+  const handleGenerateAndStart = async (topic: string, numQuestions: number, isQuickMock: boolean = false) => {
     setIsGenerating(true);
     try {
-        const allSubTopics = [...customSubTopics];
-        if (customOtherSubTopic.trim() && !topic) { // Only add custom other topic if not a quickstart
+        let allSubTopics = [...customSubTopics];
+        if (customOtherSubTopic.trim() && !isQuickMock) {
             allSubTopics.push(customOtherSubTopic.trim());
         }
 
-        // For mock tests, we can use the generateQuiz flow with high difficulty and specific instructions
+        const specialization = isQuickMock
+            ? `A full mock test for the ${topic.replace('Full Syllabus Mock: ', '')} section based on previous year papers.`
+            : customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.";
+
         const result = await generateQuiz({ 
             topic: topic || customTopic, 
-            subTopics: allSubTopics,
+            subTopics: isQuickMock ? [] : allSubTopics,
             numQuestions: numQuestions || customNumQuestions,
             difficultyLevel: customDifficulty,
-            specialization: customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.",
+            specialization: specialization,
         });
         
         toast({
@@ -199,7 +202,7 @@ export function MockTestPage() {
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {aiQuickMocks.map(quiz => (
-                 <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, 100)} disabled={isGenerating}>
+                 <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, 100, true)} disabled={isGenerating}>
                     <div className="flex flex-col items-center text-center">
                         <p className="font-semibold">{quiz.topic}</p>
                     </div>
