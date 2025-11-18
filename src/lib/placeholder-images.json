@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "User avatar for dashboard",
+      "imageUrl": "https://images.unsplash.com/photo-1657331017197-061601b1de71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9maWxlJTIwcGVyc29ufGVufDB8fHx8MTc2MzQwMTg2M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "profile person"
+    },
+    {
+      "id": "hero-background",
+      "description": "Abstract background for the auth page hero",
+      "imageUrl": "https://images.unsplash.com/photo-1620812097331-ff636155488f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhYnN0cmFjdCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzYzMzY5OTY4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract background"
+    }
+  ]
 }
