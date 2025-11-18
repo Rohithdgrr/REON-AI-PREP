@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -27,6 +28,10 @@ import {
 } from '@/components/ui/tooltip';
 import { Calendar } from '../ui/calendar';
 import { SimpleCalculator } from '../simple-calculator';
+import { SimpleTimer } from '../simple-timer';
+import { SimpleStopwatch } from '../simple-stopwatch';
+import { NotificationsPanel } from '../notifications-panel';
+import { InAppBrowser } from '../in-app-browser';
 
 function TooltipButton({
   icon: Icon,
@@ -105,11 +110,64 @@ export function RightSidebar() {
           </SheetContent>
         </Sheet>
 
-        {/* Other Tools (remain non-functional for now) */}
-        <TooltipButton icon={Timer} label="Timer" />
-        <TooltipButton icon={Clock} label="Stopwatch" />
-        <TooltipButton icon={Bell} label="Notifications" />
-        <TooltipButton icon={Globe} label="In-App Browser" />
+        {/* Timer Tool */}
+         <Sheet>
+          <SheetTrigger asChild>
+            <div>
+              <TooltipButton icon={Timer} label="Timer" />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Timer</SheetTitle>
+              <SheetDescription>Set a countdown for your study sessions.</SheetDescription>
+            </SheetHeader>
+            <SimpleTimer />
+          </SheetContent>
+        </Sheet>
+
+        {/* Stopwatch Tool */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <div>
+              <TooltipButton icon={Clock} label="Stopwatch" />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Stopwatch</SheetTitle>
+              <SheetDescription>Track your time for practice questions.</SheetDescription>
+            </SheetHeader>
+            <SimpleStopwatch />
+          </SheetContent>
+        </Sheet>
+
+        {/* Notifications Tool */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <div>
+              <TooltipButton icon={Bell} label="Notifications" />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Notifications</SheetTitle>
+            </SheetHeader>
+            <NotificationsPanel />
+          </SheetContent>
+        </Sheet>
+
+        {/* In-App Browser Tool */}
+         <Sheet>
+          <SheetTrigger asChild>
+            <div>
+              <TooltipButton icon={Globe} label="In-App Browser" />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="right" className="p-0">
+            <InAppBrowser />
+          </SheetContent>
+        </Sheet>
       </div>
       <div className="mt-auto">
         <Sheet>
