@@ -57,6 +57,14 @@ const pastResults = [
 ];
 
 
+const aiQuickMocks = [
+    { topic: "Full Syllabus Mock: Reasoning Section" },
+    { topic: "Full Syllabus Mock: Quantitative Aptitude Section" },
+    { topic: "Full Syllabus Mock: English Language Section" },
+    { topic: "Full Syllabus Mock: General Awareness Section" },
+];
+
+
 const subTopicsOptions = [
     { id: "basics", label: "Basics & Fundamentals" },
     { id: "formulas", label: "Formulas & Core Concepts" },
@@ -81,19 +89,19 @@ export function MockTestPage() {
   const [customDifficulty, setCustomDifficulty] = useState<"Hard">("Hard");
   const [customSpecialization, setCustomSpecialization] = useState("Based on previous year papers");
   
-  const handleGenerateAndStart = async () => {
+  const handleGenerateAndStart = async (topic: string, numQuestions: number) => {
     setIsGenerating(true);
     try {
         const allSubTopics = [...customSubTopics];
-        if (customOtherSubTopic.trim()) {
+        if (customOtherSubTopic.trim() && !topic) { // Only add custom other topic if not a quickstart
             allSubTopics.push(customOtherSubTopic.trim());
         }
 
         // For mock tests, we can use the generateQuiz flow with high difficulty and specific instructions
         const result = await generateQuiz({ 
-            topic: customTopic, 
+            topic: topic || customTopic, 
             subTopics: allSubTopics,
-            numQuestions: customNumQuestions,
+            numQuestions: numQuestions || customNumQuestions,
             difficultyLevel: customDifficulty,
             specialization: customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.",
         });
@@ -129,6 +137,49 @@ export function MockTestPage() {
           Simulate the real exam environment. High-difficulty tests with AI proctoring.
         </p>
       </div>
+      
+       <Card>
+        <CardHeader>
+          <CardTitle>Upcoming Scheduled Mock Tests</CardTitle>
+          <CardDescription>Official tests go live at the scheduled time. Be ready!</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {upcomingTests.map((test) => (
+            <Card key={test.id} className="p-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div>
+                <h3 className="text-lg font-semibold">{test.title}</h3>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
+                  <div className="flex items-center gap-1.5"><FileClock className="h-4 w-4" /> {test.duration}</div>
+                  <div className="flex items-center gap-1.5"><Info className="h-4 w-4" /> {test.questions} Questions</div>
+                </div>
+                 <div className="mt-2">
+                    {test.status === "Live" && <Badge variant="destructive" className="animate-pulse">● Live Now</Badge>}
+                    {test.status === "Upcoming" && <Badge variant="secondary">{test.date} at {test.time}</Badge>}
+                </div>
+              </div>
+              <Button size="lg" className="w-full sm:w-auto" disabled={test.status !== "Live"}>
+                Join Test
+              </Button>
+            </Card>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Bot /> AI Quick Mock Test</CardTitle>
+            <CardDescription>Let our AI generate a random high-difficulty mock test for a specific exam section.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {aiQuickMocks.map(quiz => (
+                 <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, 100)} disabled={isGenerating}>
+                    <div className="flex flex-col items-center text-center">
+                        <p className="font-semibold">{quiz.topic}</p>
+                    </div>
+                </Button>
+            ))}
+        </CardContent>
+      </Card>
 
        <Card>
         <CardHeader>
@@ -161,7 +212,7 @@ export function MockTestPage() {
                 </div>
                   <div className="space-y-2">
                     <Label>Specialization</Label>
-                    <Input value={customSpecialization} onChange={(e) => setCustomSpecialization(e.target.value)} placeholder="e.g. Based on previous year papers" />
+                     <Input value={customSpecialization} onChange={(e) => setCustomSpecialization(e.target.value)} placeholder="e.g. Based on previous year papers" />
                 </div>
             </div>
              <div className="space-y-4">
@@ -173,7 +224,7 @@ export function MockTestPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="50">50</SelectItem>
-                            <SelectItem value="100">100</SelectItem>
+                            <SelectItem value="100">100 (Standard)</SelectItem>
                             <SelectItem value="120">120</SelectItem>
                             <SelectItem value="150">150</SelectItem>
                         </SelectContent>
@@ -193,7 +244,7 @@ export function MockTestPage() {
             </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-            <Button onClick={handleGenerateAndStart} disabled={isGenerating}>
+            <Button onClick={() => handleGenerateAndStart(customTopic, customNumQuestions)} disabled={isGenerating}>
                     {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Mock Test"}
             </Button>
             <Alert className="p-2 max-w-sm">
@@ -206,33 +257,6 @@ export function MockTestPage() {
         </CardFooter>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming Scheduled Mock Tests</CardTitle>
-          <CardDescription>Official tests go live at the scheduled time. Be ready!</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {upcomingTests.map((test) => (
-            <Card key={test.id} className="p-6 flex flex-col sm:flex-row justify-between items-start gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">{test.title}</h3>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
-                  <div className="flex items-center gap-1.5"><FileClock className="h-4 w-4" /> {test.duration}</div>
-                  <div className="flex items-center gap-1.5"><Info className="h-4 w-4" /> {test.questions} Questions</div>
-                </div>
-                 <div className="mt-2">
-                    {test.status === "Live" && <Badge variant="destructive" className="animate-pulse">● Live Now</Badge>}
-                    {test.status === "Upcoming" && <Badge variant="secondary">{test.date} at {test.time}</Badge>}
-                </div>
-              </div>
-              <Button size="lg" className="w-full sm:w-auto" disabled={test.status !== "Live"}>
-                Join Test
-              </Button>
-            </Card>
-          ))}
-        </CardContent>
-      </Card>
-      
        <Card>
         <CardHeader>
           <CardTitle>Past Mock Test Results</CardTitle>
