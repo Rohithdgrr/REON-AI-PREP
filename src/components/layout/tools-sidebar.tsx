@@ -58,9 +58,9 @@ function LibraAI() {
 
     return (
         <div className="flex flex-col h-full">
-            <SheetHeader>
-                <SheetTitle>✨ Ask LIBRA</SheetTitle>
-            </SheetHeader>
+            <div className="flex flex-col space-y-2 text-center sm:text-left">
+                <h3 className="text-lg font-semibold text-foreground">✨ Ask LIBRA</h3>
+            </div>
             <div className="flex flex-col flex-1 py-4">
               <div className="flex-1 bg-muted rounded-lg p-4 text-sm overflow-y-auto">
                 {isLibraLoading ? <div className="flex items-center gap-2"><Loader2 className="animate-spin h-4 w-4" /> Answering...</div> : (libraAnswer || "Ask a question to get started.")}
@@ -84,9 +84,9 @@ function LibraAI() {
 const toolComponents: Record<string, React.ComponentType | undefined> = {
   notes: () => (
     <>
-      <SheetHeader>
-        <SheetTitle>My Notes</SheetTitle>
-      </SheetHeader>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">My Notes</h3>
+      </div>
       <div className="py-4 h-full">
         <Textarea
           className="h-full resize-none"
@@ -97,10 +97,10 @@ const toolComponents: Record<string, React.ComponentType | undefined> = {
   ),
   todo: () => (
     <>
-      <SheetHeader>
-        <SheetTitle>To-Do List</SheetTitle>
-        <SheetDescription>Track your study tasks for the day.</SheetDescription>
-      </SheetHeader>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">To-Do List</h3>
+        <p className="text-sm text-muted-foreground">Track your study tasks for the day.</p>
+      </div>
       <TodoList />
     </>
   ),
@@ -111,35 +111,35 @@ const toolComponents: Record<string, React.ComponentType | undefined> = {
   ),
   calculator: () => (
     <>
-      <SheetHeader>
-        <SheetTitle>Calculator</SheetTitle>
-      </SheetHeader>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">Calculator</h3>
+      </div>
       <SimpleCalculator />
     </>
   ),
   timer: () => (
     <>
-      <SheetHeader>
-        <SheetTitle>Timers</SheetTitle>
-        <SheetDescription>Set multiple countdowns for your study sessions.</SheetDescription>
-      </SheetHeader>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">Timers</h3>
+        <p className="text-sm text-muted-foreground">Set multiple countdowns for your study sessions.</p>
+      </div>
       <MultiTimer />
     </>
   ),
   stopwatch: () => (
     <>
-      <SheetHeader>
-        <SheetTitle>Stopwatch</SheetTitle>
-        <SheetDescription>Track your time for practice questions.</SheetDescription>
-      </SheetHeader>
+       <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">Stopwatch</h3>
+        <p className="text-sm text-muted-foreground">Track your time for practice questions.</p>
+      </div>
       <SimpleStopwatch />
     </>
   ),
   notifications: () => (
      <>
-      <SheetHeader>
-        <SheetTitle>Notifications</SheetTitle>
-      </SheetHeader>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">Notifications</h3>
+      </div>
       <NotificationsPanel />
     </>
   ),
