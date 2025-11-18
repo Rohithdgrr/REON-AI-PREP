@@ -45,7 +45,6 @@ const navItems = [
   { href: "/dashboard/courses", icon: PlayCircle, label: "Courses" },
   { href: "/dashboard/podcasts", icon: Mic, label: "Podcasts" },
   { href: "/dashboard/r-chat", icon: MessageCircle, label: "R-Chat" },
-  { href: "/dashboard/webcam", icon: Camera, label: "Webcam" },
 ];
 
 const secondaryNavItems = [
