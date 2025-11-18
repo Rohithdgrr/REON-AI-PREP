@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Bot, Award, PlayCircle } from "lucide-react";
+import { BookOpen, Bot, Award, PlayCircle, FileQuestion, Info } from "lucide-react";
 import { Progress } from "./ui/progress";
 
 const courses = [
@@ -22,7 +22,6 @@ const courses = [
     progress: 75,
     tags: ["Quant", "AI-Powered", "Bank", "Railway"],
     icon: BookOpen,
-    certificate: true,
   },
   {
     id: 2,
@@ -31,7 +30,6 @@ const courses = [
     progress: 40,
     tags: ["Reasoning", "AI-Tests", "Bank PO"],
     icon: Bot,
-    certificate: true,
   },
   {
     id: 3,
@@ -40,7 +38,6 @@ const courses = [
     progress: 0,
     tags: ["English", "Vocabulary", "Grammar"],
     icon: BookOpen,
-    certificate: false,
   },
   {
     id: 4,
@@ -49,7 +46,6 @@ const courses = [
     progress: 90,
     tags: ["GA", "Banking", "Current Affairs"],
     icon: Bot,
-    certificate: true,
   },
 ];
 
@@ -74,11 +70,19 @@ export function CoursesPage() {
                   <course.icon className="h-6 w-6 text-primary" />
                   <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
                 </div>
-                {course.certificate && <Badge variant="secondary" className="flex items-center gap-1"><Award className="h-3 w-3" /> Certificate</Badge>}
               </div>
               <CardDescription className="pt-2">{course.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
+                {course.progress > 0 && (
+                    <div className="w-full mb-4">
+                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                            <span>Progress</span>
+                            <span>{course.progress}%</span>
+                        </div>
+                        <Progress value={course.progress} />
+                    </div>
+                )}
               <div className="flex flex-wrap gap-2">
                 {course.tags.map((tag) => (
                   <Badge key={tag} variant="outline">
@@ -88,19 +92,20 @@ export function CoursesPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col items-start gap-3">
-                {course.progress > 0 && (
-                    <div className="w-full">
-                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                            <span>Progress</span>
-                            <span>{course.progress}%</span>
-                        </div>
-                        <Progress value={course.progress} />
-                    </div>
-                )}
-              <Button className="w-full">
-                <PlayCircle className="mr-2 h-4 w-4" />
-                {course.progress > 0 ? "Continue Course" : "Enroll Now"}
-              </Button>
+                <Button className="w-full">
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    {course.progress > 0 ? "Continue Course" : "Enroll Now"}
+                </Button>
+                <div className="grid grid-cols-2 gap-2 w-full">
+                    <Button variant="outline" className="w-full">
+                        <Info className="mr-2 h-4 w-4" />
+                        View Details
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                        <FileQuestion className="mr-2 h-4 w-4" />
+                        Start Quiz
+                    </Button>
+                </div>
             </CardFooter>
           </Card>
         ))}
