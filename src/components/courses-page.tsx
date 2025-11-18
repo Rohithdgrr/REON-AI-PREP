@@ -1,7 +1,7 @@
 
-
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Bot, Award, PlayCircle, FileQuestion, Info, Upload, MessageSquare, Send, Search, Users, Swords, Timer } from "lucide-react";
+import { BookOpen, Bot, PlayCircle, FileQuestion, Info, Upload, Send, Search, Users, Swords, Timer } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const courses = [
   {
@@ -54,7 +56,7 @@ const courses = [
   },
 ];
 
-const communityPosts = [
+const initialCommunityPosts = [
     {
         id: 1,
         user: "Neha Sharma",
@@ -70,7 +72,14 @@ const communityPosts = [
         post: "Uploaded my handwritten notes for the Quantitative Aptitude percentage chapter. Hope it helps someone! #Quant #Notes",
         hasAttachment: true,
     }
-]
+];
+
+const allFriends = [
+    { id: 1, name: 'Anil Kumar', riId: 'RAX202514790' },
+    { id: 2, name: 'Priya Sharma', riId: 'RAX202514791' },
+    { id: 3, name: 'Ravi Teja', riId: 'RAX202514792' },
+    { id: 4, name: 'Sunita Devi', riId: 'RAX202514793' },
+];
 
 const competitions = [
     {
@@ -94,6 +103,40 @@ const competitions = [
 ]
 
 export function CoursesPage() {
+  const [communityPosts, setCommunityPosts] = useState(initialCommunityPosts);
+  const [newPost, setNewPost] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handlePostSubmit = () => {
+    if (newPost.trim() === "") return;
+    const post = {
+      id: Date.now(),
+      user: "Srinivas Reddy",
+      avatar: "/avatars/03.png", // Assuming current user avatar
+      time: "Just now",
+      post: newPost,
+    };
+    setCommunityPosts([post, ...communityPosts]);
+    setNewPost("");
+    toast({ title: "Post shared successfully!" });
+  };
+
+  const handleUploadClick = () => {
+    toast({ title: "Upload Notes", description: "This feature is coming soon!"});
+  };
+
+  const handleStartChallenge = (title: string) => {
+    toast({ title: `Starting: ${title}`, description: "Redirecting to the quiz arena..."});
+    router.push('/dashboard/quiz');
+  };
+
+  const filteredFriends = allFriends.filter(friend => 
+    friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    friend.riId.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -183,10 +226,15 @@ export function CoursesPage() {
                                     </CardHeader>
                                     <CardContent className="p-4 pt-0">
                                         <div className="relative">
-                                            <Textarea placeholder="What's on your mind? Share an update or ask a question..." className="pr-20" />
+                                            <Textarea 
+                                                placeholder="What's on your mind? Share an update or ask a question..." 
+                                                className="pr-20"
+                                                value={newPost}
+                                                onChange={(e) => setNewPost(e.target.value)}
+                                            />
                                             <div className="absolute right-2 top-2 flex flex-col gap-2">
-                                                <Button size="icon" className="h-8 w-8"><Send className="h-4 w-4" /></Button>
-                                                <Button size="icon" variant="outline" className="h-8 w-8"><Upload className="h-4 w-4" /></Button>
+                                                <Button size="icon" className="h-8 w-8" onClick={handlePostSubmit}><Send className="h-4 w-4" /></Button>
+                                                <Button size="icon" variant="outline" className="h-8 w-8" onClick={handleUploadClick}><Upload className="h-4 w-4" /></Button>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -223,7 +271,23 @@ export function CoursesPage() {
                                     <CardContent>
                                         <div className="relative">
                                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                            <Input placeholder="Search by name or RI ID" className="pl-8" />
+                                            <Input 
+                                                placeholder="Search by name or RI ID" 
+                                                className="pl-8"
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="mt-4 space-y-2">
+                                            {filteredFriends.map(friend => (
+                                                <div key={friend.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                                    <div>
+                                                        <p className="font-semibold text-sm">{friend.name}</p>
+                                                        <p className="text-xs text-muted-foreground">{friend.riId}</p>
+                                                    </div>
+                                                    <Button size="sm" variant="outline">Connect</Button>
+                                                </div>
+                                            ))}
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -245,7 +309,7 @@ export function CoursesPage() {
                                     <Badge variant="destructive" className="flex-shrink-0"><Timer className="mr-1.5 h-4 w-4" />{comp.timeLimit}</Badge>
                                  </CardHeader>
                                  <CardFooter>
-                                     <Button>Start Challenge</Button>
+                                     <Button onClick={() => handleStartChallenge(comp.title)}>Start Challenge</Button>
                                  </CardFooter>
                              </Card>
                          ))}
@@ -257,3 +321,5 @@ export function CoursesPage() {
     </div>
   );
 }
+
+    
