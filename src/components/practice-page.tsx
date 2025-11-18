@@ -22,75 +22,114 @@ import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
 
-const samplePracticeTest = {
-  id: "practice1",
-  title: "Reasoning Ability: Advanced Puzzles",
-  questions: [
+const manualQuizzes = [
     {
-      id: "p1",
-      text: "Seven people P, Q, R, S, T, U, and V live on seven different floors of a building. The lowermost floor is numbered 1. Who lives on the 3rd floor if P lives on an even-numbered floor but not on the top floor, and there are two floors between P and T?",
-      options: ["Q", "R", "S", "U"],
-      correctAnswer: "R",
-      explanation: "From the given conditions, we can deduce the arrangement. P can be on floor 2, 4, or 6. If P is on 6, T is on 3. If P is on 4, T is on 1 or 7. If P is on 2, T is on 5. Further analysis of other (unmentioned) clues would solidify R on floor 3.",
-      fastSolveTricks: "Use a table to quickly map floors and people. Eliminate possibilities for P first (not 1,3,5,7 or top floor).",
-      analogies: "Think of it like a logic puzzle game (like Sudoku) where each clue eliminates possibilities until only one answer remains."
+      id: "quiz1",
+      title: "Quantitative Aptitude: Time & Work",
     },
     {
-      id: "p2",
-      text: "In a certain code, 'FRESH' is written as 'EQDRG'. How is 'BLAME' written in that code?",
-      options: ["AKZLD", "BKZLD", "ALZKD", "AKZLF"],
-      correctAnswer: "AKZLD",
-      explanation: "Each letter in the word is moved one step backward to obtain the corresponding letter of the code. B-1=A, L-1=K, A-1=Z, M-1=L, E-1=D.",
-      fastSolveTricks: "Identify the pattern with the first letter (F -> E is -1) and apply it to the target word immediately. No need to decode the full sample word if the pattern is simple.",
-      analogies: "It's like shifting each key on a piano one step to the left."
+        id: "quiz2",
+        title: "Reasoning: Blood Relations",
     },
     {
-      id: "p3",
-      text: "Pointing to a photograph, a man said, 'I have no brother or sister, but that man's father is my father's son.' Whose photograph was it?",
-      options: ["His own", "His son's", "His father's", "His nephew's"],
-      correctAnswer: "His son's",
-      explanation: "The man has no siblings, so 'my father's son' is the man himself. The statement becomes 'that man's father is me'. Therefore, the photograph is of his son.",
-      fastSolveTricks: "Break down the statement backwards. 'My father's son' when you have no brother is 'me'. So 'that man's father is me'.",
-      analogies: "It's a riddle that folds back on itself. The key is realizing the speaker is talking about himself in a roundabout way."
+        id: "quiz3",
+        title: "General Knowledge: Indian History",
     },
     {
-      id: "p4",
-      text: "If A + B means A is the mother of B, A - B means A is the brother of B, A % B means A is the father of B and A x B means A is the sister of B, which of the following shows that P is the maternal uncle of Q?",
-      options: ["Q - N + M x P", "P + S x N - Q", "P - M + N x Q", "Q - S % P"],
-      correctAnswer: "P - M + N x Q",
-      explanation: "P - M → P is the brother of M. M + N → M is the mother of N. N x Q → N is the sister of Q. Since N and Q are siblings and M is their mother, P (M's brother) is their maternal uncle.",
-      fastSolveTricks: "Target the core relationship: 'maternal uncle' means 'mother's brother'. Look for `[P] - [Someone] + ...Q`. Option 3 fits this pattern. P is brother of M, M is mother of N, N is sister of Q.",
-      analogies: "This is like translating a sentence from a symbolic language. You need to know the vocabulary (+, -, x, %) to understand the family tree."
+        id: 'quiz4',
+        title: 'English: Synonyms & Antonyms',
     },
     {
-        id: "p5",
-        text: "Find the missing number in the series: 4, 18, ?, 100, 180, 294.",
-        options: ["32", "36", "48", "40"],
-        correctAnswer: "48",
-        explanation: "The pattern is 2³ - 2², 3³ - 3², 4³ - 4², 5³ - 5², etc. So the missing term is 4³ - 4² = 64 - 16 = 48.",
-        fastSolveTricks: "Look for differences between numbers. If that's not simple, check for squares or cubes. Notice 100 is close to 125 (5³) and 180 is close to 216 (6³). This hints at a cube-based pattern.",
-        analogies: "Number series are like musical scales with a specific interval rule. You just need to find the rule."
+        id: 'quiz5',
+        title: 'Quant: Percentages',
     },
     {
-        id: "p6",
-        text: "A clock is started at noon. By 10 minutes past 5, the hour hand has turned through:",
-        options: ["145°", "155°", "160°", "150°"],
-        correctAnswer: "155°",
-        explanation: "Angle traced by hour hand in 12 hrs = 360°. So, in 1 hour it's 30°. Time from noon to 5:10 is 5 hrs 10 min = 5 and 1/6 hrs = 31/6 hrs. Angle traced = (30 * 31/6) = 5 * 31 = 155°.",
-        fastSolveTricks: "Hour hand moves 0.5° per minute. Total minutes are 5*60 + 10 = 310 minutes. Total angle = 310 * 0.5 = 155°.",
-        analogies: "The hour hand is a slow runner on a circular track. You're calculating how far it has run in a given time."
+        id: 'quiz6',
+        title: 'Reasoning: Analogies',
     },
-     {
-      id: "p7",
-      text: "Look at this series: 7, 10, 8, 11, 9, 12, ... What number should come next?",
-      options: ["7", "10", "12", "13"],
-      correctAnswer: "10",
-      explanation: "This is an alternating series. One series is (7, 8, 9, ...) and the second is (10, 11, 12, ...). The next number belongs to the first series.",
-      fastSolveTricks: "When numbers go up and then down, it's almost always two interleaved series. Read every other number: 7, 8, 9... and 10, 11, 12...",
-      analogies: "It's like two people taking turns walking up a staircase, one step at a time."
+    {
+        id: 'quiz7',
+        title: 'GK: Indian Geography',
     },
-  ],
-};
+    {
+        id: 'quiz8',
+        title: 'English: Idioms and Phrases',
+    },
+    {
+        id: 'quiz9',
+        title: 'Quant: Simple & Compound Interest',
+    },
+    {
+        id: 'quiz10',
+        title: 'Reasoning: Seating Arrangement',
+    },
+    {
+        id: 'quiz11',
+        title: 'GK: Indian Polity',
+    },
+    {
+        id: 'quiz12',
+        title: 'English: Prepositions',
+    },
+    {
+        id: 'quiz13',
+        title: 'Quant: Speed, Time & Distance',
+    },
+    {
+        id: 'quiz14',
+        title: 'Reasoning: Coding-Decoding',
+    },
+    {
+        id: 'quiz15',
+        title: 'GK: Famous Personalities',
+    },
+    {
+        id: 'quiz16',
+        title: 'English: Articles',
+    },
+    {
+        id: 'quiz17',
+        title: 'Quant: Averages',
+    },
+    {
+        id: 'quiz18',
+        title: 'Reasoning: Syllogism',
+    },
+].map(quiz => ({ 
+    ...quiz, 
+    questions: Array.from({ length: 30 }, (_, i) => ({ 
+        id: Math.random().toString(), 
+        question: `${quiz.title.split(': ')[1]} Question ${i + 1}`, 
+        options: ["Option A", "Option B", "Option C", "Option D"], 
+        correctAnswer: "Option A",
+        explanation: "This is a placeholder explanation for the correct answer, providing detailed reasoning.",
+        fastSolveTricks: "Use this quick trick to solve the problem faster next time.",
+        analogies: "Think of it like this analogy to better understand the concept."
+    })) 
+}));
+
+
+const aiQuickQuizzes = [
+    { topic: "General Knowledge Mix" },
+    { topic: "Indian Polity" },
+    { topic: "Modern Indian History" },
+    { topic: "Quantitative Aptitude: Profit & Loss" },
+    { topic: "Reasoning: Analogies" },
+    { topic: "General Science: Biology" },
+    { topic: "Banking Awareness" },
+    { topic: "Current Affairs (Last 3 months)" },
+    { topic: "Geography: Rivers of India" },
+    { topic: "English: Error Spotting" },
+    { topic: "Quant: Number Series" },
+    { topic: "Reasoning: Direction Sense" },
+    { topic: "GK: Books and Authors" },
+    { topic: "Computer Knowledge" },
+    { topic: "Physics: Units & Measurements" },
+    { topic: "Chemistry: Acids & Bases" },
+    { topic: "Sports GK" },
+    { topic: "Important Dates & Days" },
+].map(q => ({...q, numQuestions: 30}));
+
 
 type UserAnswers = { [key: string]: string };
 type QuestionTimes = { [key: string]: number };
@@ -126,7 +165,7 @@ export function PracticePage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [score, setScore] = useState<number | null>(null);
-  const [activeTest, setActiveTest] = useState<ActiveTest>(samplePracticeTest);
+  const [activeTest, setActiveTest] = useState<ActiveTest>(manualQuizzes[0]);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [customTopic, setCustomTopic] = useState("Reasoning: Advanced Puzzles");
@@ -175,20 +214,20 @@ export function PracticePage() {
     setQuestionTimes({});
   };
   
-  const handleGenerateAndStart = async () => {
+  const handleGenerateAndStart = async (topic: string, numQuestions: number, subTopics?: string[], difficulty?: "Medium" | "Hard", specialization?: string) => {
     setIsGenerating(true);
     try {
-        const allSubTopics = [...customSubTopics];
-        if (customOtherSubTopic.trim()) {
+        const allSubTopics = subTopics ? [...subTopics] : [...customSubTopics];
+        if (customOtherSubTopic.trim() && !subTopics) {
             allSubTopics.push(customOtherSubTopic.trim());
         }
 
         const result = await generateQuiz({ 
-            topic: customTopic, 
+            topic: topic || customTopic, 
             subTopics: allSubTopics,
-            numQuestions: customNumQuestions,
-            difficultyLevel: customDifficulty,
-            specialization: customSpecialization || undefined,
+            numQuestions: numQuestions || customNumQuestions,
+            difficultyLevel: difficulty || customDifficulty,
+            specialization: specialization || customSpecialization || undefined,
         });
         const testData: ActiveTest = {
             id: `ai-test-${Date.now()}`,
@@ -214,6 +253,7 @@ export function PracticePage() {
   };
 
   const navigateQuestion = (newIndex: number) => {
+    if (testState !== "in-progress") return;
     const currentQuestionId = activeTest.questions[currentQuestionIndex].id;
     recordQuestionTime(currentQuestionId);
     setCurrentQuestionIndex(newIndex);
@@ -245,75 +285,59 @@ export function PracticePage() {
 
   if (testState === "not-started") {
     return (
-      <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold font-headline tracking-tight">
-          Practice Arena
-        </h1>
-        <p className="text-muted-foreground">
-          Hone your skills with challenging practice tests. Customize your session or let AI create one for you.
-        </p>
-        <Card className="w-full">
+      <div className="flex flex-col gap-8">
+        <div>
+            <h1 className="text-3xl font-bold font-headline tracking-tight">
+            Practice Arena
+            </h1>
+            <p className="text-muted-foreground">Hone your skills with challenging practice tests. Choose from a topic, or let AI create one for you.</p>
+        </div>
+        
+        <Card>
             <CardHeader>
-                <CardTitle>Configure Your Practice Test</CardTitle>
-                <CardDescription>Set up a practice session tailored to your needs.</CardDescription>
+                <CardTitle>Topic-wise Practice Tests</CardTitle>
+                <CardDescription>Test your knowledge on specific topics with our manually curated practice tests.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {manualQuizzes.map(quiz => (
+                    <Button key={quiz.id} variant="outline" className="h-auto py-4" onClick={() => handleStartTest(quiz)}>
+                        <div className="flex flex-col items-center text-center">
+                            <p className="font-semibold">{quiz.title}</p>
+                            <p className="text-xs text-muted-foreground">{quiz.questions.length} questions</p>
+                        </div>
+                    </Button>
+                ))}
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Bot /> AI Quick Practice Tests</CardTitle>
+                <CardDescription>Let our AI generate a random practice test for you on a popular topic.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {aiQuickQuizzes.map(quiz => (
+                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, quiz.numQuestions, [], 'Medium')} disabled={isGenerating}>
+                        <div className="flex flex-col items-center text-center">
+                            <p className="font-semibold">{quiz.topic}</p>
+                            <p className="text-xs text-muted-foreground">{quiz.numQuestions} questions</p>
+                        </div>
+                    </Button>
+                ))}
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Bot /> Custom AI Practice Test</CardTitle>
+                <CardDescription>Create your own practice test by specifying a topic, difficulty, and more.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Manual Setup</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="topic">Topic</Label>
-                    <Select defaultValue={samplePracticeTest.id} onValueChange={() => {}}>
-                      <SelectTrigger id="topic">
-                        <SelectValue placeholder="Select topic" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={samplePracticeTest.id}>{samplePracticeTest.title}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor="num-questions">Number of Questions</Label>
-                    <Input id="num-questions" type="number" defaultValue={samplePracticeTest.questions.length} readOnly />
-                  </div>
-                  <Button onClick={() => handleStartTest(samplePracticeTest)} className="w-full">Start Manual Test</Button>
-                </div>
-                <div className="space-y-4 p-6 bg-muted rounded-lg">
-                   <h3 className="font-semibold text-lg flex items-center gap-2"><Bot /> AI-Powered Test</h3>
-                   <div className="space-y-2">
-                        <Label htmlFor="ai-topic">Topic</Label>
-                        <Input id="ai-topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Advanced Puzzles" />
-                    </div>
                     <div className="space-y-2">
-                        <Label htmlFor="ai-num-questions">Number of Questions</Label>
-                        <Select value={String(customNumQuestions)} onValueChange={(val) => setCustomNumQuestions(Number(val))}>
-                            <SelectTrigger id="ai-num-questions">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[...Array(6)].map((_, i) => (
-                                    <SelectItem key={i+1} value={String((i+1)*5)}>{(i+1)*5}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Label htmlFor="topic">Topic</Label>
+                        <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Indian History" />
                     </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="ai-difficulty">Difficulty Level</Label>
-                        <Select value={customDifficulty} onValueChange={(val: "Medium" | "Hard") => setCustomDifficulty(val)}>
-                            <SelectTrigger id="ai-difficulty">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Medium">Medium</SelectItem>
-                                <SelectItem value="Hard">Hard</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-              </div>
-              <div className="space-y-4 p-6 bg-muted/50 rounded-lg">
-                <h3 className="font-semibold text-lg">AI Customization Options</h3>
-                <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label>Sub-topics</Label>
                         <div className="grid grid-cols-2 gap-2">
@@ -331,7 +355,7 @@ export function PracticePage() {
                         </div>
                         <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
                     </div>
-                    <div className="space-y-2">
+                     <div className="space-y-2">
                         <Label>Specialization</Label>
                         <div className="flex flex-col gap-2">
                          {specializationOptions.map((option) => (
@@ -355,12 +379,39 @@ export function PracticePage() {
                         </div>
                     </div>
                 </div>
-                <Button onClick={handleGenerateAndStart} className="w-full" variant="secondary" disabled={isGenerating}>
-                    {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start AI Test"}
-                 </Button>
-              </div>
-
+                 <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="num-questions">Number of Questions</Label>
+                        <Select value={String(customNumQuestions)} onValueChange={(val) => setCustomNumQuestions(Number(val))}>
+                            <SelectTrigger id="num-questions">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[...Array(6)].map((_, i) => (
+                                    <SelectItem key={i+1} value={String((i+1)*5)}>{(i+1)*5}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="difficulty">Difficulty Level</Label>
+                        <Select value={customDifficulty} onValueChange={(val: "Medium" | "Hard") => setCustomDifficulty(val)}>
+                            <SelectTrigger id="difficulty">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Hard">Hard</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
             </CardContent>
+            <CardFooter>
+                <Button onClick={() => handleGenerateAndStart(customTopic, customNumQuestions)} disabled={isGenerating}>
+                        {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Custom Test"}
+                </Button>
+            </CardFooter>
         </Card>
       </div>
     );
@@ -375,7 +426,7 @@ export function PracticePage() {
             </h1>
             <Button onClick={() => setTestState("not-started")} variant="outline">
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                Back to Setup
+                Back to Practice Arena
             </Button>
         </div>
         <Card>
@@ -408,7 +459,7 @@ export function PracticePage() {
             ))}
           </CardContent>
           <CardFooter>
-            <Button onClick={() => setTestState("not-started")} className="w-full">Back to Practice Setup</Button>
+            <Button onClick={() => setTestState("not-started")} className="w-full">Back to Practice Arena</Button>
           </CardFooter>
         </Card>
       </div>
@@ -478,3 +529,5 @@ export function PracticePage() {
     </div>
   );
 }
+
+    
