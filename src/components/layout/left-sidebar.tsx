@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -46,13 +47,13 @@ const navItems = [
 ];
 
 const secondaryNavItems = [
-  { href: "/notifications", icon: Bell, label: "Notifications" },
-  { href: "/tools", icon: Wrench, label: "Tools" },
+  { href: "/dashboard/notifications", icon: Bell, label: "Notifications" },
+  { href: "/dashboard/tools", icon: Wrench, label: "Tools" },
 ];
 
 const bottomNavItems = [
-  { href: "/settings", icon: Settings, label: "Settings" },
-  { href: "/help", icon: HelpCircle, label: "Help" },
+  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard/help", icon: HelpCircle, label: "Help" },
 ];
 
 export function LeftSidebar() {
