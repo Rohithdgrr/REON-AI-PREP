@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -51,16 +52,14 @@ const sheetVariants = cva(
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {
-      modal?: boolean
-    }
+    VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, modal = true, ...props }, ref) => (
+>(({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
-    {modal && <SheetOverlay />}
+    <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
