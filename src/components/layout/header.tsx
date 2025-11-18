@@ -31,13 +31,6 @@ export function Header() {
         <Link href="/dashboard" className="text-xl font-bold font-headline text-primary">
           REON™
         </Link>
-        <div className="flex items-center gap-2 rounded-lg bg-muted p-1 text-sm">
-          <Button variant="ghost" size="sm" className="px-3">Railway</Button>
-          <div className="h-4 w-px bg-border" />
-          <Button variant="ghost" size="sm" className="px-3">Bank</Button>
-           <div className="h-4 w-px bg-border" />
-          <Button variant="ghost" size="sm" className="px-3">Both</Button>
-        </div>
       </div>
       <div className="relative ml-auto flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
