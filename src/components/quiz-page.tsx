@@ -157,19 +157,6 @@ type QuizData = {
     questions: QuizQuestion[];
 }
 
-const subTopicsOptions = [
-    { id: "basics", label: "Basics & Fundamentals" },
-    { id: "formulas", label: "Formulas & Core Concepts" },
-    { id: "advanced", label: "Advanced Problems" },
-    { id: "previous_years", label: "Previous Year Questions" },
-  ];
-
-const specializationOptions = [
-    { id: "time_management", label: "Time Management" },
-    { id: "conceptual_clarity", label: "Conceptual Clarity" },
-    { id: "previous_mistakes", label: "Based on Previous Mistakes" },
-  ];
-
 export function QuizPage() {
   const [quizState, setQuizState] = useState<"not-started" | "in-progress" | "finished">("not-started");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -179,8 +166,7 @@ export function QuizPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [customTopic, setCustomTopic] = useState("Indian History");
-  const [customSubTopic, setCustomSubTopic] = useState("");
-  const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
+  const [customSubTopics, setCustomSubTopics] = useState("");
   const [customNumQuestions, setCustomNumQuestions] = useState(5);
   const [customDifficulty, setCustomDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
   const [customSpecialization, setCustomSpecialization] = useState("");
@@ -198,17 +184,11 @@ export function QuizPage() {
   const handleGenerateAndStartQuiz = async () => {
     setIsGenerating(true);
     try {
-        const allSubTopics: string[] = [];
-        if (customSubTopic) {
-            allSubTopics.push(customSubTopic);
-        }
-        if (customOtherSubTopic.trim()) {
-            allSubTopics.push(customOtherSubTopic.trim());
-        }
+        const subTopicsArray = customSubTopics.split(',').map(s => s.trim()).filter(s => s);
 
         const result = await generateQuiz({ 
             topic: customTopic, 
-            subTopics: allSubTopics.length > 0 ? allSubTopics : undefined,
+            subTopics: subTopicsArray.length > 0 ? subTopicsArray : undefined,
             numQuestions: customNumQuestions,
             difficultyLevel: customDifficulty,
             specialization: customSpecialization || undefined,
@@ -335,21 +315,9 @@ export function QuizPage() {
                         <Label htmlFor="topic">Topic</Label>
                         <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Indian History" />
                     </div>
-                    <div className="space-y-2">
-                        <Label>Sub-topics</Label>
-                        <Select value={customSubTopic} onValueChange={setCustomSubTopic}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a focus area" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {subTopicsOptions.map((option) => (
-                                    <SelectItem key={option.id} value={option.label}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
+                     <div className="space-y-2">
+                        <Label htmlFor="sub-topics">Sub-topics (comma-separated)</Label>
+                        <Input id="sub-topics" value={customSubTopics} onChange={(e) => setCustomSubTopics(e.target.value)} placeholder="e.g. Ancient, Medieval" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="specialization">Specialization</Label>
@@ -494,5 +462,7 @@ export function QuizPage() {
     </div>
   );
 }
+
+    
 
     
