@@ -20,6 +20,7 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "./ui/checkbox";
 
 const manualQuizzes = [
     {
@@ -155,6 +156,19 @@ type QuizData = {
     questions: QuizQuestion[];
 }
 
+const subTopicsOptions = [
+    { id: "basics", label: "Basics & Fundamentals" },
+    { id: "formulas", label: "Formulas & Core Concepts" },
+    { id: "advanced", label: "Advanced Problems" },
+    { id: "previous_years", label: "Previous Year Questions" },
+  ];
+
+const specializationOptions = [
+    { id: "time_management", label: "Time Management" },
+    { id: "conceptual_clarity", label: "Conceptual Clarity" },
+    { id: "previous_mistakes", label: "Based on Previous Mistakes" },
+  ];
+
 export function QuizPage() {
   const [quizState, setQuizState] = useState<"not-started" | "in-progress" | "finished">("not-started");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -164,7 +178,8 @@ export function QuizPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [customTopic, setCustomTopic] = useState("Indian History");
-  const [customSubTopics, setCustomSubTopics] = useState("");
+  const [customSubTopics, setCustomSubTopics] = useState<string[]>([]);
+  const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
   const [customNumQuestions, setCustomNumQuestions] = useState(5);
   const [customDifficulty, setCustomDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
   const [customSpecialization, setCustomSpecialization] = useState("");
@@ -182,9 +197,14 @@ export function QuizPage() {
   const handleGenerateAndStartQuiz = async () => {
     setIsGenerating(true);
     try {
+        const allSubTopics = [...customSubTopics];
+        if (customOtherSubTopic.trim()) {
+            allSubTopics.push(customOtherSubTopic.trim());
+        }
+
         const result = await generateQuiz({ 
             topic: customTopic, 
-            subTopics: customSubTopics.split(',').map(s => s.trim()).filter(s => s),
+            subTopics: allSubTopics,
             numQuestions: customNumQuestions,
             difficultyLevel: customDifficulty,
             specialization: customSpecialization || undefined,
@@ -312,12 +332,44 @@ export function QuizPage() {
                         <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Indian History" />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="sub-topics">Sub-topics (comma-separated)</Label>
-                        <Input id="sub-topics" value={customSubTopics} onChange={(e) => setCustomSubTopics(e.target.value)} placeholder="e.g. Mughal Empire, Indus Valley" />
+                        <Label>Sub-topics</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                        {subTopicsOptions.map((option) => (
+                            <div key={option.id} className="flex items-center space-x-2">
+                                <Checkbox 
+                                    id={option.id} 
+                                    onCheckedChange={(checked) => {
+                                        setCustomSubTopics(prev => checked ? [...prev, option.label] : prev.filter(item => item !== option.label))
+                                    }}
+                                />
+                                <Label htmlFor={option.id} className="font-normal">{option.label}</Label>
+                            </div>
+                        ))}
+                        </div>
+                        <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="specialization">Specialization</Label>
-                        <Input id="specialization" value={customSpecialization} onChange={(e) => setCustomSpecialization(e.target.value)} placeholder="e.g. Time management, Previous mistakes" />
+                        <Label>Specialization</Label>
+                        <div className="flex flex-col gap-2">
+                         {specializationOptions.map((option) => (
+                            <div key={option.id} className="flex items-center space-x-2">
+                                <Checkbox 
+                                    id={option.id}
+                                    onCheckedChange={(checked) => {
+                                        setCustomSpecialization(prev => {
+                                            const current = prev.split(', ').filter(s => s);
+                                            if (checked) {
+                                                return [...current, option.label].join(', ');
+                                            } else {
+                                                return current.filter(item => item !== option.label).join(', ');
+                                            }
+                                        });
+                                    }}
+                                />
+                                <Label htmlFor={option.id} className="font-normal">{option.label}</Label>
+                            </div>
+                         ))}
+                        </div>
                     </div>
                 </div>
                  <div className="space-y-4">
@@ -458,5 +510,3 @@ export function QuizPage() {
     </div>
   );
 }
-
-    
