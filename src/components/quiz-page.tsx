@@ -117,24 +117,24 @@ const manualQuizzes = [
 
 
 const aiQuickQuizzes = [
-    { topic: "General Knowledge Mix", numQuestions: 5 },
-    { topic: "Indian Polity", numQuestions: 5 },
-    { topic: "Modern Indian History", numQuestions: 5 },
-    { topic: "Quantitative Aptitude: Profit & Loss", numQuestions: 5 },
-    { topic: "Reasoning: Analogies", numQuestions: 5 },
-    { topic: "General Science: Biology", numQuestions: 5 },
-    { topic: "Banking Awareness", numQuestions: 5 },
-    { topic: "Current Affairs (Last 3 months)", numQuestions: 5 },
-    { topic: "Geography: Rivers of India", numQuestions: 5 },
-    { topic: "English: Error Spotting", numQuestions: 5 },
-    { topic: "Quant: Number Series", numQuestions: 5 },
-    { topic: "Reasoning: Direction Sense", numQuestions: 5 },
-    { topic: "GK: Books and Authors", numQuestions: 5 },
-    { topic: "Computer Knowledge", numQuestions: 5 },
-    { topic: "Physics: Units & Measurements", numQuestions: 5 },
-    { topic: "Chemistry: Acids & Bases", numQuestions: 5 },
-    { topic: "Sports GK", numQuestions: 5 },
-    { topic: "Important Dates & Days", numQuestions: 5 },
+    { topic: "General Knowledge Mix", numQuestions: 30 },
+    { topic: "Indian Polity", numQuestions: 30 },
+    { topic: "Modern Indian History", numQuestions: 30 },
+    { topic: "Quantitative Aptitude: Profit & Loss", numQuestions: 30 },
+    { topic: "Reasoning: Analogies", numQuestions: 30 },
+    { topic: "General Science: Biology", numQuestions: 30 },
+    { topic: "Banking Awareness", numQuestions: 30 },
+    { topic: "Current Affairs (Last 3 months)", numQuestions: 30 },
+    { topic: "Geography: Rivers of India", numQuestions: 30 },
+    { topic: "English: Error Spotting", numQuestions: 30 },
+    { topic: "Quant: Number Series", numQuestions: 30 },
+    { topic: "Reasoning: Direction Sense", numQuestions: 30 },
+    { topic: "GK: Books and Authors", numQuestions: 30 },
+    { topic: "Computer Knowledge", numQuestions: 30 },
+    { topic: "Physics: Units & Measurements", numQuestions: 30 },
+    { topic: "Chemistry: Acids & Bases", numQuestions: 30 },
+    { topic: "Sports GK", numQuestions: 30 },
+    { topic: "Important Dates & Days", numQuestions: 30 },
 ];
 
 
@@ -510,3 +510,5 @@ export function QuizPage() {
     </div>
   );
 }
+
+    
