@@ -10,12 +10,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const QuizQuestionSchema = z.object({
-  question: z.string().describe('The question text.'),
-  options: z.array(z.string()).describe('A list of possible answers.'),
-  correctAnswer: z.string().describe('The correct answer from the options.'),
-});
-
 const GenerateQuizInputSchema = z.object({
   topic: z.string().describe('The topic for the quiz (e.g., "Indian History", "Time & Work").'),
   numQuestions: z.number().describe('The number of questions to generate.'),
@@ -24,7 +18,11 @@ export type GenerateQuizInput = z.infer<typeof GenerateQuizInputSchema>;
 
 const GenerateQuizOutputSchema = z.object({
   title: z.string().describe('A suitable title for the generated quiz based on the topic.'),
-  questions: z.array(QuizQuestionSchema).describe('An array of quiz questions.'),
+  questions: z.array(z.object({
+    question: z.string().describe('The question text.'),
+    options: z.array(z.string()).describe('A list of possible answers.'),
+    correctAnswer: z.string().describe('The correct answer from the options.'),
+  })).describe('An array of quiz questions.'),
 });
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
 
