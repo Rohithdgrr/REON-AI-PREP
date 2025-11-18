@@ -111,8 +111,8 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-        <Leaderboard />
         <StatsCards />
+        <Leaderboard />
       </div>
     </div>
   );
