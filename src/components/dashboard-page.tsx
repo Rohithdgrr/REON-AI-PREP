@@ -1,3 +1,5 @@
+
+"use client";
 import {
   Activity,
   ArrowUp,
@@ -17,6 +19,38 @@ import { ProgressCard } from "./dashboard/progress-card";
 import { TodaysPlan } from "./dashboard/todays-plan";
 import { WeaknessRadar } from "./dashboard/weakness-radar";
 import { StatsCards } from "./dashboard/stats-cards";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+const chartData = [
+  { day: "Mon", hours: 2.5 },
+  { day: "Tue", hours: 3 },
+  { day: "Wed", hours: 4.5 },
+  { day: "Thu", hours: 2 },
+  { day: "Fri", hours: 5 },
+  { day: "Sat", hours: 3.5 },
+  { day: "Sun", hours: 1.5 },
+];
+
+const chartConfig = {
+  hours: {
+    label: "Hours",
+    color: "hsl(var(--chart-1))",
+  },
+};
 
 export function DashboardPage() {
   return (
@@ -54,7 +88,26 @@ export function DashboardPage() {
               <CardDescription>Your study time distribution.</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-sm">Chart component to be added here.</p>
+              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <BarChart accessibilityLayer data={chartData}>
+                   <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="day"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    unit="h"
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="hours" fill="var(--color-hours)" radius={4} />
+                </BarChart>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
