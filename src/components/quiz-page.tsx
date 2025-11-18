@@ -352,27 +352,8 @@ export function QuizPage() {
                         <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
                     </div>
                      <div className="space-y-2">
-                        <Label>Specialization</Label>
-                        <div className="flex flex-col gap-2">
-                         {specializationOptions.map((option) => (
-                            <div key={option.id} className="flex items-center space-x-2">
-                                <Checkbox 
-                                    id={option.id}
-                                    onCheckedChange={(checked) => {
-                                        setCustomSpecialization(prev => {
-                                            const current = prev.split(', ').filter(s => s);
-                                            if (checked) {
-                                                return [...current, option.label].join(', ');
-                                            } else {
-                                                return current.filter(item => item !== option.label).join(', ');
-                                            }
-                                        });
-                                    }}
-                                />
-                                <Label htmlFor={option.id} className="font-normal">{option.label}</Label>
-                            </div>
-                         ))}
-                        </div>
+                        <Label htmlFor="specialization">Specialization</Label>
+                        <Input id="specialization" value={customSpecialization} onChange={(e) => setCustomSpecialization(e.target.value)} placeholder="e.g. time management, previous mistakes, etc." />
                     </div>
                 </div>
                  <div className="space-y-4">
