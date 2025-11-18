@@ -11,6 +11,66 @@
       "description": "Abstract background for the auth page hero",
       "imageUrl": "https://images.unsplash.com/photo-1620812097331-ff636155488f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhYnN0cmFjdCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzYzMzY5OTY4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract background"
+    },
+    {
+      "id": "suggestion-goal",
+      "description": "Image for 'Understand Your Goal Clearly' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1552432441-f765e34fc289?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0YXJnZXQlMjBnb2FsfGVufDB8fHx8MTc2MzM3NjI4OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "target goal"
+    },
+    {
+      "id": "suggestion-foundation",
+      "description": "Image for 'Build a Strong Foundation' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1539477192933-1a7dde04aa77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxidWlsZGluZyUyMGJsb2Nrc3xlbnwwfHx8fDE3NjM0NzQyNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "building blocks"
+    },
+    {
+      "id": "suggestion-schedule",
+      "description": "Image for 'Plan a Realistic Study Schedule' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1642360912445-61d71dd98400?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYWxlbmRhciUyMHNjaGVkdWxlfGVufDB8fHx8MTc2MzQ0MTEzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calendar schedule"
+    },
+    {
+      "id": "suggestion-concepts",
+      "description": "Image for 'Focus on Conceptual Clarity' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1531379410502-63bfe8cdaf6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsaWdodGJ1bGIlMjBpZGVhfGVufDB8fHx8MTc2MzM5MDY3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lightbulb idea"
+    },
+    {
+      "id": "suggestion-resources",
+      "description": "Image for 'Choose Quality Resources' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1614849963640-9cc74b2a826f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxib29rcyUyMGxpYnJhcnl8ZW58MHx8fHwxNzYzNDY4OTQ3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "books library"
+    },
+    {
+      "id": "suggestion-notifications",
+      "description": "Image for 'Keep Track of Notifications' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1595400461429-b75a667babdb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxub3RpZmljYXRpb24lMjBiZWxsfGVufDB8fHx8MTc2MzQ2Mjk3MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "notification bell"
+    },
+    {
+      "id": "suggestion-awareness",
+      "description": "Image for 'Strengthen Current Affairs & General Awareness' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1699913582050-d26d4ff04e3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxuZXdzcGFwZXIlMjBnbG9iZXxlbnwwfHx8fDE3NjM0NDA2OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "newspaper globe"
+    },
+    {
+      "id": "suggestion-practice",
+      "description": "Image for 'Practice Regularly' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1515787366009-7cbdd2dc587b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZW4lMjBwYXBlcnxlbnwwfHx8fDE3NjM0MTMwNTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pen paper"
+    },
+    {
+      "id": "suggestion-motivation",
+      "description": "Image for 'Stay Motivated and Consistent' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1601662096609-6e7ea402b85c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtb3VudGFpbiUyMHBhdGh8ZW58MHx8fHwxNzYzMzk5MTc0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain path"
+    },
+    {
+      "id": "suggestion-interview",
+      "description": "Image for 'Prepare for the Interview' suggestion",
+      "imageUrl": "https://images.unsplash.com/photo-1762179564268-8d61409d709e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpbnRlcnZpZXclMjBkaXNjdXNzaW9ufGVufDB8fHx8MTc2MzQ3NDI3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "interview discussion"
     }
   ]
 }

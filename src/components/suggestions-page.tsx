@@ -10,6 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Table,
   TableBody,
   TableCell,
@@ -23,72 +29,91 @@ import { Loader2, Wand2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { generatePrepSuggestions, type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-suggestions";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const generalSuggestions = [
   {
+    id: "goal",
     title: "Understand Your Goal Clearly",
     points: [
       "Identify which exam category suits you — Banking (SBI, IBPS, RBI) or Railways (RRB NTPC, Group D, ALP, etc.).",
       "Check the eligibility criteria, exam pattern, and job roles.",
       "Clarity helps you plan your preparation effectively.",
     ],
+    imageId: "suggestion-goal",
   },
   {
+    id: "foundation",
     title: "Build a Strong Foundation",
     points: [
       "Start with basic concepts of Maths, English, and Reasoning.",
       "Refer to NCERT books (6th–10th) to clear fundamentals.",
       "For beginners, focus on accuracy first, then on speed.",
     ],
+    imageId: "suggestion-foundation",
   },
   {
+    id: "schedule",
     title: "Plan a Realistic Study Schedule",
     points: [
       "Create a daily routine with fixed time slots for each subject.",
       "Keep short-term goals (weekly targets) and long-term goals (monthly coverage).",
       "Include regular breaks and revision time to avoid burnout.",
     ],
+    imageId: "suggestion-schedule",
   },
-  {
+   {
+    id: "concepts",
     title: "Focus on Conceptual Clarity",
     points: [
       "Understand the logic behind each question instead of memorizing answers.",
       "Practice topic-wise tests before moving to full-length mocks.",
       "Revisit topics until you can solve them confidently within time limits.",
     ],
+    imageId: "suggestion-concepts",
   },
   {
+    id: "resources",
     title: "Choose Quality Resources",
     points: [
       "Banking Exams: Oliveboard, Adda247, BankersAdda, PracticeMock.",
       "Railway Exams: Lucent GK, Testbook, Rakesh Yadav Quant, RS Aggarwal Reasoning.",
       "Watch YouTube classes or join online courses for expert guidance.",
     ],
+    imageId: "suggestion-resources",
   },
   {
+    id: "notifications",
     title: "Keep Track of Notifications",
     points: [
       "Regularly check official websites: rrbcdg.gov.in for Railway jobs, ibps.in, and sbi.co.in/careers for Banking jobs.",
       "Subscribe to job alert sites or Telegram channels for instant updates.",
     ],
+    imageId: "suggestion-notifications",
   },
-  {
+   {
+    id: "awareness",
     title: "Strengthen Current Affairs & General Awareness",
     points: [
       "Read The Hindu, Indian Express, or Dainik Jagran (National Edition) daily.",
       "Revise monthly current affairs PDFs and banking awareness capsules.",
       "Make short notes for static GK and important government schemes.",
     ],
+    imageId: "suggestion-awareness",
   },
   {
+    id: "practice",
     title: "Practice Regularly",
     points: [
       "Attempt sectional tests and mock exams weekly.",
       "Analyze your performance to find weak areas.",
       "Work on speed and accuracy — both matter equally in online tests.",
     ],
+    imageId: "suggestion-practice",
   },
   {
+    id: "motivation",
     title: "Stay Motivated and Consistent",
     points: [
       "Preparation is a marathon, not a sprint.",
@@ -96,14 +121,17 @@ const generalSuggestions = [
       "Read success stories of toppers to stay inspired.",
       "Remember: Small daily progress leads to big results.",
     ],
+    imageId: "suggestion-motivation",
   },
   {
+    id: "interview",
     title: "Prepare for the Interview (After Written Exam)",
     points: [
       "Work on communication skills and general awareness.",
       "Read about banking terms, railway structure, and government policies.",
       "Practice mock interviews to improve confidence.",
     ],
+    imageId: "suggestion-interview",
   },
 ];
 
@@ -179,11 +207,11 @@ export function SuggestionsPage() {
                     </Button>
                 </CardContent>
                 {isGenerating && (
-                    <CardFooter>
+                    <CardContent>
                         <div className="w-full flex justify-center items-center p-8">
                             <Loader2 className="h-8 w-8 text-primary animate-spin" />
                         </div>
-                    </CardFooter>
+                    </CardContent>
                 )}
                 {aiSuggestions && (
                      <CardContent className="space-y-6 pt-0 border-t mt-4 pt-6">
@@ -209,23 +237,38 @@ export function SuggestionsPage() {
             </Card>
         </TabsContent>
         <TabsContent value="general" className="mt-6">
-             <div className="space-y-6">
-                {generalSuggestions.map((suggestion, index) => (
-                <Card key={index}>
-                    <CardHeader>
-                    <CardTitle>
-                        {index + 1}. {suggestion.title}
-                    </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                    <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                        {suggestion.points.map((point, i) => (
-                        <li key={i}>{point}</li>
-                        ))}
-                    </ul>
-                    </CardContent>
-                </Card>
-                ))}
+             <div className="space-y-2">
+                <Accordion type="single" collapsible className="w-full">
+                    {generalSuggestions.map((suggestion) => {
+                        const image = PlaceHolderImages.find(img => img.id === suggestion.imageId);
+                        return (
+                            <AccordionItem key={suggestion.id} value={suggestion.id}>
+                                <AccordionTrigger className="text-lg hover:no-underline">{suggestion.title}</AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="grid md:grid-cols-2 gap-6 items-center">
+                                        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                                            {suggestion.points.map((point, i) => (
+                                            <li key={i}>{point}</li>
+                                            ))}
+                                        </ul>
+                                        {image && (
+                                            <div className="relative aspect-video rounded-lg overflow-hidden">
+                                                <Image 
+                                                    src={image.imageUrl} 
+                                                    alt={image.description}
+                                                    fill
+                                                    className="object-cover"
+                                                    data-ai-hint={image.imageHint}
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        );
+                    })}
+                </Accordion>
             </div>
 
             <Card className="mt-8">
