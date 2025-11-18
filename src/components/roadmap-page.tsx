@@ -3,7 +3,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Circle, BookOpen, BrainCircuit, MessageSquare, Newspaper, Flag, Wand2, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -317,3 +317,5 @@ export function RoadmapPage() {
     </div>
   );
 }
+
+    
