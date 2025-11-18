@@ -55,7 +55,7 @@ const secondaryNavItems = [
 
 const bottomNavItems = [
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-  { href: "#", icon: HelpCircle, label: "Help" },
+  { href: "/dashboard/help", icon: HelpCircle, label: "Help" },
 ];
 
 export function LeftSidebar() {
