@@ -111,25 +111,25 @@ const manualQuizzes = [
 
 
 const aiQuickQuizzes = [
-    { topic: "General Knowledge Mix" },
-    { topic: "Indian Polity" },
-    { topic: "Modern Indian History" },
-    { topic: "Quantitative Aptitude: Profit & Loss" },
-    { topic: "Reasoning: Analogies" },
-    { topic: "General Science: Biology" },
-    { topic: "Banking Awareness" },
-    { topic: "Current Affairs (Last 3 months)" },
-    { topic: "Geography: Rivers of India" },
-    { topic: "English: Error Spotting" },
-    { topic: "Quant: Number Series" },
-    { topic: "Reasoning: Direction Sense" },
-    { topic: "GK: Books and Authors" },
-    { topic: "Computer Knowledge" },
-    { topic: "Physics: Units & Measurements" },
-    { topic: "Chemistry: Acids & Bases" },
-    { topic: "Sports GK" },
-    { topic: "Important Dates & Days" },
-].map(q => ({...q, numQuestions: 30}));
+    { topic: "General Knowledge Mix", numQuestions: 30, subTopics: ["Indian History", "Geography", "Polity", "Economy", "Current Affairs"] },
+    { topic: "Indian Polity", numQuestions: 30, subTopics: ["Constitution", "Parliament", "Judiciary", "State Government", "Panchayati Raj"] },
+    { topic: "Modern Indian History", numQuestions: 30, subTopics: ["British Rule", "Freedom Struggle", "Gandhi Era", "Revolts", "Social Reforms"] },
+    { topic: "Quantitative Aptitude: Profit & Loss", numQuestions: 30, subTopics: ["Basics of Profit and Loss", "Discount and Marked Price", "Dishonest Dealer", "Successive Selling", "Mixtures"] },
+    { topic: "Reasoning: Analogies", numQuestions: 30, subTopics: ["Word Analogy", "Number Analogy", "Letter Analogy", "Mixed Analogy", "Image-based Analogy"] },
+    { topic: "General Science: Biology", numQuestions: 30, subTopics: ["Human Body", "Plant Kingdom", "Diseases", "Vitamins", "Genetics"] },
+    { topic: "Banking Awareness", numQuestions: 30, subTopics: ["RBI Functions", "Types of Banks", "Monetary Policy", "Negotiable Instruments", "Banking Ombudsman"] },
+    { topic: "Current Affairs (Last 3 months)", numQuestions: 30, subTopics: ["National News", "International News", "Sports", "Awards", "Summits"] },
+    { topic: "Geography: Rivers of India", numQuestions: 30, subTopics: ["Himalayan Rivers", "Peninsular Rivers", "Dams", "River Projects", "Tributaries"] },
+    { topic: "English: Error Spotting", numQuestions: 30, subTopics: ["Subject-Verb Agreement", "Tenses", "Prepositions", "Articles", "Adjectives and Adverbs"] },
+    { topic: "Quant: Number Series", numQuestions: 30, subTopics: ["Arithmetic Progression", "Geometric Progression", "Missing Number", "Wrong Number", "Mixed Series"] },
+    { topic: "Reasoning: Direction Sense", numQuestions: 30, subTopics: ["Basic Direction Problems", "Pythagoras Theorem", "Shadow Problems", "Coded Direction", "Angle-based Problems"] },
+    { topic: "GK: Books and Authors", numQuestions: 30, subTopics: ["Ancient Indian Authors", "Modern Indian Authors", "Famous International Authors", "Autobiographies", "Recent Book Releases"] },
+    { topic: "Computer Knowledge", numQuestions: 30, subTopics: ["Basics of Computer", "Hardware and Software", "MS Office", "Internet", "Networking"] },
+    { topic: "Physics: Units & Measurements", numQuestions: 30, subTopics: ["SI Units", "Fundamental and Derived Units", "Measuring Instruments", "Dimensional Analysis", "Errors in Measurement"] },
+    { topic: "Chemistry: Acids & Bases", numQuestions: 30, subTopics: ["Properties of Acids", "Properties of Bases", "pH Scale", "Indicators", "Common Acids and Bases"] },
+    { topic: "Sports GK", numQuestions: 30, subTopics: ["Cricket", "Football", "Olympics", "Tennis", "National Sports Awards"] },
+    { topic: "Important Dates & Days", numQuestions: 30, subTopics: ["National Days", "International Days", "Theme-based Days", "Historical Dates", "Anniversaries"] },
+];
 
 
 type UserAnswers = { [key: string]: string };
@@ -153,12 +153,6 @@ const subTopicsOptions = [
     { id: "formulas", label: "Formulas & Core Concepts" },
     { id: "advanced", label: "Advanced Problems" },
     { id: "previous_years", label: "Previous Year Questions" },
-];
-
-const specializationOptions = [
-    { id: "time_management", label: "Time Management" },
-    { id: "conceptual_clarity", label: "Conceptual Clarity" },
-    { id: "previous_mistakes", label: "Based on Previous Mistakes" },
 ];
 
 export function PracticePage() {
@@ -204,6 +198,16 @@ export function PracticePage() {
       setPerQuestionTime(0);
   }
 
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  };
+
   const handleStartTest = (testData: ActiveTest) => {
     setActiveTest(testData);
     setTestState("in-progress");
@@ -233,10 +237,13 @@ export function PracticePage() {
             difficultyLevel: difficulty || customDifficulty,
             specialization: specialization || customSpecialization || undefined,
         });
+
+        const shuffledQuestions = shuffleArray(result.questions);
+
         const testData: ActiveTest = {
             id: `ai-test-${Date.now()}`,
             title: result.title,
-            questions: result.questions.map((q, i) => ({...q, id: `q-${i}`})),
+            questions: shuffledQuestions.map((q, i) => ({...q, id: `q-${i}`})),
         }
         handleStartTest(testData);
     } catch (e) {
@@ -321,7 +328,7 @@ export function PracticePage() {
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {aiQuickQuizzes.map(quiz => (
-                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, quiz.numQuestions, [], 'Medium')} disabled={isGenerating}>
+                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, quiz.numQuestions, quiz.subTopics, 'Medium')} disabled={isGenerating}>
                         <div className="flex flex-col items-center text-center">
                             <p className="font-semibold">{quiz.topic}</p>
                             <p className="text-xs text-muted-foreground">{quiz.numQuestions} questions</p>
@@ -515,3 +522,4 @@ export function PracticePage() {
 }
 
     
+
