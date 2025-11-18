@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -169,7 +170,7 @@ export function PracticePage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [customTopic, setCustomTopic] = useState("Reasoning: Advanced Puzzles");
-  const [customSubTopics, setCustomSubTopics] = useState<string[]>([]);
+  const [customSubTopic, setCustomSubTopic] = useState("");
   const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
   const [customNumQuestions, setCustomNumQuestions] = useState(10);
   const [customDifficulty, setCustomDifficulty] = useState<"Medium" | "Hard">("Hard");
@@ -217,14 +218,17 @@ export function PracticePage() {
   const handleGenerateAndStart = async (topic: string, numQuestions: number, subTopics?: string[], difficulty?: "Medium" | "Hard", specialization?: string) => {
     setIsGenerating(true);
     try {
-        const allSubTopics = subTopics ? [...subTopics] : [...customSubTopics];
+        const allSubTopics: string[] = subTopics ? [...subTopics] : [];
+        if(customSubTopic && !subTopics) {
+            allSubTopics.push(customSubTopic);
+        }
         if (customOtherSubTopic.trim() && !subTopics) {
             allSubTopics.push(customOtherSubTopic.trim());
         }
 
         const result = await generateQuiz({ 
             topic: topic || customTopic, 
-            subTopics: allSubTopics,
+            subTopics: allSubTopics.length > 0 ? allSubTopics : undefined,
             numQuestions: numQuestions || customNumQuestions,
             difficultyLevel: difficulty || customDifficulty,
             specialization: specialization || customSpecialization || undefined,
@@ -340,19 +344,18 @@ export function PracticePage() {
                     </div>
                     <div className="space-y-2">
                         <Label>Sub-topics</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                        {subTopicsOptions.map((option) => (
-                            <div key={option.id} className="flex items-center space-x-2">
-                                <Checkbox 
-                                    id={`sub-${option.id}`}
-                                    onCheckedChange={(checked) => {
-                                        setCustomSubTopics(prev => checked ? [...prev, option.label] : prev.filter(item => item !== option.label))
-                                    }}
-                                />
-                                <Label htmlFor={`sub-${option.id}`} className="font-normal">{option.label}</Label>
-                            </div>
-                        ))}
-                        </div>
+                        <Select value={customSubTopic} onValueChange={setCustomSubTopic}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a focus area" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {subTopicsOptions.map((option) => (
+                                    <SelectItem key={option.id} value={option.label}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
                     </div>
                      <div className="space-y-2">
