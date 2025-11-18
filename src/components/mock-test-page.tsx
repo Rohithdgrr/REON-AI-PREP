@@ -51,6 +51,15 @@ const upcomingTests = [
   },
 ];
 
+const manualMockTests = [
+    { id: "manual-mock-1", title: "SBI Clerk Prelims Full Mock", questions: 100 },
+    { id: "manual-mock-2", title: "IBPS PO Full Mock", questions: 100 },
+    { id: "manual-mock-3", title: "RRB NTPC Stage 1 Mock", questions: 120 },
+    { id: "manual-mock-4", title: "RRB Group D Mock", questions: 100 },
+    { id: "manual-mock-5", title: "SSC CGL Tier 1 Mock", questions: 100 },
+];
+
+
 const pastResults = [
     { id: "mock-sbi-po-04", title: "SBI PO Prelims Full Mock Test #4", score: "78/100", rank: "2,451", accuracy: "89%" },
     { id: "mock-rrb-ntpc-11", title: "RRB NTPC CBT-1 Full Mock Test #11", score: "85/120", rank: "#5,102", accuracy: "81%" },
@@ -164,6 +173,24 @@ export function MockTestPage() {
           ))}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Manual Mock Tests</CardTitle>
+            <CardDescription>Curated full-length mock tests to simulate the real exam.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {manualMockTests.map(test => (
+                 <Button key={test.id} variant="outline" className="h-auto py-4" onClick={() => handleGenerateAndStart(test.title, test.questions)} disabled={isGenerating}>
+                    <div className="flex flex-col items-center text-center">
+                        <p className="font-semibold">{test.title}</p>
+                        <p className="text-xs text-muted-foreground">{test.questions} questions</p>
+                    </div>
+                </Button>
+            ))}
+        </CardContent>
+      </Card>
+
 
       <Card>
         <CardHeader>
@@ -295,3 +322,5 @@ export function MockTestPage() {
     </div>
   );
 }
+
+    
