@@ -12,13 +12,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Book, FileText, Film, Layers, ListChecks } from "lucide-react";
+import { Book, FileText, Film, Layers, ListChecks, Expand, X } from "lucide-react";
 import { videoData } from "@/lib/video-data";
 import { otherMaterialsData } from "@/lib/other-materials-data";
 import Image from "next/image";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import Link from "next/link";
+import { useState, useMemo } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
+import { InAppBrowser } from "./in-app-browser";
 
 const prepMaterials = [
     ...otherMaterialsData.map(d => ({...d, icon: d.category === 'Notes' ? FileText : d.category === 'PYQs & MCQs' ? ListChecks : Layers})), 
@@ -39,38 +39,26 @@ const categories = [
   { name: "Videos", icon: Film },
 ];
 
-function VideoPlayer({ videoId, title, onClose }: { videoId: string, title: string, onClose: () => void }) {
+function VideoPlayer({ videoId, title }: { videoId: string, title: string }) {
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        <div className="aspect-video">
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+    <div className="aspect-video w-full h-full relative">
+        <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=0`}
             title={title}
             frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
-            className="w-full h-full"
-          ></iframe>
-        </div>
-      </DialogContent>
-    </Dialog>
+            className="w-full h-full absolute top-0 left-0"
+        ></iframe>
+    </div>
   );
 }
 
-const PrepMaterialCard = ({ material, onPlayVideo }: { material: any, onPlayVideo: (videoId: string, title: string) => void }) => (
+const PrepMaterialCard = ({ material, onOpenUrl }: { material: any, onOpenUrl: (url: string, title: string) => void }) => (
   <Card className="flex flex-col">
     {material.category === 'Videos' && (
-       <div className="aspect-video relative w-full overflow-hidden rounded-t-lg">
-        <Image
-            src={`https://img.youtube.com/vi/${material.videoId}/mqdefault.jpg`}
-            alt={material.title}
-            fill
-            className="object-cover"
-        />
+       <div className="aspect-video relative w-full overflow-hidden rounded-t-lg bg-black">
+        <VideoPlayer videoId={material.videoId} title={material.title} />
        </div>
     )}
     <CardHeader>
@@ -93,29 +81,84 @@ const PrepMaterialCard = ({ material, onPlayVideo }: { material: any, onPlayVide
       </div>
     </CardContent>
     <CardFooter>
-        {material.category === 'Videos' ? (
-            <Button className="w-full" onClick={() => onPlayVideo(material.videoId, material.title)}>Watch Video</Button>
-        ) : (
-             <Link href={material.url} target="_blank" className="w-full">
-                <Button className="w-full">Start Studying</Button>
-             </Link>
+        {material.category !== 'Videos' && (
+            <Button className="w-full" onClick={() => onOpenUrl(material.url, material.title)}>Start Studying</Button>
         )}
     </CardFooter>
   </Card>
 );
 
 export function PrepPage() {
-  const [playingVideo, setPlayingVideo] = useState<{ id: string, title: string } | null>(null);
+  const [activeTab, setActiveTab] = useState("All");
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({ All: 'All' });
+  const [browserState, setBrowserState] = useState<{open: boolean, url: string, title: string}>({open: false, url: '', title: ''});
+
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    prepMaterials.forEach(m => m.tags.forEach(t => tags.add(t)));
+    return ["All", ...Array.from(tags)];
+  }, []);
+
+  const handleOpenUrl = (url: string, title: string) => {
+    setBrowserState({ open: true, url, title });
+  };
+
+  const handleCloseBrowser = () => {
+    setBrowserState({ open: false, url: '', title: '' });
+  };
+
+  const renderMaterials = (category: string) => {
+    const currentFilter = activeFilters[category] || 'All';
+    const filteredMaterials = prepMaterials.filter(material => {
+      const categoryMatch = category === 'All' || material.category === category;
+      const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
+      return categoryMatch && filterMatch;
+    });
+
+    if (filteredMaterials.length === 0) {
+      const categoryIcon = categories.find(c => c.name === category)?.icon || Book;
+      return (
+          <Card className="col-span-full">
+              <CardContent className="flex flex-col items-center justify-center p-16 text-center">
+                  <categoryIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold">No Materials Found</h3>
+                  <p className="text-muted-foreground mt-2">There are currently no materials matching your filter in this category.</p>
+              </CardContent>
+          </Card>
+      );
+    }
+
+    return filteredMaterials.map(material => (
+      <PrepMaterialCard key={material.id} material={material} onOpenUrl={handleOpenUrl} />
+    ));
+  };
+  
+  const handleFilterChange = (category: string, filter: string) => {
+    setActiveFilters(prev => ({ ...prev, [category]: filter }));
+  };
+
+  const currentCategoryTags = useMemo(() => {
+    const tags = new Set<string>();
+    prepMaterials.filter(m => activeTab === 'All' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
+    return ['All', ...Array.from(tags)];
+  }, [activeTab]);
+
 
   return (
     <div className="flex flex-col gap-6">
-      {playingVideo && (
-        <VideoPlayer 
-            videoId={playingVideo.id} 
-            title={playingVideo.title} 
-            onClose={() => setPlayingVideo(null)} 
-        />
-      )}
+       <Dialog open={browserState.open} onOpenChange={(isOpen) => !isOpen && handleCloseBrowser()}>
+        <DialogContent className="w-full h-full max-w-none max-h-none flex flex-col p-0 gap-0">
+          <DialogHeader className="p-4 border-b flex-row items-center justify-between">
+            <DialogTitle>{browserState.title}</DialogTitle>
+            <DialogClose asChild>
+                <Button variant="ghost" size="icon"><X /></Button>
+            </DialogClose>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden">
+            <iframe src={browserState.url} className="w-full h-full border-0" title={browserState.title} />
+          </div>
+        </DialogContent>
+      </Dialog>
       <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">
           Preparation Hub
@@ -125,7 +168,7 @@ export function PrepPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="All" className="w-full">
+      <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
           {categories.map((cat) => (
             <TabsTrigger key={cat.name} value={cat.name}>
@@ -134,38 +177,28 @@ export function PrepPage() {
             </TabsTrigger>
           ))}
         </TabsList>
-
-        <TabsContent value="All" className="mt-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {prepMaterials.map((material) => (
-              <PrepMaterialCard key={material.id} material={material} onPlayVideo={(id, title) => setPlayingVideo({id, title})} />
-            ))}
-          </div>
-        </TabsContent>
-
-        {categories.slice(1).map((cat) => (
+        
+        {categories.map((cat) => (
           <TabsContent key={cat.name} value={cat.name} className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {prepMaterials
-                .filter((material) => material.category === cat.name)
-                .map((material) => (
-                  <PrepMaterialCard key={material.id} material={material} onPlayVideo={(id, title) => setPlayingVideo({id, title})} />
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                {currentCategoryTags.map(tag => (
+                   <Button 
+                    key={tag} 
+                    variant={activeFilters[cat.name] === tag || (!activeFilters[cat.name] && tag === 'All') ? "default" : "outline"}
+                    onClick={() => handleFilterChange(cat.name, tag)}
+                  >
+                    {tag}
+                  </Button>
                 ))}
+              </div>
             </div>
-             {prepMaterials.filter(m => m.category === cat.name).length === 0 && (
-                <Card className="col-span-full">
-                    <CardContent className="flex flex-col items-center justify-center p-16 text-center">
-                        <cat.icon className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-xl font-semibold">No {cat.name} Available</h3>
-                        <p className="text-muted-foreground mt-2">There are currently no materials in this category. Check back later!</p>
-                    </CardContent>
-                </Card>
-            )}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {renderMaterials(cat.name)}
+            </div>
           </TabsContent>
         ))}
       </Tabs>
     </div>
   );
 }
-
-    
