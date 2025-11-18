@@ -9,6 +9,7 @@ import {
   Timer,
   Bell,
   Globe,
+  ListTodo,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +37,7 @@ import { useState } from 'react';
 import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { TodoList } from '../todo-list';
 
 function TooltipButton({
   icon: Icon,
@@ -114,6 +116,22 @@ export function RightSidebar() {
           </SheetContent>
         </Sheet>
 
+        {/* To-Do List Tool */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <div>
+              <TooltipButton icon={ListTodo} label="To-Do List" />
+            </div>
+          </SheetTrigger>
+          <SheetContent side="right" modal={false}>
+            <SheetHeader>
+              <SheetTitle>To-Do List</SheetTitle>
+              <SheetDescription>Track your study tasks for the day.</SheetDescription>
+            </SheetHeader>
+            <TodoList />
+          </SheetContent>
+        </Sheet>
+        
         {/* Calendar Tool */}
         <Sheet>
           <SheetTrigger asChild>
