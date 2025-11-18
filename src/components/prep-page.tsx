@@ -14,53 +14,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Book, FileText, Film, Layers, ListChecks } from "lucide-react";
 import { videoData } from "@/lib/video-data";
+import { otherMaterialsData } from "@/lib/other-materials-data";
 import Image from "next/image";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import Link from "next/link";
 
-// Placeholder data for other prep materials
-const otherMaterials = [
-  {
-    id: 1,
-    type: "Notes",
-    title: "Quantitative Aptitude Formulas",
-    description: "All important formulas and shortcuts for the Quant section.",
-    category: "Notes",
-    tags: ["Formulas", "Quant", "Railway"],
-    icon: FileText,
-  },
-  {
-    id: 3,
-    type: "MCQ",
-    title: "General Awareness PYQ (2022)",
-    description: "Previous Year Questions from the 2022 RRB NTPC exam.",
-    category: "PYQs & MCQs",
-    tags: ["GA", "PYQ", "NTPC"],
-    icon: ListChecks,
-  },
-  {
-    id: 4,
-    type: "Cheatsheet",
-    title: "English Grammar Rules",
-    description: "A quick reference cheatsheet for all major grammar rules.",
-    category: "Cheatsheets",
-    tags: ["English", "Grammar", "Cheatsheet"],
-    icon: Layers,
-  },
-  {
-    id: 5,
-    type: "Notes",
-    title: "Banking Awareness Key Terms",
-    description: "Definitions of important terms related to the banking industry.",
-    category: "Notes",
-    tags: ["Banking", "GA", "IBPS"],
-    icon: FileText,
-  },
-];
-
-const prepMaterials = [...otherMaterials, ...videoData.map(v => ({
+const prepMaterials = [
+    ...otherMaterialsData.map(d => ({...d, icon: d.category === 'Notes' ? FileText : d.category === 'PYQs & MCQs' ? ListChecks : Layers})), 
+    ...videoData.map(v => ({
     ...v,
     id: `video-${v.id}`,
+    url: `https://www.youtube.com/watch?v=${v.videoId}`,
     type: 'Video',
     category: 'Videos',
     icon: Film,
@@ -131,7 +96,9 @@ const PrepMaterialCard = ({ material, onPlayVideo }: { material: any, onPlayVide
         {material.category === 'Videos' ? (
             <Button className="w-full" onClick={() => onPlayVideo(material.videoId, material.title)}>Watch Video</Button>
         ) : (
-             <Button className="w-full">Start Studying</Button>
+             <Link href={material.url} target="_blank" className="w-full">
+                <Button className="w-full">Start Studying</Button>
+             </Link>
         )}
     </CardFooter>
   </Card>
@@ -200,3 +167,5 @@ export function PrepPage() {
     </div>
   );
 }
+
+    
