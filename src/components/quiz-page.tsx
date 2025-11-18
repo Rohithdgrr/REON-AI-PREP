@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { generateQuiz, type GenerateQuizOutput, type QuizQuestionSchema } from "@/ai/flows/generate-quiz-flow";
+import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
 
 const manualQuiz = {
@@ -50,10 +50,10 @@ const manualQuiz = {
         correctAnswer: "12 days",
     },
     {
-        id: "q5",
-        text: "A is twice as good a workman as B and together they finish a piece of work in 14 days. In how many days can A alone finish the work?",
-        options: ["20 days", "21 days", "22 days", "23 days"],
-        correctAnswer: "21 days",
+      id: "q5",
+      question: "A is twice as good a workman as B and together they finish a piece of work in 14 days. In how many days can A alone finish the work?",
+      options: ["20 days", "21 days", "22 days", "23 days"],
+      correctAnswer: "21 days",
     }
   ].map(q => ({...q, question: q.question || q.text, id: q.id || Math.random().toString()}))
 };
@@ -139,7 +139,7 @@ export function QuizPage() {
     setQuizState("finished");
   };
 
-  if (testState === "not-started") {
+  if (quizState === "not-started") {
     return (
       <div className="flex flex-col gap-8">
         <h1 className="text-3xl font-bold font-headline tracking-tight">
