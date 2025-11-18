@@ -66,7 +66,7 @@ export function RightSidebar() {
               <TooltipButton icon={Notebook} label="Notes" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" modal={false}>
             <SheetHeader>
               <SheetTitle>My Notes</SheetTitle>
             </SheetHeader>
@@ -86,7 +86,7 @@ export function RightSidebar() {
               <TooltipButton icon={CalendarIcon} label="Calendar" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right" className="flex justify-center items-start pt-16">
+          <SheetContent side="right" className="flex justify-center items-start pt-16" modal={false}>
             <Calendar
               mode="single"
               selected={new Date()}
@@ -102,7 +102,7 @@ export function RightSidebar() {
               <TooltipButton icon={Calculator} label="Calculator" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" modal={false}>
             <SheetHeader>
               <SheetTitle>Calculator</SheetTitle>
             </SheetHeader>
@@ -117,7 +117,7 @@ export function RightSidebar() {
               <TooltipButton icon={Timer} label="Timer" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" modal={false}>
             <SheetHeader>
               <SheetTitle>Timer</SheetTitle>
               <SheetDescription>Set a countdown for your study sessions.</SheetDescription>
@@ -133,7 +133,7 @@ export function RightSidebar() {
               <TooltipButton icon={Clock} label="Stopwatch" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" modal={false}>
             <SheetHeader>
               <SheetTitle>Stopwatch</SheetTitle>
               <SheetDescription>Track your time for practice questions.</SheetDescription>
@@ -149,7 +149,7 @@ export function RightSidebar() {
               <TooltipButton icon={Bell} label="Notifications" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right">
+          <SheetContent side="right" modal={false}>
             <SheetHeader>
               <SheetTitle>Notifications</SheetTitle>
             </SheetHeader>
@@ -164,7 +164,7 @@ export function RightSidebar() {
               <TooltipButton icon={Globe} label="In-App Browser" />
             </div>
           </SheetTrigger>
-          <SheetContent side="right" className="p-0">
+          <SheetContent side="right" className="p-0" modal={false}>
             <InAppBrowser />
           </SheetContent>
         </Sheet>
