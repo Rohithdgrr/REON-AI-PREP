@@ -32,6 +32,10 @@ import { SimpleTimer } from '../simple-timer';
 import { SimpleStopwatch } from '../simple-stopwatch';
 import { NotificationsPanel } from '../notifications-panel';
 import { InAppBrowser } from '../in-app-browser';
+import { useState } from 'react';
+import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 function TooltipButton({
   icon: Icon,
@@ -56,6 +60,37 @@ function TooltipButton({
 }
 
 export function RightSidebar() {
+  const [libraQuestion, setLibraQuestion] = useState('');
+  const [libraAnswer, setLibraAnswer] = useState('');
+  const [isLibraLoading, setIsLibraLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleAskLibra = async () => {
+    if (!libraQuestion.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please enter a question.',
+      });
+      return;
+    }
+    setIsLibraLoading(true);
+    setLibraAnswer('');
+    try {
+      const result = await answerQuestionsWithAI(libraQuestion);
+      setLibraAnswer(result);
+    } catch (e) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to get an answer. Please try again.',
+      });
+      console.error(e);
+    } finally {
+      setIsLibraLoading(false);
+    }
+  };
+
   return (
     <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-2">
       <div className="flex flex-col items-center gap-4 mt-14">
@@ -182,12 +217,18 @@ export function RightSidebar() {
               <SheetTitle>✨ Ask LIBRA</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col h-full py-4">
-              <div className="flex-1 bg-muted rounded-lg p-4 text-sm">
-                Streaming Response...
+              <div className="flex-1 bg-muted rounded-lg p-4 text-sm overflow-y-auto">
+                {isLibraLoading ? <div className="flex items-center gap-2"><Loader2 className="animate-spin h-4 w-4" /> Answering...</div> : (libraAnswer || "Ask a question to get started.")}
               </div>
               <div className="mt-4">
-                <Textarea placeholder="Ask about this topic, get summaries, or generate quizzes..." />
-                <Button className="w-full mt-2">Send</Button>
+                <Textarea 
+                  placeholder="Ask about this topic, get summaries, or generate quizzes..." 
+                  value={libraQuestion}
+                  onChange={(e) => setLibraQuestion(e.target.value)}
+                  />
+                <Button className="w-full mt-2" onClick={handleAskLibra} disabled={isLibraLoading}>
+                  {isLibraLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send"}
+                </Button>
               </div>
             </div>
           </SheetContent>
