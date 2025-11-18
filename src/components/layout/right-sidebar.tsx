@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Calendar } from '../ui/calendar';
 import { SimpleCalculator } from '../simple-calculator';
-import { SimpleTimer } from '../simple-timer';
+import { MultiTimer } from '../multi-timer';
 import { SimpleStopwatch } from '../simple-stopwatch';
 import { NotificationsPanel } from '../notifications-panel';
 import { InAppBrowser } from '../in-app-browser';
@@ -154,10 +154,10 @@ export function RightSidebar() {
           </SheetTrigger>
           <SheetContent side="right" modal={false}>
             <SheetHeader>
-              <SheetTitle>Timer</SheetTitle>
-              <SheetDescription>Set a countdown for your study sessions.</SheetDescription>
+              <SheetTitle>Timers</SheetTitle>
+              <SheetDescription>Set multiple countdowns for your study sessions.</SheetDescription>
             </SheetHeader>
-            <SimpleTimer />
+            <MultiTimer />
           </SheetContent>
         </Sheet>
 
