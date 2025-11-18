@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2 } from "lucide-react";
+import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2, ChevronLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "./ui/input";
@@ -25,166 +25,94 @@ const manualQuizzes = [
     {
       id: "quiz1",
       title: "Quantitative Aptitude: Time & Work",
-      questions: [
-        { id: "q1", question: "A can do a piece of work in 10 days, and B can do it in 15 days. In how many days can they do it working together?", options: ["4 days", "5 days", "6 days", "8 days"], correctAnswer: "6 days" },
-        { id: "q2", question: "If 12 men can build a wall in 20 days, how many men can build the same wall in 15 days?", options: ["15 men", "16 men", "18 men", "20 men"], correctAnswer: "16 men" },
-        { id: "q3", question: "A and B together can do a piece of work in 8 days. If A alone can do it in 12 days, then in how many days can B alone do it?", options: ["18 days", "20 days", "24 days", "28 days"], correctAnswer: "24 days" },
-        { id: "q4", question: "3 men or 4 women can plough a field in 43 days. How long will 7 men and 5 women take to plough it?", options: ["12 days", "15 days", "18 days", "21 days"], correctAnswer: "12 days" },
-        { id: "q5", question: "A is twice as good a workman as B and together they finish a piece of work in 14 days. In how many days can A alone finish the work?", options: ["20 days", "21 days", "22 days", "23 days"], correctAnswer: "21 days" },
-      ],
+      questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Time & Work Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
     },
     {
         id: "quiz2",
         title: "Reasoning: Blood Relations",
-        questions: [
-            { id: "q1", question: "Pointing to a woman, a man said, 'Her father is the only son of my father.' How is the man related to the woman?", options: ["Father", "Brother", "Uncle", "Son"], correctAnswer: "Father" },
-            { id: "q2", question: "A is B's sister. C is B's mother. D is C's father. E is D's mother. Then, how is A related to D?", options: ["Granddaughter", "Daughter", "Grandmother", "Grandfather"], correctAnswer: "Granddaughter" },
-            { id: "q3", question: "P is the brother of Q and R. S is R's mother. T is P's father. Which of the following statements cannot be definitely true?", options: ["T is Q's father", "S is P's mother", "P is S's son", "Q is T's son"], correctAnswer: "Q is T's son" },
-            { id: "q4", question: "X and Y are brothers. R is the father of Y. S is the brother of T and maternal uncle of X. What is the relation of T to R?", options: ["Wife", "Sister", "Mother", "Brother"], correctAnswer: "Wife" },
-            { id: "q5", question: "If 'A + B' means 'A is the father of B' and 'A - B' means 'A is the mother of B', what does 'P - Q + R' mean?", options: ["P is the grandmother of R", "P is the mother of R", "P is the aunt of R", "P is the grandfather of R"], correctAnswer: "P is the grandmother of R" },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Blood Relations Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
     },
     {
         id: "quiz3",
         title: "General Knowledge: Indian History",
-        questions: [
-            { id: "q1", question: "Who was the first President of India?", options: ["Jawaharlal Nehru", "Sardar Patel", "Dr. Rajendra Prasad", "Mahatma Gandhi"], correctAnswer: "Dr. Rajendra Prasad" },
-            { id: "q2", question: "The Battle of Plassey was fought in?", options: ["1757", "1764", "1857", "1782"], correctAnswer: "1757" },
-            { id: "q3", question: "Who founded the Maurya Empire?", options: ["Ashoka", "Bindusara", "Chandragupta Maurya", "Samudragupta"], correctAnswer: "Chandragupta Maurya" },
-            { id: "q4", question: "The famous 'Quit India Movement' was launched by Mahatma Gandhi in which year?", options: ["1930", "1942", "1945", "1920"], correctAnswer: "1942" },
-            { id: "q5", question: "Who is known as the 'Iron Man of India'?", options: ["Jawaharlal Nehru", "Sardar Vallabhbhai Patel", "Subhas Chandra Bose", "Lal Bahadur Shastri"], correctAnswer: "Sardar Vallabhbhai Patel" },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian History Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
     },
     {
         id: 'quiz4',
         title: 'English: Synonyms & Antonyms',
-        questions: [
-            { id: 'q1', question: "What is a synonym for 'ephemeral'?", options: ['Eternal', 'Transient', 'Ugly', 'Strong'], correctAnswer: 'Transient' },
-            { id: 'q2', question: "What is an antonym for 'benevolent'?", options: ['Kind', 'Generous', 'Malevolent', 'Friendly'], correctAnswer: 'Malevolent' },
-            { id: 'q3', question: "Choose the synonym for 'ubiquitous'.", options: ['Rare', 'Scarce', 'Omnipresent', 'Hidden'], correctAnswer: 'Omnipresent' },
-            { id: 'q4', question: "Choose the antonym for 'assiduous'.", options: ['Diligent', 'Careful', 'Lazy', 'Hardworking'], correctAnswer: 'Lazy' },
-            { id: 'q5', question: "What is a synonym for 'cacophony'?", options: ['Harmony', 'Silence', 'Discord', 'Melody'], correctAnswer: 'Discord' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Synonym/Antonym Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
     },
     {
         id: 'quiz5',
         title: 'Quant: Percentages',
-        questions: [
-            { id: 'q1', question: "What is 25% of 200?", options: ['25', '50', '75', '100'], correctAnswer: '50' },
-            { id: 'q2', question: "A man's salary is increased by 10% to Rs 11,000. What was his original salary?", options: ['Rs 10,000', 'Rs 9,900', 'Rs 10,100', 'Rs 9,000'], correctAnswer: 'Rs 10,000' },
-            { id: 'q3', question: "If 30% of a number is 150, what is the number?", options: ['300', '450', '500', '600'], correctAnswer: '500' },
-            { id: 'q4', question: "An item priced at Rs 80 is sold for Rs 60. What is the discount percentage?", options: ['20%', '25%', '30%', '33.33%'], correctAnswer: '25%' },
-            { id: 'q5', question: "What is 0.5% of 1000?", options: ['5', '0.5', '50', '0.05'], correctAnswer: '5' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Percentage Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
     },
     {
         id: 'quiz6',
         title: 'Reasoning: Analogies',
-        questions: [
-            { id: 'q1', question: "Doctor is to Patient as Lawyer is to ?", options: ['Client', 'Customer', 'Accused', 'Judge'], correctAnswer: 'Client' },
-            { id: 'q2', question: "Dog : Bark :: Goat : ?", options: ['Bleat', 'Howl', 'Grunt', 'Squeak'], correctAnswer: 'Bleat' },
-            { id: 'q3', question: "India : Rupee :: Japan : ?", options: ['Yuan', 'Yen', 'Won', 'Dollar'], correctAnswer: 'Yen' },
-            { id: 'q4', question: "Moon : Satellite :: Earth : ?", options: ['Sun', 'Planet', 'Solar System', 'Asteroid'], correctAnswer: 'Planet' },
-            { id: 'q5', question: "Eye : Myopia :: Teeth : ?", options: ['Pyorrhoea', 'Cataract', 'Trachoma', 'Eczema'], correctAnswer: 'Pyorrhoea' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Analogy Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
     },
     {
         id: 'quiz7',
         title: 'GK: Indian Geography',
-        questions: [
-            { id: 'q1', question: "Which is the longest river in India?", options: ['Ganga', 'Brahmaputra', 'Godavari', 'Yamuna'], correctAnswer: 'Ganga' },
-            { id: 'q2', question: "What is the capital of India?", options: ['Mumbai', 'Kolkata', 'New Delhi', 'Chennai'], correctAnswer: 'New Delhi' },
-            { id: 'q3', question: "Which state is known as the 'Spice Garden of India'?", options: ['Kerala', 'Karnataka', 'Tamil Nadu', 'Andhra Pradesh'], correctAnswer: 'Kerala' },
-            { id: 'q4', question: "The Kanchenjunga peak is located in which state?", options: ['Sikkim', 'Arunachal Pradesh', 'Himachal Pradesh', 'Uttarakhand'], correctAnswer: 'Sikkim' },
-            { id: 'q5', question: "Which is the largest state in India by area?", options: ['Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Uttar Pradesh'], correctAnswer: 'Rajasthan' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian Geography Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
     },
     {
         id: 'quiz8',
         title: 'English: Idioms and Phrases',
-        questions: [
-            { id: 'q1', question: "What is the meaning of 'To bite the dust'?", options: ['To eat dust', 'To fail', 'To be successful', 'To run away'], correctAnswer: 'To fail' },
-            { id: 'q2', question: "What does 'A hot potato' mean?", options: ['A delicious dish', 'A controversial issue', 'A very hot object', 'A happy situation'], correctAnswer: 'A controversial issue' },
-            { id: 'q3', question: "'Once in a blue moon' means:", options: ['Very often', 'Every month', 'Very rarely', 'Always'], correctAnswer: 'Very rarely' },
-            { id: 'q4', question: "What does 'To let the cat out of the bag' mean?", options: ['To buy a cat', 'To reveal a secret', 'To free an animal', 'To start a fight'], correctAnswer: 'To reveal a secret' },
-            { id: 'q5', question: "The phrase 'A piece of cake' means:", options: ['Something very easy', 'A tasty dessert', 'A difficult task', 'A small portion'], correctAnswer: 'Something very easy' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Idiom/Phrase Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
     },
     {
         id: 'quiz9',
         title: 'Quant: Simple & Compound Interest',
-        questions: [
-            { id: 'q1', question: "Find the simple interest on Rs. 5000 for 2 years at 5% per annum.", options: ['Rs. 500', 'Rs. 250', 'Rs. 1000', 'Rs. 750'], correctAnswer: 'Rs. 500' },
-            { id: 'q2', question: "What is the compound interest on Rs. 1000 for 2 years at 10% per annum?", options: ['Rs. 200', 'Rs. 210', 'Rs. 100', 'Rs. 110'], correctAnswer: 'Rs. 210' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Interest Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
     },
     {
         id: 'quiz10',
         title: 'Reasoning: Seating Arrangement',
-        questions: [
-            { id: 'q1', question: "A, B, C, D, and E are sitting in a circle. C is to the immediate left of A. D is between A and E. Who is to the immediate right of C?", options: ['A', 'B', 'D', 'E'], correctAnswer: 'A' },
-            { id: 'q2', question: "Five friends are sitting on a bench. A is to the left of B but on the right of C. D is to the right of B but on the left of E. Who are at the extremes?", options: ['A, E', 'C, E', 'B, D', 'C, D'], correctAnswer: 'C, E' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Seating Arrangement Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
     },
     {
         id: 'quiz11',
         title: 'GK: Indian Polity',
-        questions: [
-            { id: 'q1', question: "Who is the head of the Indian state?", options: ['President', 'Prime Minister', 'Chief Justice', 'Vice President'], correctAnswer: 'President' },
-            { id: 'q2', question: "The Rajya Sabha can have a maximum strength of:", options: ['238', '245', '250', '260'], correctAnswer: '250' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian Polity Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
     },
     {
         id: 'quiz12',
         title: 'English: Prepositions',
-        questions: [
-            { id: 'q1', question: "He is good ___ English.", options: ['in', 'at', 'on', 'with'], correctAnswer: 'at' },
-            { id: 'q2', question: "I am fond ___ music.", options: ['of', 'for', 'with', 'in'], correctAnswer: 'of' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Preposition Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
     },
     {
         id: 'quiz13',
         title: 'Quant: Speed, Time & Distance',
-        questions: [
-            { id: 'q1', question: "A train running at 60 km/h crosses a pole in 9 seconds. What is the length of the train?", options: ['150 meters', '160 meters', '120 meters', '100 meters'], correctAnswer: '150 meters' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Speed/Time/Distance Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
     },
     {
         id: 'quiz14',
         title: 'Reasoning: Coding-Decoding',
-        questions: [
-            { id: 'q1', question: "If 'WATER' is coded as 'YCVGT', how is 'HKG' coded?", options: ['JMI', 'IKH', 'ILH', 'JLI'], correctAnswer: 'JMI' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Coding-Decoding Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
     },
     {
         id: 'quiz15',
         title: 'GK: Famous Personalities',
-        questions: [
-            { id: 'q1', question: "Who wrote the national anthem of India?", options: ['Rabindranath Tagore', 'Bankim Chandra Chatterjee', 'Sarojini Naidu', 'Swami Vivekananda'], correctAnswer: 'Rabindranath Tagore' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Famous Personalities Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
     },
     {
         id: 'quiz16',
         title: 'English: Articles',
-        questions: [
-            { id: 'q1', question: "I saw ___ unicorn in my dream.", options: ['a', 'an', 'the', 'no article'], correctAnswer: 'a' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Article Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
     },
     {
         id: 'quiz17',
         title: 'Quant: Averages',
-        questions: [
-            { id: 'q1', question: "The average of first 50 natural numbers is:", options: ['25.5', '25', '26', '25.3'], correctAnswer: '25.5' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Averages Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
     },
     {
         id: 'quiz18',
         title: 'Reasoning: Syllogism',
-        questions: [
-            { id: 'q1', question: "Statements: All pens are pencils. No pencil is a book. Conclusions: I. No pen is a book. II. Some pencils are pens.", options: ['Only I follows', 'Only II follows', 'Both follow', 'Neither follows'], correctAnswer: 'Both follow' },
-        ],
+        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Syllogism Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
     },
-].map(quiz => ({ ...quiz, questions: quiz.questions.map(q => ({ ...q, id: Math.random().toString(), question: q.question || "" })) }));
+].map(quiz => ({ ...quiz, questions: quiz.questions.map(q => ({ ...q, id: Math.random().toString(), question: q.question || "", explanation: "This is a placeholder explanation.", fastSolveTricks: "This is a placeholder trick.", analogies: "This is a placeholder analogy." })) }));
 
 
 const aiQuickQuizzes = [
@@ -211,15 +139,20 @@ const aiQuickQuizzes = [
 
 type UserAnswers = { [key: string]: string };
 
+type QuizQuestion = {
+    id: string;
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation?: string;
+    fastSolveTricks?: string;
+    analogies?: string;
+};
+
 type QuizData = {
     id: string;
     title: string;
-    questions: {
-        id: string;
-        question: string;
-        options: string[];
-        correctAnswer: string;
-    }[];
+    questions: QuizQuestion[];
 }
 
 export function QuizPage() {
@@ -308,7 +241,7 @@ export function QuizPage() {
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
@@ -429,9 +362,15 @@ export function QuizPage() {
   if (quizState === "finished") {
     return (
       <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold font-headline tracking-tight">
-          Quiz Results
-        </h1>
+         <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold font-headline tracking-tight">
+            Quiz Results
+            </h1>
+            <Button onClick={() => setQuizState("not-started")} variant="outline">
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Back to Quiz Arena
+            </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>You scored {score}/{activeQuiz.questions.length}!</CardTitle>
@@ -441,13 +380,20 @@ export function QuizPage() {
           </CardHeader>
           <CardContent className="space-y-4">
              {activeQuiz.questions.map((q, index) => (
-              <div key={q.id} className="border-l-4 p-4 rounded-r-lg bg-muted/40 data-[correct=true]:border-green-500 data-[correct=false]:border-red-500" data-correct={userAnswers[q.id] === q.correctAnswer}>
+              <Card key={q.id} className="p-4 bg-muted/20 data-[correct=true]:border-green-500 data-[correct=false]:border-red-500 border-l-4">
                 <p className="font-semibold">{index + 1}. {q.question}</p>
                 <div className="mt-2 text-sm space-y-1">
                   <p>Your answer: <Badge variant={userAnswers[q.id] === q.correctAnswer ? 'default' : 'destructive'} className={userAnswers[q.id] === q.correctAnswer ? "bg-green-100 text-green-800" : ""}>{userAnswers[q.id] || "Not answered"}</Badge></p>
                   {userAnswers[q.id] !== q.correctAnswer && <p>Correct answer: <Badge variant="secondary">{q.correctAnswer}</Badge></p>}
                 </div>
-              </div>
+                {(q.explanation || q.fastSolveTricks || q.analogies) && (
+                     <CardFooter className="flex flex-col items-start gap-3 p-0 pt-3 mt-3 border-t">
+                        {q.explanation && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>}
+                        {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
+                        {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
+                    </CardFooter>
+                )}
+              </Card>
             ))}
           </CardContent>
           <CardFooter>
@@ -463,6 +409,12 @@ export function QuizPage() {
 
   return (
     <div className="flex flex-col gap-6">
+       <div className="flex items-center justify-start mb-4">
+            <Button onClick={() => setQuizState("not-started")} variant="outline" size="sm">
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                Back
+            </Button>
+      </div>
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-xl">{activeQuiz.title}</CardTitle>
@@ -477,9 +429,9 @@ export function QuizPage() {
             className="space-y-2"
           >
             {currentQuestion.options.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
+              <div key={option} className="flex items-center space-x-2 p-3 rounded-md border has-[:checked]:bg-accent">
                 <RadioGroupItem value={option} id={`${currentQuestion.id}-${option}`} />
-                <Label htmlFor={`${currentQuestion.id}-${option}`} className="text-base">{option}</Label>
+                <Label htmlFor={`${currentQuestion.id}-${option}`} className="text-base flex-1 cursor-pointer">{option}</Label>
               </div>
             ))}
           </RadioGroup>

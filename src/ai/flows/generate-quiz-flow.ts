@@ -25,6 +25,9 @@ const GenerateQuizOutputSchema = z.object({
     question: z.string().describe('The question text.'),
     options: z.array(z.string()).describe('A list of possible answers.'),
     correctAnswer: z.string().describe('The correct answer from the options.'),
+    explanation: z.string().describe('A detailed explanation of the correct answer.'),
+    fastSolveTricks: z.string().optional().describe('Tips or tricks to solve the question quickly.'),
+    analogies: z.string().optional().describe('Analogies to help understand the core concept.'),
   })).describe('An array of quiz questions.'),
 });
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
@@ -53,7 +56,9 @@ The difficulty of the questions should be: {{{difficultyLevel}}}.
 Specialize the quiz with a focus on: {{{specialization}}}. For example, if the focus is "time management", include questions that are tricky to solve quickly.
 {{/if}}
 
-For each question, provide 4 options and clearly indicate the correct answer. The questions should be challenging and relevant to the exam syllabus.
+For each question, provide 4 options and clearly indicate the correct answer. 
+Also provide a detailed explanation for the answer, some tricks to solve the question faster, and an analogy to better understand the concept.
+The questions should be challenging and relevant to the exam syllabus.
 `,
 });
 
