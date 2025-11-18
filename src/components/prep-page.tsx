@@ -13,9 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Book, FileText, Film, Layers, ListChecks } from "lucide-react";
+import { videoData } from "@/lib/video-data";
+import Image from "next/image";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-// Placeholder data for prep materials
-const prepMaterials = [
+// Placeholder data for other prep materials
+const otherMaterials = [
   {
     id: 1,
     type: "Notes",
@@ -24,15 +28,6 @@ const prepMaterials = [
     category: "Notes",
     tags: ["Formulas", "Quant", "Railway"],
     icon: FileText,
-  },
-  {
-    id: 2,
-    type: "Video",
-    title: "Reasoning: Seating Arrangement Tricks",
-    description: "Video tutorial on how to solve complex seating arrangement problems quickly.",
-    category: "Videos",
-    tags: ["Reasoning", "Video", "Bank PO"],
-    icon: Film,
   },
   {
     id: 3,
@@ -61,16 +56,15 @@ const prepMaterials = [
     tags: ["Banking", "GA", "IBPS"],
     icon: FileText,
   },
-  {
-    id: 6,
-    type: "Video",
-    title: "Data Interpretation Basics",
-    description: "Introduction to Data Interpretation for banking exams.",
-    category: "Videos",
-    tags: ["Quant", "Video", "Bank"],
-    icon: Film,
-  },
 ];
+
+const prepMaterials = [...otherMaterials, ...videoData.map(v => ({
+    ...v,
+    id: `video-${v.id}`,
+    type: 'Video',
+    category: 'Videos',
+    icon: Film,
+}))];
 
 const categories = [
   { name: "All", icon: Book },
@@ -80,21 +74,53 @@ const categories = [
   { name: "Videos", icon: Film },
 ];
 
-const PrepMaterialCard = ({ material }: { material: (typeof prepMaterials)[0] }) => (
-  <Card>
+function VideoPlayer({ videoId, title, onClose }: { videoId: string, title: string, onClose: () => void }) {
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="aspect-video">
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+            title={title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const PrepMaterialCard = ({ material, onPlayVideo }: { material: any, onPlayVideo: (videoId: string, title: string) => void }) => (
+  <Card className="flex flex-col">
+    {material.category === 'Videos' && (
+       <div className="aspect-video relative w-full overflow-hidden rounded-t-lg">
+        <Image
+            src={`https://img.youtube.com/vi/${material.videoId}/mqdefault.jpg`}
+            alt={material.title}
+            fill
+            className="object-cover"
+        />
+       </div>
+    )}
     <CardHeader>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <material.icon className="h-6 w-6 text-primary" />
+          {material.category !== 'Videos' && <material.icon className="h-6 w-6 text-primary" />}
           <CardTitle className="text-lg">{material.title}</CardTitle>
         </div>
         <Badge variant="secondary">{material.type}</Badge>
       </div>
       <CardDescription className="pt-2">{material.description}</CardDescription>
     </CardHeader>
-    <CardContent>
+    <CardContent className="flex-grow">
       <div className="flex flex-wrap gap-2">
-        {material.tags.map((tag) => (
+        {material.tags.map((tag: string) => (
           <Badge key={tag} variant="outline">
             {tag}
           </Badge>
@@ -102,14 +128,27 @@ const PrepMaterialCard = ({ material }: { material: (typeof prepMaterials)[0] })
       </div>
     </CardContent>
     <CardFooter>
-      <Button className="w-full">Start Studying</Button>
+        {material.category === 'Videos' ? (
+            <Button className="w-full" onClick={() => onPlayVideo(material.videoId, material.title)}>Watch Video</Button>
+        ) : (
+             <Button className="w-full">Start Studying</Button>
+        )}
     </CardFooter>
   </Card>
 );
 
 export function PrepPage() {
+  const [playingVideo, setPlayingVideo] = useState<{ id: string, title: string } | null>(null);
+
   return (
     <div className="flex flex-col gap-6">
+      {playingVideo && (
+        <VideoPlayer 
+            videoId={playingVideo.id} 
+            title={playingVideo.title} 
+            onClose={() => setPlayingVideo(null)} 
+        />
+      )}
       <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">
           Preparation Hub
@@ -132,7 +171,7 @@ export function PrepPage() {
         <TabsContent value="All" className="mt-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {prepMaterials.map((material) => (
-              <PrepMaterialCard key={material.id} material={material} />
+              <PrepMaterialCard key={material.id} material={material} onPlayVideo={(id, title) => setPlayingVideo({id, title})} />
             ))}
           </div>
         </TabsContent>
@@ -143,7 +182,7 @@ export function PrepPage() {
               {prepMaterials
                 .filter((material) => material.category === cat.name)
                 .map((material) => (
-                  <PrepMaterialCard key={material.id} material={material} />
+                  <PrepMaterialCard key={material.id} material={material} onPlayVideo={(id, title) => setPlayingVideo({id, title})} />
                 ))}
             </div>
              {prepMaterials.filter(m => m.category === cat.name).length === 0 && (
