@@ -13,11 +13,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Bot, Settings, Timer, ChevronLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Settings, Timer, ChevronLeft, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Input } from "./ui/input";
+import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
+import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "./ui/checkbox";
 
 const samplePracticeTest = {
   id: "practice1",
@@ -91,6 +94,13 @@ const samplePracticeTest = {
 
 type UserAnswers = { [key: string]: string };
 type QuestionTimes = { [key: string]: number };
+type QuizQuestion = GenerateQuizOutput['questions'][0] & { id: string };
+type ActiveTest = {
+    id: string;
+    title: string;
+    questions: QuizQuestion[];
+}
+
 
 const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -98,11 +108,36 @@ const formatTime = (timeInSeconds: number) => {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
+const subTopicsOptions = [
+    { id: "basics", label: "Basics & Fundamentals" },
+    { id: "formulas", label: "Formulas & Core Concepts" },
+    { id: "advanced", label: "Advanced Problems" },
+    { id: "previous_years", label: "Previous Year Questions" },
+];
+
+const specializationOptions = [
+    { id: "time_management", label: "Time Management" },
+    { id: "conceptual_clarity", label: "Conceptual Clarity" },
+    { id: "previous_mistakes", label: "Based on Previous Mistakes" },
+];
+
 export function PracticePage() {
   const [testState, setTestState] = useState<"not-started" | "in-progress" | "finished">("not-started");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [score, setScore] = useState<number | null>(null);
+  const [activeTest, setActiveTest] = useState<ActiveTest>(samplePracticeTest);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const [customTopic, setCustomTopic] = useState("Reasoning: Advanced Puzzles");
+  const [customSubTopics, setCustomSubTopics] = useState<string[]>([]);
+  const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
+  const [customNumQuestions, setCustomNumQuestions] = useState(10);
+  const [customDifficulty, setCustomDifficulty] = useState<"Medium" | "Hard">("Hard");
+  const [customSpecialization, setCustomSpecialization] = useState("");
+
+
+  const { toast } = useToast();
 
   const [overallTime, setOverallTime] = useState(0);
   const [perQuestionTime, setPerQuestionTime] = useState(0);
@@ -129,7 +164,8 @@ export function PracticePage() {
       setPerQuestionTime(0);
   }
 
-  const handleStartTest = () => {
+  const handleStartTest = (testData: ActiveTest) => {
+    setActiveTest(testData);
     setTestState("in-progress");
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -138,19 +174,53 @@ export function PracticePage() {
     setPerQuestionTime(0);
     setQuestionTimes({});
   };
+  
+  const handleGenerateAndStart = async () => {
+    setIsGenerating(true);
+    try {
+        const allSubTopics = [...customSubTopics];
+        if (customOtherSubTopic.trim()) {
+            allSubTopics.push(customOtherSubTopic.trim());
+        }
+
+        const result = await generateQuiz({ 
+            topic: customTopic, 
+            subTopics: allSubTopics,
+            numQuestions: customNumQuestions,
+            difficultyLevel: customDifficulty,
+            specialization: customSpecialization || undefined,
+        });
+        const testData: ActiveTest = {
+            id: `ai-test-${Date.now()}`,
+            title: result.title,
+            questions: result.questions.map((q, i) => ({...q, id: `q-${i}`})),
+        }
+        handleStartTest(testData);
+    } catch (e) {
+        toast({
+            variant: "destructive",
+            title: "AI Test Generation Failed",
+            description: "There was an error generating the test. Please try again."
+        });
+        console.error(e);
+    } finally {
+        setIsGenerating(false);
+    }
+  }
+
 
   const handleAnswerSelect = (questionId: string, answer: string) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
   const navigateQuestion = (newIndex: number) => {
-    const currentQuestionId = samplePracticeTest.questions[currentQuestionIndex].id;
+    const currentQuestionId = activeTest.questions[currentQuestionIndex].id;
     recordQuestionTime(currentQuestionId);
     setCurrentQuestionIndex(newIndex);
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < samplePracticeTest.questions.length - 1) {
+    if (currentQuestionIndex < activeTest.questions.length - 1) {
       navigateQuestion(currentQuestionIndex + 1);
     }
   };
@@ -162,9 +232,9 @@ export function PracticePage() {
   };
 
   const handleSubmitTest = () => {
-    recordQuestionTime(samplePracticeTest.questions[currentQuestionIndex].id);
+    recordQuestionTime(activeTest.questions[currentQuestionIndex].id);
     let correctAnswers = 0;
-    samplePracticeTest.questions.forEach((q) => {
+    activeTest.questions.forEach((q) => {
       if (userAnswers[q.id] === q.correctAnswer) {
         correctAnswers++;
       }
@@ -187,33 +257,109 @@ export function PracticePage() {
                 <CardTitle>Configure Your Practice Test</CardTitle>
                 <CardDescription>Set up a practice session tailored to your needs.</CardDescription>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Manual Setup</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Topic</Label>
-                  <Select defaultValue="reasoning-puzzles">
-                    <SelectTrigger id="topic">
-                      <SelectValue placeholder="Select topic" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reasoning-puzzles">Reasoning: Advanced Puzzles</SelectItem>
-                      <SelectItem value="quant-di">Quantitative Aptitude: Data Interpretation</SelectItem>
-                      <SelectItem value="english-rc">English: Reading Comprehension</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg">Manual Setup</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="topic">Topic</Label>
+                    <Select defaultValue={samplePracticeTest.id} onValueChange={() => {}}>
+                      <SelectTrigger id="topic">
+                        <SelectValue placeholder="Select topic" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={samplePracticeTest.id}>{samplePracticeTest.title}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="num-questions">Number of Questions</Label>
+                    <Input id="num-questions" type="number" defaultValue={samplePracticeTest.questions.length} readOnly />
+                  </div>
+                  <Button onClick={() => handleStartTest(samplePracticeTest)} className="w-full">Start Manual Test</Button>
                 </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="num-questions">Number of Questions</Label>
-                  <Input id="num-questions" type="number" defaultValue={samplePracticeTest.questions.length} />
+                <div className="space-y-4 p-6 bg-muted rounded-lg">
+                   <h3 className="font-semibold text-lg flex items-center gap-2"><Bot /> AI-Powered Test</h3>
+                   <div className="space-y-2">
+                        <Label htmlFor="ai-topic">Topic</Label>
+                        <Input id="ai-topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Advanced Puzzles" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="ai-num-questions">Number of Questions</Label>
+                        <Select value={String(customNumQuestions)} onValueChange={(val) => setCustomNumQuestions(Number(val))}>
+                            <SelectTrigger id="ai-num-questions">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[...Array(6)].map((_, i) => (
+                                    <SelectItem key={i+1} value={String((i+1)*5)}>{(i+1)*5}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="ai-difficulty">Difficulty Level</Label>
+                        <Select value={customDifficulty} onValueChange={(val: "Medium" | "Hard") => setCustomDifficulty(val)}>
+                            <SelectTrigger id="ai-difficulty">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Hard">Hard</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
-                <Button onClick={handleStartTest} className="w-full">Start Manual Test</Button>
               </div>
-              <div className="space-y-4 p-6 bg-muted rounded-lg flex flex-col items-center justify-center text-center">
-                 <h3 className="font-semibold text-lg flex items-center gap-2"><Bot /> AI-Powered Test</h3>
-                 <p className="text-sm text-muted-foreground">Let our AI generate a custom test based on your weak points and recent performance.</p>
-                 <Button variant="secondary" className="w-full">Generate with AI</Button>
+              <div className="space-y-4 p-6 bg-muted/50 rounded-lg">
+                <h3 className="font-semibold text-lg">AI Customization Options</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label>Sub-topics</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                        {subTopicsOptions.map((option) => (
+                            <div key={option.id} className="flex items-center space-x-2">
+                                <Checkbox 
+                                    id={`sub-${option.id}`}
+                                    onCheckedChange={(checked) => {
+                                        setCustomSubTopics(prev => checked ? [...prev, option.label] : prev.filter(item => item !== option.label))
+                                    }}
+                                />
+                                <Label htmlFor={`sub-${option.id}`} className="font-normal">{option.label}</Label>
+                            </div>
+                        ))}
+                        </div>
+                        <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific sub-topics..." />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Specialization</Label>
+                        <div className="flex flex-col gap-2">
+                         {specializationOptions.map((option) => (
+                            <div key={option.id} className="flex items-center space-x-2">
+                                <Checkbox 
+                                    id={`spec-${option.id}`}
+                                    onCheckedChange={(checked) => {
+                                        setCustomSpecialization(prev => {
+                                            const current = prev.split(', ').filter(s => s);
+                                            if (checked) {
+                                                return [...current, option.label].join(', ');
+                                            } else {
+                                                return current.filter(item => item !== option.label).join(', ');
+                                            }
+                                        });
+                                    }}
+                                />
+                                <Label htmlFor={`spec-${option.id}`} className="font-normal">{option.label}</Label>
+                            </div>
+                         ))}
+                        </div>
+                    </div>
+                </div>
+                <Button onClick={handleGenerateAndStart} className="w-full" variant="secondary" disabled={isGenerating}>
+                    {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start AI Test"}
+                 </Button>
               </div>
+
             </CardContent>
         </Card>
       </div>
@@ -234,17 +380,17 @@ export function PracticePage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>You scored {score}/{samplePracticeTest.questions.length}!</CardTitle>
+            <CardTitle>You scored {score}/{activeTest.questions.length}!</CardTitle>
              <CardDescription className="flex items-center gap-4">
-              <span>{score! / samplePracticeTest.questions.length > 0.7 ? "Excellent work! Your practice is paying off." : "Good effort. Review the explanations to improve."}</span>
+              <span>{score! / activeTest.questions.length > 0.7 ? "Excellent work! Your practice is paying off." : "Good effort. Review the explanations to improve."}</span>
               <span className="flex items-center gap-2 text-sm"><Timer className="h-4 w-4" /> Total Time: {formatTime(overallTime)}</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-             {samplePracticeTest.questions.map((q, index) => (
+             {activeTest.questions.map((q, index) => (
               <Card key={q.id} className="p-4 bg-muted/20">
                 <div className="flex justify-between items-start">
-                    <p className="font-semibold flex-1 pr-4">{index + 1}. {q.text}</p>
+                    <p className="font-semibold flex-1 pr-4">{index + 1}. {q.question}</p>
                     <Badge variant="outline" className="flex-shrink-0">
                         <Timer className="mr-2 h-3 w-3"/>{formatTime(questionTimes[q.id] || 0)}
                     </Badge>
@@ -255,8 +401,8 @@ export function PracticePage() {
                 </div>
                 <CardFooter className="flex flex-col items-start gap-3 p-0 pt-3 mt-3 border-t">
                   <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>
-                  <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>
-                  <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>
+                  {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
+                  {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
                 </CardFooter>
               </Card>
             ))}
@@ -269,8 +415,8 @@ export function PracticePage() {
     );
   }
 
-  const currentQuestion = samplePracticeTest.questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / samplePracticeTest.questions.length) * 100;
+  const currentQuestion = activeTest.questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / activeTest.questions.length) * 100;
 
   return (
     <div className="flex flex-col gap-6">
@@ -291,12 +437,12 @@ export function PracticePage() {
       </div>
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-xl">{samplePracticeTest.title}</CardTitle>
-          <CardDescription>Question {currentQuestionIndex + 1} of {samplePracticeTest.questions.length}</CardDescription>
+          <CardTitle className="text-xl">{activeTest.title}</CardTitle>
+          <CardDescription>Question {currentQuestionIndex + 1} of {activeTest.questions.length}</CardDescription>
           <Progress value={progress} className="mt-2" />
         </CardHeader>
         <CardContent>
-          <p className="font-semibold text-lg mb-4">{currentQuestion.text}</p>
+          <p className="font-semibold text-lg mb-4">{currentQuestion.question}</p>
           <RadioGroup
             value={userAnswers[currentQuestion.id]}
             onValueChange={(value) => handleAnswerSelect(currentQuestion.id, value)}
@@ -318,7 +464,7 @@ export function PracticePage() {
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
-          {currentQuestionIndex < samplePracticeTest.questions.length - 1 ? (
+          {currentQuestionIndex < activeTest.questions.length - 1 ? (
             <Button onClick={handleNextQuestion}>
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
