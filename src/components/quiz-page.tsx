@@ -229,8 +229,13 @@ export function QuizPage() {
   const [score, setScore] = useState<number | null>(null);
   const [activeQuiz, setActiveQuiz] = useState<QuizData>(manualQuizzes[0]);
   const [isGenerating, setIsGenerating] = useState(false);
+  
   const [customTopic, setCustomTopic] = useState("Indian History");
+  const [customSubTopics, setCustomSubTopics] = useState("");
   const [customNumQuestions, setCustomNumQuestions] = useState(5);
+  const [customDifficulty, setCustomDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
+  const [customSpecialization, setCustomSpecialization] = useState("");
+
   const { toast } = useToast();
 
   const handleStartQuiz = (quizData: QuizData) => {
@@ -241,7 +246,35 @@ export function QuizPage() {
     setScore(null);
   };
 
-  const handleGenerateAndStartQuiz = async (topic: string, numQuestions: number) => {
+  const handleGenerateAndStartQuiz = async () => {
+    setIsGenerating(true);
+    try {
+        const result = await generateQuiz({ 
+            topic: customTopic, 
+            subTopics: customSubTopics.split(',').map(s => s.trim()).filter(s => s),
+            numQuestions: customNumQuestions,
+            difficultyLevel: customDifficulty,
+            specialization: customSpecialization || undefined,
+        });
+        const quizData: QuizData = {
+            id: `ai-quiz-${Date.now()}`,
+            title: result.title,
+            questions: result.questions.map((q, i) => ({...q, id: `q-${i}`})),
+        }
+        handleStartQuiz(quizData);
+    } catch (e) {
+        toast({
+            variant: "destructive",
+            title: "AI Quiz Generation Failed",
+            description: "There was an error generating the quiz. Please try again."
+        });
+        console.error(e);
+    } finally {
+        setIsGenerating(false);
+    }
+  }
+  
+  const handleQuickQuiz = async (topic: string, numQuestions: number) => {
     setIsGenerating(true);
     try {
         const result = await generateQuiz({ topic, numQuestions });
@@ -275,7 +308,7 @@ export function QuizPage() {
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
@@ -324,7 +357,7 @@ export function QuizPage() {
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {aiQuickQuizzes.map(quiz => (
-                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStartQuiz(quiz.topic, quiz.numQuestions)} disabled={isGenerating}>
+                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleQuickQuiz(quiz.topic, quiz.numQuestions)} disabled={isGenerating}>
                         <div className="flex flex-col items-center text-center">
                             <p className="font-semibold">{quiz.topic}</p>
                             <p className="text-xs text-muted-foreground">{quiz.numQuestions} questions</p>
@@ -339,30 +372,52 @@ export function QuizPage() {
                 <CardTitle className="flex items-center gap-2"><Bot /> Custom AI Quiz</CardTitle>
                 <CardDescription>Create your own quiz by specifying a topic and number of questions.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 max-w-sm">
-                <div className="space-y-2">
-                    <Label htmlFor="topic">Topic</Label>
-                    <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Indian History" />
+            <CardContent className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="topic">Topic</Label>
+                        <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. Indian History" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="sub-topics">Sub-topics (comma-separated)</Label>
+                        <Input id="sub-topics" value={customSubTopics} onChange={(e) => setCustomSubTopics(e.target.value)} placeholder="e.g. Mughal Empire, Indus Valley" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="specialization">Specialization</Label>
+                        <Input id="specialization" value={customSpecialization} onChange={(e) => setCustomSpecialization(e.target.value)} placeholder="e.g. Time management, Previous mistakes" />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="num-questions">Number of Questions</Label>
-                    <Select value={String(customNumQuestions)} onValueChange={(val) => setCustomNumQuestions(Number(val))}>
-                        <SelectTrigger id="num-questions">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="5">5</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="15">15</SelectItem>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="25">25</SelectItem>
-                            <SelectItem value="30">30</SelectItem>
-                        </SelectContent>
-                    </Select>
+                 <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="num-questions">Number of Questions</Label>
+                        <Select value={String(customNumQuestions)} onValueChange={(val) => setCustomNumQuestions(Number(val))}>
+                            <SelectTrigger id="num-questions">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[...Array(6)].map((_, i) => (
+                                    <SelectItem key={i+1} value={String((i+1)*5)}>{(i+1)*5}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="difficulty">Difficulty Level</Label>
+                        <Select value={customDifficulty} onValueChange={(val: "Easy" | "Medium" | "Hard") => setCustomDifficulty(val)}>
+                            <SelectTrigger id="difficulty">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Easy">Easy</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Hard">Hard</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </CardContent>
             <CardFooter>
-                <Button onClick={() => handleGenerateAndStartQuiz(customTopic, customNumQuestions)} disabled={isGenerating}>
+                <Button onClick={handleGenerateAndStartQuiz} disabled={isGenerating}>
                         {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Custom Quiz"}
                 </Button>
             </CardFooter>
