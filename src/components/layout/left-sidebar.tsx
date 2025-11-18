@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Bell,
   BookOpen,
+  Camera,
   ChevronLeft,
   ChevronRight,
   FileQuestion,
@@ -33,14 +34,15 @@ import {
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/roadmap", icon: Map, label: "Roadmap" },
-  { href: "/prep", icon: BookOpen, label: "Prep" },
-  { href: "/quiz", icon: FileQuestion, label: "Quiz" },
-  { href: "/practice", icon: TestTube2, label: "Practice" },
-  { href: "/mock", icon: Target, label: "Mock Test" },
-  { href: "/courses", icon: PlayCircle, label: "Courses" },
-  { href: "/podcasts", icon: Mic, label: "Podcasts" },
-  { href: "/r-chat", icon: MessageCircle, label: "R-Chat" },
+  { href: "/dashboard/roadmap", icon: Map, label: "Roadmap" },
+  { href: "/dashboard/prep", icon: BookOpen, label: "Prep" },
+  { href: "/dashboard/quiz", icon: FileQuestion, label: "Quiz" },
+  { href: "/dashboard/practice", icon: TestTube2, label: "Practice" },
+  { href: "/dashboard/mock", icon: Target, label: "Mock Test" },
+  { href: "/dashboard/courses", icon: PlayCircle, label: "Courses" },
+  { href: "/dashboard/podcasts", icon: Mic, label: "Podcasts" },
+  { href: "/dashboard/r-chat", icon: MessageCircle, label: "R-Chat" },
+  { href: "/dashboard/webcam", icon: Camera, label: "Webcam" },
 ];
 
 const secondaryNavItems = [
