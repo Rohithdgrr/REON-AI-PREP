@@ -1,21 +1,163 @@
+
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Book, FileText, Film, Layers, ListChecks } from "lucide-react";
+
+// Placeholder data for prep materials
+const prepMaterials = [
+  {
+    id: 1,
+    type: "Notes",
+    title: "Quantitative Aptitude Formulas",
+    description: "All important formulas and shortcuts for the Quant section.",
+    category: "Notes",
+    tags: ["Formulas", "Quant", "Railway"],
+    icon: FileText,
+  },
+  {
+    id: 2,
+    type: "Video",
+    title: "Reasoning: Seating Arrangement Tricks",
+    description: "Video tutorial on how to solve complex seating arrangement problems quickly.",
+    category: "Videos",
+    tags: ["Reasoning", "Video", "Bank PO"],
+    icon: Film,
+  },
+  {
+    id: 3,
+    type: "MCQ",
+    title: "General Awareness PYQ (2022)",
+    description: "Previous Year Questions from the 2022 RRB NTPC exam.",
+    category: "PYQs & MCQs",
+    tags: ["GA", "PYQ", "NTPC"],
+    icon: ListChecks,
+  },
+  {
+    id: 4,
+    type: "Cheatsheet",
+    title: "English Grammar Rules",
+    description: "A quick reference cheatsheet for all major grammar rules.",
+    category: "Cheatsheets",
+    tags: ["English", "Grammar", "Cheatsheet"],
+    icon: Layers,
+  },
+  {
+    id: 5,
+    type: "Notes",
+    title: "Banking Awareness Key Terms",
+    description: "Definitions of important terms related to the banking industry.",
+    category: "Notes",
+    tags: ["Banking", "GA", "IBPS"],
+    icon: FileText,
+  },
+  {
+    id: 6,
+    type: "Video",
+    title: "Data Interpretation Basics",
+    description: "Introduction to Data Interpretation for banking exams.",
+    category: "Videos",
+    tags: ["Quant", "Video", "Bank"],
+    icon: Film,
+  },
+];
+
+const categories = [
+  { name: "All", icon: Book },
+  { name: "Notes", icon: FileText },
+  { name: "PYQs & MCQs", icon: ListChecks },
+  { name: "Cheatsheets", icon: Layers },
+  { name: "Videos", icon: Film },
+];
+
+const PrepMaterialCard = ({ material }: { material: (typeof prepMaterials)[0] }) => (
+  <Card>
+    <CardHeader>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <material.icon className="h-6 w-6 text-primary" />
+          <CardTitle className="text-lg">{material.title}</CardTitle>
+        </div>
+        <Badge variant="secondary">{material.type}</Badge>
+      </div>
+      <CardDescription className="pt-2">{material.description}</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="flex flex-wrap gap-2">
+        {material.tags.map((tag) => (
+          <Badge key={tag} variant="outline">
+            {tag}
+          </Badge>
+        ))}
+      </div>
+    </CardContent>
+    <CardFooter>
+      <Button className="w-full">Start Studying</Button>
+    </CardFooter>
+  </Card>
+);
 
 export function PrepPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold font-headline tracking-tight">
-        Preparation
-      </h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Preparation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Notes, PYQs, MCQs, Cheatsheets, and Videos will be available here.</p>
-        </CardContent>
-      </Card>
+      <div>
+        <h1 className="text-3xl font-bold font-headline tracking-tight">
+          Preparation Hub
+        </h1>
+        <p className="text-muted-foreground">
+          Find all your study materials in one place.
+        </p>
+      </div>
+
+      <Tabs defaultValue="All" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          {categories.map((cat) => (
+            <TabsTrigger key={cat.name} value={cat.name}>
+              <cat.icon className="mr-2 h-4 w-4" />
+              {cat.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <TabsContent value="All" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {prepMaterials.map((material) => (
+              <PrepMaterialCard key={material.id} material={material} />
+            ))}
+          </div>
+        </TabsContent>
+
+        {categories.slice(1).map((cat) => (
+          <TabsContent key={cat.name} value={cat.name} className="mt-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {prepMaterials
+                .filter((material) => material.category === cat.name)
+                .map((material) => (
+                  <PrepMaterialCard key={material.id} material={material} />
+                ))}
+            </div>
+             {prepMaterials.filter(m => m.category === cat.name).length === 0 && (
+                <Card className="col-span-full">
+                    <CardContent className="flex flex-col items-center justify-center p-16 text-center">
+                        <cat.icon className="h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-xl font-semibold">No {cat.name} Available</h3>
+                        <p className="text-muted-foreground mt-2">There are currently no materials in this category. Check back later!</p>
+                    </CardContent>
+                </Card>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
