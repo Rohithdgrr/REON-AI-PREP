@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import {
@@ -92,7 +93,7 @@ export function MockTestPage() {
   const { toast } = useToast();
 
   const [customTopic, setCustomTopic] = useState("Full Syllabus Mock");
-  const [customSubTopics, setCustomSubTopics] = useState<string[]>(['Previous Year Questions']);
+  const [customSubTopic, setCustomSubTopic] = useState<string>('Previous Year Questions');
   const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
   const [customNumQuestions, setCustomNumQuestions] = useState(100);
   const [customDifficulty, setCustomDifficulty] = useState<"Hard">("Hard");
@@ -101,7 +102,7 @@ export function MockTestPage() {
   const handleGenerateAndStart = async (topic: string, numQuestions: number, isQuickMock: boolean = false) => {
     setIsGenerating(true);
     try {
-        let allSubTopics = [...customSubTopics];
+        let allSubTopics = customSubTopic ? [customSubTopic] : [];
         if (customOtherSubTopic.trim() && !isQuickMock) {
             allSubTopics.push(customOtherSubTopic.trim());
         }
@@ -112,7 +113,7 @@ export function MockTestPage() {
 
         const result = await generateQuiz({ 
             topic: topic || customTopic, 
-            subTopics: isQuickMock ? [] : allSubTopics,
+            subTopics: isQuickMock ? ["Previous Year Questions"] : allSubTopics,
             numQuestions: numQuestions || customNumQuestions,
             difficultyLevel: customDifficulty,
             specialization: specialization,
@@ -222,23 +223,21 @@ export function MockTestPage() {
                     <Label htmlFor="topic">Test Topic</Label>
                     <Input id="topic" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="e.g. RRB NTPC Full Mock" />
                 </div>
-                <div className="space-y-2">
-                    <Label>Focus Areas (Sub-topics)</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                    {subTopicsOptions.map((option) => (
-                        <div key={option.id} className="flex items-center space-x-2">
-                            <Checkbox 
-                                id={`sub-${option.id}`}
-                                checked={customSubTopics.includes(option.label)}
-                                onCheckedChange={(checked) => {
-                                    setCustomSubTopics(prev => checked ? [...prev, option.label] : prev.filter(item => item !== option.label))
-                                }}
-                            />
-                            <Label htmlFor={`sub-${option.id}`} className="font-normal">{option.label}</Label>
-                        </div>
-                    ))}
-                    </div>
-                    <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific topics..." />
+                 <div className="space-y-2">
+                    <Label>Focus Area (Sub-topic)</Label>
+                    <Select value={customSubTopic} onValueChange={setCustomSubTopic}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a focus area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {subTopicsOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.label}>
+                                    {option.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                     <Input value={customOtherSubTopic} onChange={(e) => setCustomOtherSubTopic(e.target.value)} placeholder="Other specific topics..." />
                 </div>
                   <div className="space-y-2">
                     <Label>Specialization</Label>
