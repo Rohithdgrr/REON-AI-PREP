@@ -131,9 +131,6 @@ export function LeftSidebar() {
                 <Logo isCollapsed={isCollapsed} />
                 {!isCollapsed && <span className="font-bold font-headline text-primary">REON™</span>}
             </div>
-            <Button onClick={toggleSidebar} variant="ghost" size="icon" className={cn("h-8 w-8", isCollapsed && "hidden")}>
-                <ChevronLeft className="h-4 w-4" />
-            </Button>
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
