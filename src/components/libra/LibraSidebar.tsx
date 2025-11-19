@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 
 type AIMode = 'Chat' | 'Grammar' | 'Summary' | 'Bullets' | 'Explain' | 'Flow' | 'History' | 'Focus' | 'Analogy';
@@ -87,16 +86,29 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     const fullPrompt = `${modePrompts[currentMode]} In ${language} language. User input: "${textToProcess}"`;
 
     try {
-      if (model === 'L1') {
-        // Simulate streaming for L1
-        const response = await answerQuestionsWithAI(fullPrompt);
-        finalResponse = response;
-      } else {
-        // Direct call for L2
-        finalResponse = await answerQuestionsWithAI(fullPrompt);
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          "model": "meta-llama/llama-3.1-70b-instruct",
+          "messages": [
+            { "role": "user", "content": fullPrompt }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
       }
+
+      const data = await response.json();
+      finalResponse = data.choices[0].message.content;
+
     } catch (error) {
-      console.error(`L1/L2 failed:`, error);
+      console.error(`API Error:`, error);
       toast({ variant: 'destructive', title: 'AI Error', description: 'The model failed to respond. Check console.' });
       setIsLoading(false);
       return;
@@ -289,8 +301,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="L1">L1</SelectItem>
-                    <SelectItem value="L2">L2</SelectItem>
+                    <SelectItem value="L1">Llama 3.1</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
