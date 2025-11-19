@@ -26,19 +26,18 @@ export const useStopwatch = () => {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef(0);
-  const updateRef = useRef(() => {});
-
-  updateRef.current = () => {
+  
+  const update = useCallback(() => {
     const now = Date.now();
     setElapsedTime(now - startTimeRef.current);
-  };
+  }, []);
 
   const start = useCallback(() => {
     if (isRunning) return;
     setIsRunning(true);
     startTimeRef.current = Date.now() - elapsedTime;
-    timerRef.current = setInterval(updateRef.current, 10);
-  }, [elapsedTime, isRunning]);
+    timerRef.current = setInterval(update, 10);
+  }, [elapsedTime, isRunning, update]);
 
   const pause = useCallback(() => {
     if (!isRunning) return;
@@ -56,40 +55,39 @@ export const useStopwatch = () => {
 
   const lap = useCallback(() => {
     if (!isRunning) return;
-    
+
     setLapTimesRaw(prevRawTimes => {
         const newLapTimes = [...prevRawTimes, elapsedTime];
-        
         const lapDiffs = newLapTimes.map((time, index) => {
-            return index === 0 ? time : time - newLapTimes[index-1];
+            return index === 0 ? time : time - newLapTimes[index - 1];
         });
         
         const validDiffs = lapDiffs.filter(d => d > 0);
-        const minDiff = validDiffs.length > 0 ? Math.min(...validDiffs) : 0;
-        const maxDiff = validDiffs.length > 0 ? Math.max(...validDiffs) : 0;
-        
+        const minDiff = validDiffs.length > 1 ? Math.min(...validDiffs) : 0;
+        const maxDiff = validDiffs.length > 1 ? Math.max(...validDiffs) : 0;
+
         const newLaps = newLapTimes.map((overall, index) => {
             const lapTime = lapDiffs[index];
             let type: Lap['type'] = 'normal';
-            
-            if (newLapTimes.length > 1) {
+
+            if (validDiffs.length > 1) {
                 if (lapTime === minDiff) type = 'best';
                 if (lapTime === maxDiff) type = 'worst';
             }
-            
+
             return {
                 lapNumber: index + 1,
                 lapTime: formatTime(lapTime),
                 overallTime: formatTime(overall),
                 type,
-            }
+            };
         }).reverse();
         
         setLaps(newLaps);
         return newLapTimes;
     });
+}, [isRunning, elapsedTime]);
 
-  }, [isRunning, elapsedTime]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
