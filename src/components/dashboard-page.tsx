@@ -63,16 +63,19 @@ export function DashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20 hidden sm:flex rounded-md">
+              <Avatar className="h-24 w-24 hidden sm:flex rounded-md">
                 {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" className="rounded-md" />}
                 <AvatarFallback className="rounded-md"><User /></AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-4xl font-bold font-headline tracking-tight">
+                <h1 className="text-5xl font-bold font-headline tracking-tight">
                   Welcome back, Srinivas! 🔥
                 </h1>
-                <p className="text-lg text-muted-foreground">
-                  Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
+                <p className="text-xl text-muted-foreground mt-1">
+                  Your All-India Rank: #127 <ArrowUp className="inline h-5 w-5 text-green-500" />43 since yesterday
+                </p>
+                 <p className="text-md text-muted-foreground">
+                  RI ID: RAX202514789
                 </p>
               </div>
             </div>
