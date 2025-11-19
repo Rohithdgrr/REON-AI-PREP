@@ -30,7 +30,7 @@ import { Card } from '../ui/card';
 
 type AIMode = 'Chat' | 'History';
 type Language = 'en' | 'hi' | 'te' | 'ta';
-type AIModel = 'L1';
+type AIModel = 'L1' | 'L2';
 
 type Session = {
   id: number;
@@ -70,7 +70,7 @@ const FormattedAIResponse = ({ response }: { response: string }) => {
         const otherContent: string[] = [];
 
         lines.forEach((line) => {
-          if (/^\d+\.\s/.test(line)) {
+          if (/^\d+\.\s/.test(line) || /^-\s/.test(line)) {
             listItems.push(line);
           } else {
             otherContent.push(line);
@@ -83,11 +83,11 @@ const FormattedAIResponse = ({ response }: { response: string }) => {
               <p className="mb-1">{otherContent.join('\n')}</p>
             )}
             {listItems.length > 0 && (
-              <ol className="list-decimal list-inside space-y-1 my-2">
+              <ul className="list-inside space-y-1 my-2">
                 {listItems.map((item, i) => (
-                  <li key={i}>{item.replace(/^\d+\.\s/, '')}</li>
+                  <li key={i}>{item}</li>
                 ))}
-              </ol>
+              </ul>
             )}
           </React.Fragment>
         );
@@ -181,25 +181,10 @@ export function LibraSidebar({
     setInput('');
     abortControllerRef.current = new AbortController();
 
-    // Prepare the new session entry
     const currentInput = promptOverride || input;
-    const newSession: Session = {
-      id: Date.now(),
-      mode: 'Chat',
-      input: currentInput,
-      responses: [''], // Start with an empty response
-      currentResponseIndex: 0,
-      language,
-      model,
-    };
     
-    // Add the new session to history immediately
-    const updatedHistory = [...sessionHistory, newSession];
-    saveHistory(updatedHistory);
-
     const baseFormatInstruction = `
 Always format your answer using this structure, unless the user explicitly asks for a different format:
-
 1. First line: **Clear Title or Topic Name**
 2. Second part: 2-3 lines of brief overview.
 3. Then use section headings in bold, for example:
@@ -209,33 +194,90 @@ Always format your answer using this structure, unless the user explicitly asks 
    **Study Plan**
    **Summary**
    **Quick Recap**
-
 4. Use:
    - Numbered lists (1., 2., 3., ...) for steps, procedures, and quiz questions.
    - Bullet points (-) for key points, advantages, tips, and recap.
-
 5. Highlight using bold:
    - Important terms and formulas.
    - Final answers and correct options (e.g., **Option C**).
-
 6. End every answer with a **Quick Recap** section summarizing 3–5 key takeaways.
-
 Keep the answer concise but clear. Aim for 10–25 lines unless user asks for detailed or long content.
 `;
 
     const fullPrompt = `
 You are LIBRA, an AI assistant for competitive exam preparation. Your persona is helpful, encouraging, and an expert in subjects like Quantitative Aptitude, Reasoning, English, and General Awareness for Indian exams (Railway, Bank PO, etc.).
-
 Respond to the user's query in ${language} language.
-
 Follow this response format strictly so that the UI can render it nicely:
 ${baseFormatInstruction}
-
 User input: "${textToProcess}"
 `;
 
+    const processStream = async (response: Response, currentSession: Session) => {
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        if (!response.body) {
+            throw new Error('Response body is null');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+        let finalResponse = '';
+      
+        while (!done) {
+            const { value, done: readerDone } = await reader.read();
+            done = readerDone;
+            const chunk = decoder.decode(value, { stream: true });
+            
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const dataString = line.substring(6);
+                    if (dataString === '[DONE]') {
+                        done = true;
+                        break;
+                    }
+                    try {
+                        const data = JSON.parse(dataString);
+                        if (data.choices && data.choices[0].delta.content) {
+                            const token = data.choices[0].delta.content;
+                            finalResponse += token;
+
+                            setSessionHistory(prevHistory => {
+                               const newHistory = [...prevHistory];
+                               const sessionIndex = newHistory.findIndex(s => s.id === currentSession.id);
+                               if (sessionIndex > -1) {
+                                   newHistory[sessionIndex].responses[0] = finalResponse;
+                               }
+                               return newHistory;
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error parsing stream data:', e, 'line:', line);
+                    }
+                }
+            }
+        }
+    }
+
+
+    const newSession: Session = {
+      id: Date.now(),
+      mode: 'Chat',
+      input: currentInput,
+      responses: [''],
+      currentResponseIndex: 0,
+      language,
+      model: 'L1', // Start with L1
+    };
+    
+    const updatedHistory = [...sessionHistory, newSession];
+    saveHistory(updatedHistory);
+    
     try {
-      const response = await fetch(
+      // L1 Request
+      const responseL1 = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
           method: 'POST',
@@ -246,71 +288,60 @@ User input: "${textToProcess}"
           body: JSON.stringify({
             model: 'meta-llama/llama-3.1-70b-instruct',
             messages: [{ role: 'user', content: fullPrompt }],
-            stream: true, // Enable streaming
+            stream: true,
           }),
           signal: abortControllerRef.current.signal,
         }
       );
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      if (!response.body) {
-        throw new Error('Response body is null');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      let finalResponse = '';
-      
-      while (!done) {
-        const { value, done: readerDone } = await reader.read();
-        done = readerDone;
-        const chunk = decoder.decode(value, { stream: true });
-        
-        // Process server-sent events
-        const lines = chunk.split('\n').filter(line => line.trim() !== '');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataString = line.substring(6);
-            if (dataString === '[DONE]') {
-              done = true;
-              break;
-            }
-            try {
-              const data = JSON.parse(dataString);
-              if (data.choices && data.choices[0].delta.content) {
-                const token = data.choices[0].delta.content;
-                finalResponse += token;
-
-                // Update the state in real-time
-                setSessionHistory(prevHistory => {
-                   const newHistory = [...prevHistory];
-                   const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-                   if (sessionIndex > -1) {
-                       newHistory[sessionIndex].responses[0] = finalResponse;
-                   }
-                   return newHistory;
-                });
-              }
-            } catch (e) {
-              console.error('Error parsing stream data:', e, 'line:', line);
-            }
-          }
-        }
-      }
-
+      await processStream(responseL1, newSession);
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
-        } else {
-          console.error(`API Error:`, error);
-          toast({
-            variant: 'destructive',
-            title: 'AI Error',
-            description: 'The model failed to respond. Check console.',
-          });
+          setIsLoading(false);
+          return;
+        }
+
+        console.error(`L1 API Error:`, error);
+        toast({
+            variant: "destructive",
+            title: 'L1 Model Failed',
+            description: 'Switching to backup model (L2)...',
+        });
+        
+        // Update session to reflect L2 model usage
+        newSession.model = 'L2';
+        setSessionHistory(prev => prev.map(s => s.id === newSession.id ? newSession : s));
+
+        try {
+            // L2 Fallback Request
+            const responseL2 = await fetch(
+                'https://openrouter.ai/api/v1/chat/completions',
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY_L2}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'anthropic/claude-3-haiku', // Using Claude Haiku as the fallback
+                        messages: [{ role: 'user', content: fullPrompt }],
+                        stream: true,
+                    }),
+                    signal: abortControllerRef.current.signal,
+                }
+            );
+            await processStream(responseL2, newSession);
+        } catch (errorL2: any) {
+            if (errorL2.name === 'AbortError') {
+              console.log('L2 Fetch aborted by user.');
+            } else {
+              console.error(`L2 API Error:`, errorL2);
+              toast({
+                  variant: "destructive",
+                  title: 'AI Error',
+                  description: 'Both primary and backup models failed to respond. Please check console.',
+              });
+            }
         }
     } finally {
       setIsLoading(false);
@@ -350,7 +381,7 @@ User input: "${textToProcess}"
     a.click();
     URL.revokeObjectURL(url);
   };
-
+  
   const handleHistoryClick = (session: Session) => {
     const newChatHistory = [
       {
@@ -371,6 +402,7 @@ User input: "${textToProcess}"
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
+          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{lastSession.model}</span>}
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>

@@ -25,19 +25,20 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
-        port: '',
+        port_num: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'img.youtube.com',
-        port: '',
+        port_num: '',
         pathname: '/**',
       },
     ],
   },
   env: {
     NEXT_PUBLIC_OPENROUTER_API_KEY: process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
+    NEXT_PUBLIC_OPENROUTER_API_KEY_L2: process.env.NEXT_PUBLIC_OPENROUTER_API_KEY_L2,
   },
 };
 
