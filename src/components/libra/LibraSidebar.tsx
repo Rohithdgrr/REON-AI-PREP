@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Bot, X, Sparkles, Wand2, Languages, Type, List, FileText, BotMessageSquare, History, Brain, Lightbulb, ChevronDown, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen, Plus
+  Bot, X, Sparkles, History, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen, Plus, BotMessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -284,8 +284,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
               </div>
             </div>
             
-            {/* Response Area */}
-            <ScrollArea className="flex-1 p-4">
+            <div className="flex-1 overflow-y-auto p-4">
               {currentMode === 'History' ? (
                 <div className="space-y-4">
                   <h3 className="font-semibold">Conversation History</h3>
@@ -308,7 +307,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                   <p className="text-xs">Ask a question or provide context below.</p>
                 </div>
               )}
-            </ScrollArea>
+            </div>
             
             {/* Context and controls */}
             <div className="p-2 border-t text-xs text-muted-foreground flex items-center justify-between flex-shrink-0">
