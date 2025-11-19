@@ -2,10 +2,11 @@
 "use client";
 
 import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { useStopwatch } from "@/hooks/use-stopwatch";
 import { cn } from "@/lib/utils";
+import { Play, Pause, RotateCcw, Flag } from "lucide-react";
 
 const Stat = ({ label, value }: { label: string, value: string }) => (
   <div className="flex flex-col items-center">
@@ -27,35 +28,50 @@ export function SimpleStopwatch() {
   } = useStopwatch();
 
   return (
-    <div className="flex flex-col h-full items-center text-center py-4">
-      <div
-        className="text-7xl md:text-8xl font-mono font-bold tracking-tighter text-primary"
-        dangerouslySetInnerHTML={{ __html: displayTime }}
-      />
-      
-      <div className="flex gap-4 my-6">
-        <Button 
-          id="startBtn" 
-          onClick={isRunning ? pause : start}
-          size="lg"
-          className={cn(
-            "w-24 h-24 rounded-full text-lg shadow-lg", 
-            isRunning ? "bg-yellow-500 hover:bg-yellow-600 text-black" : "bg-green-500 hover:bg-green-600 text-white"
-          )}
-        >
-          {isRunning ? 'Pause' : (displayTime.startsWith('00:00') ? 'Start' : 'Resume')}
-        </Button>
-        <Button id="lapBtn" onClick={lap} disabled={!isRunning} size="lg" className="w-24 h-24 rounded-full text-lg">Lap</Button>
-      </div>
+    <div className="flex flex-col h-full items-center text-center pt-4">
+       <Card className="w-full">
+            <CardContent className="p-4 flex flex-col items-center gap-4">
+                <div
+                    className="text-7xl font-mono font-bold tracking-tighter w-full"
+                    dangerouslySetInnerHTML={{ __html: displayTime }}
+                />
+                
+                <div className="flex gap-4">
+                    <Button 
+                        id="lapBtn" 
+                        onClick={lap} 
+                        disabled={!isRunning} 
+                        size="lg" 
+                        variant="outline" 
+                        className="rounded-full w-20 h-20"
+                    >
+                        <Flag className="w-8 h-8" />
+                    </Button>
+                    <Button 
+                        id="startBtn" 
+                        onClick={isRunning ? pause : start}
+                        size="lg"
+                        className={cn(
+                            "w-20 h-20 rounded-full text-lg shadow-lg", 
+                            isRunning ? "bg-yellow-500 hover:bg-yellow-600 text-black" : "bg-primary text-primary-foreground"
+                        )}
+                    >
+                        {isRunning ? <Pause className="w-8 h-8"/> : <Play className="w-8 h-8" />}
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
 
-      <Card className="w-full">
-        <CardHeader className="p-4 flex flex-row items-center justify-between">
-           <div className="grid grid-cols-3 gap-4 text-center w-full">
+      <Card className="w-full mt-4">
+        <CardHeader className="p-2 flex flex-row items-center justify-between">
+           <div className="grid grid-cols-3 gap-2 text-center w-full">
              <Stat label="Laps" value={stats.lapCount} />
              <Stat label="Best" value={stats.bestLap} />
              <Stat label="Worst" value={stats.worstLap} />
            </div>
-           <Button id="resetBtn" onClick={reset} disabled={laps.length === 0 && !isRunning} size="sm" variant="destructive" className="absolute right-2 top-2">Reset</Button>
+           <Button id="resetBtn" onClick={reset} disabled={laps.length === 0 && !isRunning} size="sm" variant="ghost" className="absolute right-1 top-1 text-muted-foreground hover:text-destructive">
+                <RotateCcw className="h-4 w-4"/>
+           </Button>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-48 border-t">
