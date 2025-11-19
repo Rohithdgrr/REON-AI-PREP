@@ -28,8 +28,7 @@ export const useStopwatch = () => {
   const startTimeRef = useRef(0);
   
   const update = useCallback(() => {
-    const now = Date.now();
-    setElapsedTime(now - startTimeRef.current);
+    setElapsedTime(Date.now() - startTimeRef.current);
   }, []);
 
   const start = useCallback(() => {
