@@ -208,7 +208,7 @@ export function NotificationsPage() {
                 return (
                 <Card key={job.id} className="hover:shadow-md transition-shadow flex flex-col md:flex-row overflow-hidden">
                     {image && (
-                        <div className="md:w-1/3 relative min-h-[200px]">
+                        <div className="md:w-1/3 relative min-h-[200px] md:min-h-full">
                             <Image 
                                 src={image.imageUrl} 
                                 alt={image.description} 
@@ -234,13 +234,22 @@ export function NotificationsPage() {
                                 ))}
                             </div>
                         </CardContent>
-                        <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4 bg-muted/50 p-4">
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Posted:</strong> {formatDate(job.postDate)}</div>
-                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Starts:</strong> {formatDate(job.startDate)}</div>
-                                <div className="flex items-center gap-2 col-span-2 sm:col-span-1"><Calendar className="h-4 w-4" /><strong>Ends:</strong> {formatDate(job.endDate)}</div>
+                        <CardFooter className="flex flex-col items-start gap-4 bg-muted/50 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm w-full">
+                                <div className="flex flex-col">
+                                    <span className="text-muted-foreground text-xs">Posted</span>
+                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.postDate)}</strong>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-muted-foreground text-xs">Starts</span>
+                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.startDate)}</strong>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-muted-foreground text-xs">Ends</span>
+                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.endDate)}</strong>
+                                </div>
                             </div>
-                            <Button asChild disabled={job.status !== "Live"} className="flex-shrink-0">
+                             <Button asChild disabled={job.status !== "Live"} className="w-full sm:w-auto self-end">
                                 <a href={job.url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="mr-2 h-4 w-4"/>
                                     Apply Now
