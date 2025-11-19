@@ -10,7 +10,7 @@ import { Badge } from "../ui/badge";
 
 export function StatsCards() {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle>Last Mock</CardTitle>
@@ -29,16 +29,6 @@ export function StatsCards() {
         <CardContent>
           <div className="text-4xl font-bold">92%</div>
            <p className="text-xs text-muted-foreground">Reasoning 88%, Quant 96%</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Active Missions</CardTitle>
-          <CardDescription>5/7 Completed</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm font-medium">→ Win 3 mocks in 24h</p>
-           <p className="text-xs text-muted-foreground">Time sensitive mission</p>
         </CardContent>
       </Card>
       <Card>

@@ -38,6 +38,8 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
+import { MissionsCard } from "./dashboard/missions-card";
+import { TasksCard } from "./dashboard/tasks-card";
 
 const chartData = [
   { day: "Mon", hours: 2.5 },
@@ -140,6 +142,10 @@ export function DashboardPage() {
           </Card>
         </div>
         <StatsCards />
+        <div className="grid gap-6 md:grid-cols-2">
+            <MissionsCard />
+            <TasksCard />
+        </div>
         <Leaderboard />
       </div>
     </div>
