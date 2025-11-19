@@ -40,7 +40,7 @@ export function ChatMessages({ messages, setMessages }: ChatMessagesProps) {
   const handleEditMessage = (messageId: number, newContent: string) => {
     setMessages(
       messages.map((m) =>
-        m.id === messageId ? { ...m, content: newContent } : m
+        m.id === messageId ? { ...m, content: newContent, ...({edited: true}) } : m
       )
     );
   };
@@ -48,6 +48,13 @@ export function ChatMessages({ messages, setMessages }: ChatMessagesProps) {
   const handleDeleteMessage = (messageId: number) => {
     setMessages(messages.filter((m) => m.id !== messageId));
   };
+  
+  const handleReply = (messageToReply: Message) => {
+    // In a real app, this would likely update some state in a context
+    // to show a reply UI in the ChatInput component.
+    console.log("Replying to:", messageToReply);
+  };
+
 
   return (
     <CardContent className="flex-1 overflow-hidden p-0">
@@ -55,20 +62,19 @@ export function ChatMessages({ messages, setMessages }: ChatMessagesProps) {
         <div className="p-4 space-y-1">
           {messages.map((message, index) => {
             const previousMessage = messages[index - 1];
-            const showAvatar =
-              !previousMessage || previousMessage.sender !== message.sender;
+            const nextMessage = messages[index + 1];
 
-            const isNewDay =
-              !previousMessage ||
-              new Date(message.timestamp).toDateString() !==
-                new Date(previousMessage.timestamp).toDateString();
+            const isFirstInGroup = !previousMessage || previousMessage.sender !== message.sender;
+            const isLastInGroup = !nextMessage || nextMessage.sender !== message.sender;
+            
+            const isNewDay = !previousMessage || new Date(message.timestamp).toDateString() !== new Date(previousMessage.timestamp).toDateString();
 
             return (
               <>
                 {isNewDay && (
                    <Separator className="my-4">
                       <span className="px-2 bg-background text-xs text-muted-foreground">
-                        {new Date(message.timestamp).toLocaleDateString()}
+                        {new Date(message.timestamp).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                       </span>
                    </Separator>
                 )}
@@ -77,7 +83,9 @@ export function ChatMessages({ messages, setMessages }: ChatMessagesProps) {
                   message={message}
                   onEdit={handleEditMessage}
                   onDelete={handleDeleteMessage}
-                  showAvatar={showAvatar}
+                  onReply={handleReply}
+                  isFirstInGroup={isFirstInGroup}
+                  isLastInGroup={isLastInGroup}
                 />
               </>
             );

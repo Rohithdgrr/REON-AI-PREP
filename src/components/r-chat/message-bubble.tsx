@@ -22,10 +22,12 @@ import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 
 type MessageBubbleProps = {
-    message: Message;
+    message: Message & { edited?: boolean };
     onEdit: (id: number, content: string) => void;
     onDelete: (id: number) => void;
-    showAvatar: boolean;
+    onReply: (message: Message) => void;
+    isFirstInGroup: boolean;
+    isLastInGroup: boolean;
 }
 
 const VoiceMessageBubble = ({ duration }: { duration: string }) => (
@@ -77,20 +79,22 @@ const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
 };
 
 
-export function MessageBubble({ message, onEdit, onDelete, showAvatar }: MessageBubbleProps) {
+export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGroup, isLastInGroup }: MessageBubbleProps) {
+    const formattedTimestamp = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
     return (
          <ContextMenu>
               <ContextMenuTrigger>
                 <div
                   className={cn(
-                    'flex items-start gap-3 group relative',
-                    !showAvatar && 'pl-12',
+                    'flex items-end gap-3 group relative',
+                    !isFirstInGroup && 'pt-0.5',
                     message.sender === 'me' ? 'justify-end' : ''
                   )}
                 >
                   {message.sender === 'other' && (
                      <div className="w-9 h-9 flex-shrink-0">
-                      {showAvatar && (
+                      {isLastInGroup && (
                         <Avatar>
                           <AvatarFallback>
                             <Bot />
@@ -105,12 +109,12 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                       message.sender === 'me' ? 'items-end' : 'items-start'
                     )}
                   >
-                    {showAvatar && (
+                    {isFirstInGroup && (
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-sm">
                                 {message.sender === 'me' ? 'Srinivas Reddy' : 'LIBRA AI'}
                             </span>
-                             <span className="text-xs text-muted-foreground">{message.timestamp}</span>
+                             <span className="text-xs text-muted-foreground">{formattedTimestamp}</span>
                         </div>
                     )}
                     {message.replyTo && (
@@ -120,12 +124,13 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                     )}
                     <div
                       className={cn(
-                        'max-w-md rounded-lg p-3 text-sm relative group',
+                        'max-w-md p-3 text-sm relative group',
+                        'rounded-lg',
                         message.type === 'voice' && '!p-2',
                          message.type === 'image' && '!p-0 overflow-hidden',
                         message.sender === 'me'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
+                          ? 'bg-primary text-primary-foreground rounded-br-none'
+                          : 'bg-muted rounded-bl-none'
                       )}
                     >
                       {message.type === 'text' && <p>{message.content}</p>}
@@ -144,12 +149,12 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                       {message.type === 'poll' && message.pollData && (
                         <PollMessageBubble pollData={message.pollData} />
                       )}
-
+                       {message.edited && <span className="text-xs text-muted-foreground/60 ml-2">(edited)</span>}
                     </div>
                   </div>
                   {message.sender === 'me' && (
-                     <div className="w-9 h-9 flex-shrink-0">
-                      {showAvatar && (
+                     <div className="w-9 h-9 flex-shrink-0 flex items-end">
+                      {isLastInGroup && (
                          <Avatar>
                           <AvatarFallback>
                             <CircleUser />
@@ -160,13 +165,13 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                   )}
 
                    {/* Timestamp on hover */}
-                  {!showAvatar && (
+                  {!isFirstInGroup && (
                      <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-12 text-right">
-                        {message.timestamp}
+                        {formattedTimestamp}
                      </div>
                   )}
-                  {message.sender === 'me' && !showAvatar && (
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pl-2 w-12 text-left">
+                  {message.sender === 'me' && isLastInGroup && (
+                    <div className="absolute right-10 -bottom-1 text-xs text-muted-foreground pl-2">
                        <CheckCheck
                           className={cn(
                             'h-4 w-4',
@@ -179,7 +184,7 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem onClick={() => onEdit(message.id, message.content)}>
+                <ContextMenuItem onClick={() => onReply(message)}>
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Reply
                 </ContextMenuItem>
@@ -188,8 +193,11 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                   Pin Message
                 </ContextMenuItem>
                 <Separator />
-                {message.sender === 'me' && (
-                  <ContextMenuItem onClick={() => onEdit(message.id, message.content)}>
+                {message.sender === 'me' && message.type === 'text' && (
+                  <ContextMenuItem onClick={() => {
+                    const newContent = prompt("Edit message:", message.content);
+                    if (newContent) onEdit(message.id, newContent);
+                  }}>
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </ContextMenuItem>
@@ -198,13 +206,15 @@ export function MessageBubble({ message, onEdit, onDelete, showAvatar }: Message
                   <Share2 className="mr-2 h-4 w-4" />
                   Forward
                 </ContextMenuItem>
-                <ContextMenuItem
-                  className="text-destructive"
-                  onClick={() => onDelete(message.id)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </ContextMenuItem>
+                {message.sender === 'me' && (
+                  <ContextMenuItem
+                    className="text-destructive"
+                    onClick={() => onDelete(message.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </ContextMenuItem>
+                )}
               </ContextMenuContent>
             </ContextMenu>
     )
