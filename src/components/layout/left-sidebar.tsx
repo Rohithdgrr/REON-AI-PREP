@@ -73,7 +73,7 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
         <svg
           role="img"
           viewBox="0 0 256 256"
-          className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-16 w-16")}
+          className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-10 w-10")}
           fill="currentColor"
         >
           <path d="M128 0C57.31 0 0 57.31 0 128s57.31 128 128 128 128-57.31 128-128S198.69 0 128 0zm0 240C66.43 240 16 189.57 16 128S66.43 16 128 16s112 50.43 112 112-50.43 112-112 112z" />
@@ -126,11 +126,14 @@ export function LeftSidebar() {
       )}
     >
       <div className="flex h-full max-h-screen flex-col gap-2">
-         <div className={cn("flex items-center border-b", isCollapsed ? 'h-14 justify-center' : 'justify-between p-2')}>
-          {!isCollapsed && <Logo isCollapsed={isCollapsed} />}
-          <Button onClick={toggleSidebar} variant="ghost" size="icon" className="h-8 w-8">
-            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
+         <div className={cn("flex items-center border-b h-14", isCollapsed ? 'justify-center' : 'justify-between p-2')}>
+            <div className="flex items-center gap-2">
+                <Logo isCollapsed={isCollapsed} />
+                {!isCollapsed && <span className="font-bold font-headline text-primary">REON™</span>}
+            </div>
+            <Button onClick={toggleSidebar} variant="ghost" size="icon" className="h-8 w-8">
+                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
