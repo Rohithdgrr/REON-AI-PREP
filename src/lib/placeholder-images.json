@@ -71,6 +71,30 @@
       "description": "Image for 'Prepare for the Interview' suggestion",
       "imageUrl": "https://images.unsplash.com/photo-1762179564268-8d61409d709e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpbnRlcnZpZXclMjBkaXNjdXNzaW9ufGVufDB8fHx8MTc2MzQ3NDI3NHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "interview discussion"
+    },
+    {
+      "id": "job-railway",
+      "description": "Image representing a railway job",
+      "imageUrl": "https://images.unsplash.com/photo-1593361582253-831a4729014b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0cmFpbiUyMHN0YXRpb258ZW58MHx8fHwxNzYzNTM5MzAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "train station"
+    },
+    {
+      "id": "job-bank",
+      "description": "Image representing a banking job",
+      "imageUrl": "https://images.unsplash.com/photo-1601597111158-2f8085412308?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYW5rfGVufDB8fHx8MTc2MzUzOTM1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bank building"
+    },
+    {
+      "id": "job-ssc",
+      "description": "Image representing a government building for SSC jobs",
+      "imageUrl": "https://images.unsplash.com/photo-1582074340791-22bce0671607?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxnb3Zlcm5tZW50JTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNTM5NDAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "government building"
+    },
+    {
+      "id": "job-graduate",
+      "description": "Image representing jobs for graduates",
+      "imageUrl": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxncmFkdWF0aW9ufGVufDB8fHx8MTc2MzUzOTQzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "graduation students"
     }
   ]
 }
