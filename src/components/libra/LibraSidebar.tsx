@@ -166,7 +166,7 @@ export function LibraSidebar({
   };
 
   const handleAiRequest = async (promptOverride?: string) => {
-    const textToProcess = promptOverride || input || pageContent;
+    const textToProcess = promptOverride || input;
     if (!textToProcess) {
       toast({
         variant: 'destructive',
@@ -177,7 +177,23 @@ export function LibraSidebar({
     }
 
     setIsLoading(true);
-    let finalResponse = '';
+    setInput('');
+
+    // Prepare the new session entry
+    const currentInput = promptOverride || input;
+    const newSession: Session = {
+      id: Date.now(),
+      mode: 'Chat',
+      input: currentInput,
+      responses: [''], // Start with an empty response
+      currentResponseIndex: 0,
+      language,
+      model,
+    };
+    
+    // Add the new session to history immediately
+    const updatedHistory = [...sessionHistory, newSession];
+    saveHistory(updatedHistory);
 
     const fullPrompt = `You are LIBRA, an AI assistant for competitive exam preparation. Your persona is helpful, encouraging, and an expert in subjects like Quantitative Aptitude, Reasoning, English, and General Awareness for Indian exams (Railway, Bank PO, etc.). Respond to the user's query in ${language} language. User input: "${textToProcess}"`;
 
@@ -193,18 +209,60 @@ export function LibraSidebar({
           body: JSON.stringify({
             model: 'meta-llama/llama-3.1-70b-instruct',
             messages: [{ role: 'user', content: fullPrompt }],
+            stream: true, // Enable streaming
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(
-          `API request failed with status ${response.status}`
-        );
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      if (!response.body) {
+        throw new Error('Response body is null');
       }
 
-      const data = await response.json();
-      finalResponse = data.choices[0].message.content;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let finalResponse = '';
+      
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        const chunk = decoder.decode(value, { stream: true });
+        
+        // Process server-sent events
+        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataString = line.substring(6);
+            if (dataString === '[DONE]') {
+              done = true;
+              break;
+            }
+            try {
+              const data = JSON.parse(dataString);
+              if (data.choices && data.choices[0].delta.content) {
+                const token = data.choices[0].delta.content;
+                finalResponse += token;
+
+                // Update the state in real-time
+                setSessionHistory(prevHistory => {
+                   const newHistory = [...prevHistory];
+                   const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+                   if (sessionIndex > -1) {
+                       newHistory[sessionIndex].responses[0] = finalResponse;
+                   }
+                   return newHistory;
+                });
+              }
+            } catch (e) {
+              console.error('Error parsing stream data:', e, 'line:', line);
+            }
+          }
+        }
+      }
+
     } catch (error) {
       console.error(`API Error:`, error);
       toast({
@@ -212,39 +270,11 @@ export function LibraSidebar({
         title: 'AI Error',
         description: 'The model failed to respond. Check console.',
       });
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    setIsLoading(false);
-
-    const currentInput = promptOverride || input;
-    const existingSessionIndex = sessionHistory.findIndex(
-      (s) => s.mode === currentMode
-    );
-    let newHistory = [...sessionHistory];
-
-    if (existingSessionIndex > -1) {
-      const session = newHistory[existingSessionIndex];
-      session.responses.push(finalResponse);
-      session.currentResponseIndex = session.responses.length - 1;
-      session.input = currentInput;
-    } else {
-      const newSession: Session = {
-        id: Date.now(),
-        mode: currentMode,
-        input: currentInput,
-        responses: [finalResponse],
-        currentResponseIndex: 0,
-        language,
-        model,
-      };
-      newHistory.push(newSession);
-    }
-
-    saveHistory(newHistory);
-    setInput('');
   };
+
 
   const handleNewChat = () => {
     const newHistory = sessionHistory.filter((s) => s.mode !== 'Chat');
@@ -287,9 +317,7 @@ export function LibraSidebar({
   };
 
   const currentSession = sessionHistory.find((s) => s.mode === 'Chat');
-  const currentResponse = currentSession
-    ? currentSession.responses[currentSession.currentResponseIndex]
-    : null;
+  const lastSession = sessionHistory[sessionHistory.length-1];
 
   return (
     <div className="flex h-full max-h-screen min-h-0 flex-col bg-card text-card-foreground border-l">
@@ -393,71 +421,8 @@ export function LibraSidebar({
               </p>
             )}
           </div>
-        ) : isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Sparkles className="animate-spin h-5 w-5" /> Thinking...
-            </div>
-          </div>
-        ) : currentResponse ? (
-          <div className="flex flex-col gap-4">
-            {/* User bubble */}
-            <div className="flex items-start gap-3 justify-end">
-              <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
-                <p className="text-sm">{currentSession?.input}</p>
-              </div>
-            </div>
-
-            {/* AI bubble */}
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Bot className="h-5 w-5 text-primary" />
-              </div>
-              <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                <FormattedAIResponse response={currentResponse} />
-                <div className="flex items-center gap-1 mt-2">
-                  {currentSession && currentSession.responses.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleRevert('Chat')}
-                      disabled={currentSession.currentResponseIndex === 0}
-                    >
-                      <Undo2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {currentResponse && (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => copyToClipboard(currentResponse)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() =>
-                          downloadResponse(
-                            currentResponse,
-                            `libra-response.txt`
-                          )
-                        }
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Empty state
+        ) : sessionHistory.length === 0 ? (
+           // Empty state
           <div className="text-center h-full flex flex-col justify-center items-center">
             <BotMessageSquare className="mx-auto h-16 w-16 opacity-10 mb-4" />
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
@@ -478,6 +443,60 @@ export function LibraSidebar({
                 </Card>
               ))}
             </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {sessionHistory.map(session => (
+              <React.Fragment key={session.id}>
+                 {/* User bubble */}
+                <div className="flex items-start gap-3 justify-end">
+                  <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
+                    <p className="text-sm">{session.input}</p>
+                  </div>
+                </div>
+
+                {/* AI bubble */}
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bot className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="p-3 rounded-2xl bg-muted max-w-sm">
+                    {session.responses[0] ? (
+                      <>
+                        <FormattedAIResponse response={session.responses[0]} />
+                        <div className="flex items-center gap-1 mt-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => copyToClipboard(session.responses[0])}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() =>
+                              downloadResponse(
+                                session.responses[0],
+                                `libra-response.txt`
+                              )
+                            }
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                       <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                          <Sparkles className="animate-spin h-5 w-5" /> Thinking...
+                        </div>
+                    )}
+                  </div>
+                </div>
+              </React.Fragment>
+            ))}
           </div>
         )}
       </div>
