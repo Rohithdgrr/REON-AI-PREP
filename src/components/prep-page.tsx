@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import {
@@ -12,13 +13,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Book, FileText, Film, Layers, ListChecks, Expand, X } from "lucide-react";
+import { Book, FileText, Film, Layers, ListChecks, Expand, X, Bot } from "lucide-react";
 import { videoData } from "@/lib/video-data";
 import { otherMaterialsData } from "@/lib/other-materials-data";
 import Image from "next/image";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
 import { InAppBrowser } from "./in-app-browser";
+import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
 const prepMaterials = [
     ...otherMaterialsData.map(d => ({...d, icon: d.category === 'Notes' ? FileText : d.category === 'PYQs & MCQs' ? ListChecks : Layers})), 
@@ -54,7 +56,7 @@ function VideoPlayer({ videoId, title }: { videoId: string, title: string }) {
   );
 }
 
-const PrepMaterialCard = ({ material, onOpenUrl }: { material: any, onOpenUrl: (url: string, title: string) => void }) => (
+const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, onOpenUrl: (url: string, title: string) => void, onAskLibra: (materialTitle: string) => void }) => (
   <Card className="flex flex-col">
     {material.category === 'Videos' && (
        <div className="aspect-video relative w-full overflow-hidden rounded-t-lg bg-black">
@@ -80,10 +82,13 @@ const PrepMaterialCard = ({ material, onOpenUrl }: { material: any, onOpenUrl: (
         ))}
       </div>
     </CardContent>
-    <CardFooter>
+    <CardFooter className="grid gap-2" style={{ gridTemplateColumns: material.category !== 'Videos' ? '1fr 1fr' : '1fr' }}>
         {material.category !== 'Videos' && (
             <Button className="w-full" onClick={() => onOpenUrl(material.url, material.title)}>Start Studying</Button>
         )}
+        <Button variant="outline" className="w-full" onClick={() => onAskLibra(material.title)}>
+            <Bot className="mr-2 h-4 w-4" /> Ask LIBRA
+        </Button>
     </CardFooter>
   </Card>
 );
@@ -92,6 +97,7 @@ export function PrepPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({ All: 'All' });
   const [browserState, setBrowserState] = useState<{open: boolean, url: string, title: string}>({open: false, url: '', title: ''});
+  const { setActiveTool } = useToolsSidebar();
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -101,6 +107,10 @@ export function PrepPage() {
 
   const handleOpenUrl = (url: string, title: string) => {
     setBrowserState({ open: true, url, title });
+  };
+
+  const handleAskLibra = (materialTitle: string) => {
+    setActiveTool({ id: 'libra', payload: { prompt: `Explain the key concepts from "${materialTitle}" and create a 3-question mini-quiz based on it.` }});
   };
 
   const handleCloseBrowser = () => {
@@ -129,7 +139,7 @@ export function PrepPage() {
     }
 
     return filteredMaterials.map(material => (
-      <PrepMaterialCard key={material.id} material={material} onOpenUrl={handleOpenUrl} />
+      <PrepMaterialCard key={material.id} material={material} onOpenUrl={handleOpenUrl} onAskLibra={handleAskLibra} />
     ));
   };
   

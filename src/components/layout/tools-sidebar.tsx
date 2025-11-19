@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { cn } from '@/lib/utils';
@@ -73,14 +74,14 @@ const toolComponents: Record<string, React.ComponentType<any> | undefined> = {
       <NotificationsPanel />
     </>
   ),
-  libra: () => <LibraSidebar pageTitle="General" />,
+  libra: (props: any) => <LibraSidebar {...props} />,
 };
 
 export function ToolsSidebar() {
   const { isOpen, activeTool, setActiveTool } = useToolsSidebar();
 
-  const ActiveToolComponent = activeTool ? toolComponents[activeTool] : null;
-  const isLibra = activeTool === 'libra';
+  const ActiveToolComponent = activeTool ? toolComponents[activeTool.id] : null;
+  const isLibra = activeTool?.id === 'libra';
 
   return (
     <div
@@ -100,7 +101,7 @@ export function ToolsSidebar() {
               </div>
             )}
             <div className={cn("flex-1", !isLibra && "overflow-y-auto")}>
-              {ActiveToolComponent ? <ActiveToolComponent /> : <p>Tool not found</p>}
+              {ActiveToolComponent ? <ActiveToolComponent {...(activeTool.payload || {})} /> : <p>Tool not found</p>}
             </div>
           </div>
         )}

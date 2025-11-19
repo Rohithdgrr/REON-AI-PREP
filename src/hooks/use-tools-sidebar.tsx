@@ -1,13 +1,19 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
+type ActiveTool = {
+  id: string;
+  payload?: any;
+}
+
 type ToolsSidebarContextType = {
   isOpen: boolean;
-  activeTool: string | null;
+  activeTool: ActiveTool | null;
   toggleSidebar: (forceOpen?: boolean) => void;
-  setActiveTool: (tool: string | null) => void;
+  setActiveTool: (tool: ActiveTool | null) => void;
 };
 
 const ToolsSidebarContext = createContext<ToolsSidebarContextType | undefined>(undefined);
@@ -22,29 +28,26 @@ export function useToolsSidebar() {
 
 export function ToolsSidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTool, setActiveToolState] = useState<string | null>(null);
+  const [activeTool, setActiveToolState] = useState<ActiveTool | null>(null);
 
   const toggleSidebar = useCallback((forceOpen?: boolean) => {
     setIsOpen(prev => forceOpen !== undefined ? forceOpen : !prev);
   }, []);
 
-  const setActiveTool = useCallback((toolId: string | null) => {
-    // If closing the tool
-    if (toolId === null) {
+  const setActiveTool = useCallback((tool: ActiveTool | null) => {
+    if (tool === null) {
         setIsOpen(false);
         setActiveToolState(null);
         return;
     }
     
     setActiveToolState(currentTool => {
-      // If the same tool is clicked again, toggle the sidebar
-      if (currentTool === toolId) {
+      if (currentTool?.id === tool.id) {
         setIsOpen(prev => !prev);
-        return currentTool;
+        return tool; 
       }
-      // If a new tool is selected, open the sidebar
       setIsOpen(true);
-      return toolId;
+      return tool;
     });
   }, []);
 

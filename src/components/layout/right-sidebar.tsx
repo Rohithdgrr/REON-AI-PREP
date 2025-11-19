@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -58,8 +59,7 @@ export function RightSidebar() {
   const { setActiveTool, toggleSidebar } = useToolsSidebar();
 
   const handleToolClick = (toolId: string) => {
-    setActiveTool(toolId);
-    toggleSidebar(true);
+    setActiveTool({ id: toolId });
   };
   
   return (

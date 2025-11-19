@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -117,13 +118,7 @@ const suggestionCards = [
   },
 ];
 
-export function LibraSidebar({
-  pageTitle,
-  pageContent,
-}: {
-  pageTitle: string;
-  pageContent?: string;
-}) {
+export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
   const [language, setLanguage] = useState<Language>('en');
   const [model, setModel] = useState<AIModel>('L1');
@@ -134,6 +129,13 @@ export function LibraSidebar({
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (prompt) {
+      handleAiRequest(prompt);
+    }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prompt]);
 
   useEffect(() => {
     try {
