@@ -6,6 +6,7 @@ import {
   Award,
   Flame,
   Star,
+  User,
 } from "lucide-react";
 import {
   Card,
@@ -34,6 +35,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const chartData = [
   { day: "Mon", hours: 2.5 },
@@ -53,16 +56,23 @@ const chartConfig = {
 };
 
 export function DashboardPage() {
+  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-headline tracking-tight">
-            Welcome back, Srinivas! 🔥
-          </h1>
-          <p className="text-muted-foreground">
-            Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
-          </p>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16 hidden sm:flex">
+            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
+            <AvatarFallback><User /></AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-3xl font-bold font-headline tracking-tight">
+              Welcome back, Srinivas! 🔥
+            </h1>
+            <p className="text-muted-foreground">
+              Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
+            </p>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
             <Card className="flex items-center p-3 gap-3">
