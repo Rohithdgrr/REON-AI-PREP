@@ -13,7 +13,6 @@ import {
 } from '../ui/sheet';
 import { SimpleCalculator } from '../simple-calculator';
 import { MultiTimer } from '../multi-timer';
-import { InAppBrowser } from '../in-app-browser';
 import { AdvancedCalendar } from '../advanced-calendar';
 import { SimpleStopwatch } from '../simple-stopwatch';
 import { Textarea } from '../ui/textarea';
@@ -135,7 +134,6 @@ const toolComponents: Record<string, React.ComponentType | undefined> = {
       <NotificationsPanel />
     </>
   ),
-  browser: () => <div className="h-full flex flex-col"><InAppBrowser /></div>,
   libra: LibraAI,
 };
 

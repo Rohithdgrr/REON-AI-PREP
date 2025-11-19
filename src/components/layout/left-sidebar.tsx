@@ -44,6 +44,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/dashboard/notifications", icon: Bell, label: "Job Notifications" },
   { href: "/dashboard/roadmap", icon: Map, label: "Roadmap" },
   { href: "/dashboard/prep", icon: BookOpen, label: "Prep" },
   { href: "/dashboard/suggestions", icon: Lightbulb, label: "Suggestions" },
@@ -56,7 +57,6 @@ const navItems = [
 ];
 
 const secondaryNavItems = [
-  { href: "/dashboard/notifications", icon: Bell, label: "Notifications" },
   { href: "/dashboard/tools", icon: Wrench, label: "Tools" },
 ];
 

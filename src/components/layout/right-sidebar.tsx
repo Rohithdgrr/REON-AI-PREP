@@ -9,7 +9,6 @@ import {
   Sparkles,
   Timer,
   Bell,
-  Globe,
   ListTodo,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,7 +28,6 @@ const tools = [
   { id: 'timer', icon: Timer, label: 'Timer' },
   { id: 'stopwatch', icon: Clock, label: 'Stopwatch' },
   { id: 'notifications', icon: Bell, label: 'Notifications' },
-  { id: 'browser', icon: Globe, label: 'In-App Browser' },
 ];
 
 function TooltipButton({
