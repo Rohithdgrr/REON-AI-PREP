@@ -1,5 +1,5 @@
-import { AuthPage } from '@/components/auth-page';
+import { HomePage } from '@/components/home-page';
 
 export default function Home() {
-  return <AuthPage />;
+  return <HomePage />;
 }

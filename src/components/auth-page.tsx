@@ -23,30 +23,6 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bot, FileQuestion, Lightbulb, Map } from 'lucide-react';
-
-const features = [
-    {
-        icon: Map,
-        title: "AI Personalised Plans",
-        description: "Get a study roadmap tailored to your weak subjects and available time."
-    },
-    {
-        icon: FileQuestion,
-        title: "PYQs, MCQs & Notes",
-        description: "Access a vast library of previous year questions, notes, and practice quizzes."
-    },
-    {
-        icon: Bot,
-        title: "LIBRA AI Assistance",
-        description: "Your personal AI tutor for instant doubt clarification and topic summaries."
-    },
-    {
-        icon: Lightbulb,
-        title: "Multi-language Support",
-        description: "Learn in your preferred language: English, Telugu, Hindi, and more."
-    }
-]
 
 export function AuthPage() {
   const heroBg = PlaceHolderImages.find((img) => img.id === 'hero-background');
@@ -203,31 +179,6 @@ export function AuthPage() {
           </div>
         </div>
       </div>
-       <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">One Platform, All Your Prep Needs</h2>
-              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                REON AI combines cutting-edge artificial intelligence with proven exam strategies to give you an unparalleled advantage.
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 lg:grid-cols-4 lg:gap-12">
-            {features.map((feature) => (
-                <div key={feature.title} className="grid gap-1 text-center">
-                    <div className="flex justify-center items-center mb-4">
-                        <div className="bg-primary/10 p-4 rounded-full">
-                            <feature.icon className="h-8 w-8 text-primary" />
-                        </div>
-                    </div>
-                    <h3 className="text-lg font-bold">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
