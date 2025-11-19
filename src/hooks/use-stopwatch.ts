@@ -11,16 +11,24 @@ const formatTime = (ms: number) => {
   return `${minutes}:${seconds}.<small>${millis}</small>`;
 };
 
+type Lap = {
+  lapNumber: number;
+  lapTime: string;
+  overallTime: string;
+  type: 'normal' | 'best' | 'worst';
+};
+
 export const useStopwatch = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [laps, setLaps] = useState<{lapNumber: number, lapTime: string, overallTime: string, type: 'normal' | 'best' | 'worst'}[]>([]);
+  const [laps, setLaps] = useState<Lap[]>([]);
   const [lapTimesRaw, setLapTimesRaw] = useState<number[]>([]);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef(0);
+  const updateRef = useRef(() => {});
 
-  const update = () => {
+  updateRef.current = () => {
     const now = Date.now();
     setElapsedTime(now - startTimeRef.current);
   };
@@ -29,17 +37,17 @@ export const useStopwatch = () => {
     if (isRunning) return;
     setIsRunning(true);
     startTimeRef.current = Date.now() - elapsedTime;
-    timerRef.current = setInterval(update, 10);
+    timerRef.current = setInterval(updateRef.current, 10);
   }, [elapsedTime, isRunning]);
 
   const pause = useCallback(() => {
     if (!isRunning) return;
-    clearInterval(timerRef.current!);
+    if (timerRef.current) clearInterval(timerRef.current);
     setIsRunning(false);
   }, [isRunning]);
 
   const reset = useCallback(() => {
-    clearInterval(timerRef.current!);
+    if (timerRef.current) clearInterval(timerRef.current);
     setIsRunning(false);
     setElapsedTime(0);
     setLaps([]);
@@ -49,8 +57,8 @@ export const useStopwatch = () => {
   const lap = useCallback(() => {
     if (!isRunning) return;
     
-    setLapTimesRaw(prev => {
-        const newLapTimes = [...prev, elapsedTime];
+    setLapTimesRaw(prevRawTimes => {
+        const newLapTimes = [...prevRawTimes, elapsedTime];
         
         const lapDiffs = newLapTimes.map((time, index) => {
             return index === 0 ? time : time - newLapTimes[index-1];
@@ -62,7 +70,7 @@ export const useStopwatch = () => {
         
         const newLaps = newLapTimes.map((overall, index) => {
             const lapTime = lapDiffs[index];
-            let type: 'normal' | 'best' | 'worst' = 'normal';
+            let type: Lap['type'] = 'normal';
             
             if (newLapTimes.length > 1) {
                 if (lapTime === minDiff) type = 'best';
@@ -75,9 +83,9 @@ export const useStopwatch = () => {
                 overallTime: formatTime(overall),
                 type,
             }
-        });
+        }).reverse();
         
-        setLaps(newLaps.reverse());
+        setLaps(newLaps);
         return newLapTimes;
     });
 
@@ -103,7 +111,7 @@ export const useStopwatch = () => {
   }, [isRunning, start, pause, lap, reset, elapsedTime, laps]);
   
   const getStats = () => {
-    const lapDiffs = lapTimesRaw.map((time, index) => index === 0 ? time : time - lapTimesRaw[index-1]);
+    const lapDiffs = lapTimesRaw.map((time, index) => index === 0 ? time : time - (lapTimesRaw[index-1] || 0));
     const validDiffs = lapDiffs.filter(d => d > 0);
     const minDiff = validDiffs.length > 0 ? Math.min(...validDiffs) : 0;
     const maxDiff = validDiffs.length > 0 ? Math.max(...validDiffs) : 0;
