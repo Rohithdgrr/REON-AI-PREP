@@ -6,68 +6,54 @@
   <title>Notes App - Like Google Keep</title>
   <style>
     :root {
-      --bg: #f5f5f5;
-      --text: #333;
-      --card: #fff;
-      --accent: #4285f4;
-      --shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --bg: var(--background, #f5f5f5);
+      --text: var(--foreground, #333);
+      --card: var(--card, #fff);
+      --accent: var(--primary, #4285f4);
+      --border: var(--border, #e0e0e0);
+      --input: var(--input, #eee);
+      --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
     }
-    [data-theme="dark"] {
-      --bg: #121212;
-      --text: #e0e0e0;
-      --card: #1e1e1e;
-      --accent: #8ab4f8;
-      --shadow: 0 2px 15px rgba(0,0,0,0.4);
-    }
+    
     body {
       margin: 0;
       font-family: 'Roboto', 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: all 0.3s;
+      transition: background-color 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    header {
-      background: var(--accent);
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      position: relative;
-    }
-    .theme-toggle {
-      position: absolute;
-      right: 20px;
-      top: 15px;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
+
     .search-bar {
-      margin: 20px auto;
-      max-width: 600px;
-      padding: 0 20px;
+      margin: 1rem;
     }
     .search-bar input {
       width: 100%;
-      padding: 12px 20px;
-      border: none;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
       border-radius: 50px;
       font-size: 1rem;
       box-shadow: var(--shadow);
       outline: none;
+      background-color: var(--card);
+      color: var(--text);
     }
+    .search-bar input:focus {
+        border-color: var(--accent);
+    }
+
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+      padding: 0 1rem 1rem;
     }
+
     .new-note {
       background: var(--card);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
       padding: 15px;
       border-radius: 12px;
       box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
     .new-note textarea {
       width: 100%;
@@ -81,98 +67,121 @@
     .new-note .toolbar {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-top: 10px;
       opacity: 0;
       transition: opacity 0.3s;
+      max-height: 0px;
     }
     .new-note:focus-within .toolbar {
       opacity: 1;
+      max-height: 100px;
     }
     .colors {
       display: flex;
       gap: 8px;
     }
     .color {
-      width: 30px;
-      height: 30px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       cursor: pointer;
-      border: 3px solid transparent;
+      border: 2px solid transparent;
+      transition: transform 0.2s;
+    }
+    .color:hover {
+        transform: scale(1.1);
     }
     .color.selected {
-      border-color: #000;
+      border-color: var(--accent);
     }
+    #addBtn {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
     .notes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
     }
     .note {
       background: var(--card);
       border-radius: 12px;
       padding: 16px;
       box-shadow: var(--shadow);
-      transition: all 0.3s;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease-in-out;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     .note:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transform: translateY(-4px);
+      border-color: var(--accent);
     }
-    .note.pinned::before {
+    .note.pinned::after {
       content: "📌";
       position: absolute;
       top: 8px;
       right: 8px;
       font-size: 1.2rem;
     }
-    .note-title {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
     .note-content {
       white-space: pre-wrap;
+      word-wrap: break-word;
       margin-bottom: 10px;
       line-height: 1.5;
+      flex-grow: 1;
     }
     .note-tags {
       font-size: 0.8rem;
       color: var(--accent);
       margin-bottom: 10px;
+      word-wrap: break-word;
     }
     .note-actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 4px;
       opacity: 0;
       transition: opacity 0.3s;
+      margin-top: auto;
     }
     .note:hover .note-actions {
       opacity: 1;
     }
-    button {
+    .note-actions button {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 1.2rem;
+      font-size: 1rem;
       padding: 5px;
+      color: var(--text);
+      opacity: 0.7;
+    }
+    .note-actions button:hover {
+        opacity: 1;
+        color: var(--accent);
     }
     .empty-state {
       text-align: center;
-      padding: 60px;
+      padding: 60px 20px;
       color: gray;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      grid-column: 1 / -1;
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body data-theme="light">
-
-  <header>
-    <h1>📝 My Notes</h1>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
-  </header>
+<body>
 
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search notes..." />
@@ -183,16 +192,16 @@
       <textarea id="noteInput" placeholder="Take a note..." rows="1"></textarea>
       <div class="toolbar">
         <div class="colors">
-          <div class="color" style="background:#fff" data-color="#fff"></div>
-          <div class="color" style="background:#ff9999" data-color="#ff9999"></div>
-          <div class="color" style="background:#99ff99" data-color="#99ff99"></div>
-          <div class="color" style="background:#9999ff" data-color="#9999ff"></div>
-          <div class="color" style="background:#ffff99" data-color="#ffff99"></div>
-          <div class="color" style="background:#ffcc99" data-color="#ffcc99"></div>
-          <div class="color" style="background:#ff99cc" data-color="#ff99cc"></div>
-          <div class="color" style="background:#c0c0c0" data-color="#c0c0c0"></div>
+          <div class="color" style="background:var(--card)" data-color="var(--card)"></div>
+          <div class="color" style="background:#f28b82" data-color="#f28b82"></div>
+          <div class="color" style="background:#fbbc04" data-color="#fbbc04"></div>
+          <div class="color" style="background:#fff475" data-color="#fff475"></div>
+          <div class="color" style="background:#ccff90" data-color="#ccff90"></div>
+          <div class="color" style="background:#a7ffeb" data-color="#a7ffeb"></div>
+          <div class="color" style="background:#cbf0f8" data-color="#cbf0f8"></div>
+          <div class="color" style="background:#d7aefb" data-color="#d7aefb"></div>
         </div>
-        <button id="addBtn">Add Note</button>
+        <button id="addBtn">Add</button>
       </div>
     </div>
 
@@ -206,9 +215,8 @@
     const addBtn = document.getElementById('addBtn');
     const notesGrid = document.getElementById('notesGrid');
     const searchInput = document.getElementById('searchInput');
-    const themeToggle = document.getElementById('themeToggle');
-    let selectedColor = '#fff';
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
+    let selectedColor = 'var(--card)';
+    let notes = JSON.parse(localStorage.getItem('notes-v2')) || [];
     let editId = null;
 
     // Auto-resize textarea
@@ -232,7 +240,7 @@
       if (!text) return;
 
       if (editId !== null) {
-        notes = notes.map(n => n.id === editId ? {...n, content: text, color: selectedColor, updatedAt: Date.now()} : n);
+        notes = notes.map(n => n.id === editId ? {...n, content: text, color: selectedColor, tags: extractTags(text), updatedAt: Date.now()} : n);
         editId = null;
       } else {
         const note = {
@@ -250,8 +258,8 @@
       saveAndRender();
       noteInput.value = '';
       noteInput.style.height = 'auto';
-      selectedColor = '#fff';
-      document.querySelector('.color[data-color="#fff"]').classList.add('selected');
+      selectedColor = 'var(--card)';
+      document.querySelectorAll('.color').forEach(x => x.classList.remove('selected'));
     }
 
     addBtn.addEventListener('click', addNote);
@@ -268,31 +276,36 @@
     }
 
     function saveAndRender() {
-      localStorage.setItem('notes', JSON.stringify(notes));
+      localStorage.setItem('notes-v2', JSON.stringify(notes));
       renderNotes();
     }
 
     function renderNotes(filter = '') {
       const filtered = notes
-        .filter(n => n.content.toLowerCase().includes(filter.toLowerCase()))
+        .filter(n => n.content.toLowerCase().includes(filter.toLowerCase()) || n.tags.some(t => t.toLowerCase().includes(filter.toLowerCase())))
         .sort((a, b) => (b.pinned - a.pinned) || b.updatedAt - a.updatedAt);
 
-      notesGrid.innerHTML = filtered.length === 0
-        ? '<div class="empty-state">No notes found 😔</div>'
+      notesGrid.innerHTML = filtered.length === 0 && !filter
+        ? '<div class="empty-state">No notes yet. Create one above! ✨</div>'
+        : filtered.length === 0 && filter
+        ? '<div class="empty-state">No notes match your search. 😔</div>'
         : '';
+        
 
       filtered.forEach(note => {
         const noteEl = document.createElement('div');
         noteEl.className = `note ${note.pinned ? 'pinned' : ''}`;
         noteEl.style.background = note.color;
+        
+        const contentHtml = new DOMParser().parseFromString(note.content, 'text/html').body.innerHTML;
+
         noteEl.innerHTML = `
-          <div class="note-title">${note.content.split('\n')[0].substring(0, 50)}${note.content.split('\n')[0].length > 50 ? '...' : ''}</div>
-          <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div>
+          <div class="note-content">${contentHtml}</div>
           ${note.tags.length ? '<div class="note-tags">#' + note.tags.join(' #') + '</div>' : ''}
           <div class="note-actions">
-            <button onclick="pinNote(${note.id})">📌</button>
-            <button onclick="editNote(${note.id})">✏️</button>
-            <button onclick="deleteNote(${note.id})">🗑️</button>
+            <button onclick="pinNote(${note.id})" title="Pin Note">📌</button>
+            <button onclick="editNote(${note.id})" title="Edit Note">✏️</button>
+            <button onclick="deleteNote(${note.id})" title="Delete Note">🗑️</button>
           </div>
         `;
         notesGrid.appendChild(noteEl);
@@ -300,35 +313,35 @@
     }
 
     window.pinNote = function(id) {
-      notes = notes.map(n => n.id === id ? {...n, pinned: !n.pinned} : n);
+      notes = notes.map(n => n.id === id ? {...n, pinned: !n.pinned, updatedAt: Date.now()} : n);
       saveAndRender();
     }
 
     window.editNote = function(id) {
       const note = notes.find(n => n.id === id);
       noteInput.value = note.content;
+      
+      document.querySelectorAll('.color').forEach(x => x.classList.remove('selected'));
+      const colorButton = document.querySelector(`.color[data-color="${note.color}"]`);
+      if(colorButton) {
+          colorButton.classList.add('selected');
+      }
       selectedColor = note.color;
-      document.querySelector(`.color[data-color="${note.color}"]`).classList.add('selected');
+
       editId = id;
       noteInput.focus();
+      noteInput.style.height = 'auto';
       noteInput.style.height = noteInput.scrollHeight + 'px';
     }
 
     window.deleteNote = function(id) {
-      if (confirm('Delete this note permanently?')) {
+      if (confirm('Are you sure you want to delete this note?')) {
         notes = notes.filter(n => n.id !== id);
         saveAndRender();
       }
     }
 
     searchInput.addEventListener('input', e => renderNotes(e.target.value));
-
-    // Theme toggle
-    themeToggle.addEventListener('click', () => {
-      const isDark = document.body.getAttribute('data-theme') === 'dark';
-      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      themeToggle.textContent = isDark ? '🌙' : '☀️';
-    });
 
     // Initial render
     renderNotes();
