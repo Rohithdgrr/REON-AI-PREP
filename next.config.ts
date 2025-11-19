@@ -25,13 +25,13 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
-        port_num: '',
+        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'img.youtube.com',
-        port_num: '',
+        port: '',
         pathname: '/**',
       },
     ],
