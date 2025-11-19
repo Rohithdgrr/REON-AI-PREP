@@ -14,10 +14,10 @@ export default function DashboardLayout({
     <ToolsSidebarProvider>
       <div className="flex h-screen w-full bg-muted/40 overflow-hidden">
         <LeftSidebar />
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-1 min-w-0">
           <main className="flex-1 p-4 sm:p-6 overflow-y-auto">{children}</main>
+          <ToolsSidebar />
         </div>
-        <ToolsSidebar />
         <RightSidebar />
       </div>
     </ToolsSidebarProvider>
