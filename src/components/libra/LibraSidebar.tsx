@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -317,17 +318,14 @@ export function LibraSidebar({
   };
 
   const handleHistoryClick = (session: Session) => {
-    // This creates a new session history focused on the clicked item.
-    // It's a simple way to "view" a past conversation.
-    // A more robust implementation might use a different state for viewing history.
     const newChatHistory = [
       {
         ...session,
-        id: Date.now(), // Give it a new ID for the current view
+        id: Date.now(),
       }
     ];
     setSessionHistory(newChatHistory);
-    setCurrentMode('Chat'); // Switch back to chat view
+    setCurrentMode('Chat');
   };
 
   const lastSession = sessionHistory[sessionHistory.length-1];
@@ -546,7 +544,7 @@ export function LibraSidebar({
           </Button>
         </div>
         <div className="text-[11px] text-muted-foreground text-center">
-          Context: {pageTitle}
+          LIBRA AI can make mistake . Check important info.
         </div>
       </div>
     </div>
