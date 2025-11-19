@@ -44,7 +44,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { stickerGifData } from '@/lib/sticker-gif-data';
@@ -73,6 +73,7 @@ import {
 import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 const realms = [
   { id: 'r1', name: 'R&T Community Hub', icon: '🤖' },
@@ -80,16 +81,17 @@ const realms = [
   { id: 'r3', name: 'Bank PO Masters', icon: '🏦' },
 ];
 
-const channels = [
-  { name: 'rapid-relay', type: 'text' },
-  { name: 'announcements', type: 'text' },
-  { name: 'resources', type: 'text' },
-];
-
-const voiceChannels = [
-    { name: 'Resonant Room 1', members: 5 },
-    { name: 'Study Session', members: 12 },
-]
+const channelsByRealm: Record<string, { name: string; type: 'text' | 'voice' }[]> = {
+    r1: [
+        { name: 'rapid-relay', type: 'text' },
+        { name: 'announcements', type: 'text' },
+        { name: 'resources', type: 'text' },
+        { name: 'Resonant Room 1', type: 'voice' },
+        { name: 'Study Session', type: 'voice' },
+    ],
+    r2: [{ name: 'railway-general', type: 'text' }, { name: 'Railway Voice', type: 'voice' }],
+    r3: [{ name: 'bank-general', type: 'text' }, { name: 'Bank Voice', type: 'voice' }],
+};
 
 const directMessages = [
   { id: 'u2', name: 'Anil Kumar', avatarId: 'user-avatar-2' },
@@ -157,6 +159,28 @@ export function RChatPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const { toast } = useToast();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isDeafened, setIsDeafened] = useState(false);
+
+  const [activeRealm, setActiveRealm] = useState(realms[0]);
+  const [activeChannel, setActiveChannel] = useState(channelsByRealm[realms[0].id][0]);
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(null);
+
+  const handleSelectRealm = (realm: typeof realms[0]) => {
+      setActiveRealm(realm);
+      setActiveChannel(channelsByRealm[realm.id][0]);
+      setActiveDM(null);
+  }
+
+  const handleSelectChannel = (channel: typeof channelsByRealm.r1[0]) => {
+      setActiveChannel(channel);
+      setActiveDM(null);
+  }
+  
+  const handleSelectDM = (dm: typeof directMessages[0]) => {
+      setActiveDM(dm);
+      setActiveChannel(channelsByRealm[activeRealm.id][0]); // Or some default
+  }
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -171,7 +195,7 @@ export function RChatPage() {
     scrollToBottom();
   }, [messages]);
   
-  const handleSendMessage = (overrideContent?: string, type: MessageType = 'text', pollData?: PollData) => {
+  const handleSendMessage = useCallback((overrideContent?: string, type: MessageType = 'text', pollData?: PollData) => {
     const content = overrideContent || newMessage;
     if (content.trim() === '') return;
 
@@ -201,11 +225,11 @@ export function RChatPage() {
         setTimeout(() => {
             setIsTyping(false);
             setMessages(prev => [...prev, { id: Date.now()+1, sender: 'other', type: 'text', content: 'Got it!', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), read: true }]);
-            audioRef.current?.play();
+            audioRef.current?.play().catch(console.error);
         }, 2000);
         setTimeout(() => setMessages(prev => prev.map(m => m.id === messageToSend.id ? {...m, read: true} : m)), 3000);
     }
-  };
+  }, [newMessage, replyingTo, editingMessage, messages]);
   
   const handleSendMedia = (url: string, type: MessageType = 'image') => {
      const newMediaMessage: Message = {
@@ -220,7 +244,7 @@ export function RChatPage() {
 
     setTimeout(() => {
       setMessages(prev => [...prev, { id: Date.now()+1, sender: 'other', type: 'text', content: 'Nice one!', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), read: true }]);
-      audioRef.current?.play();
+      audioRef.current?.play().catch(console.error);
     }, 1000);
      setTimeout(() => setMessages(prev => prev.map(m => m.id === newMediaMessage.id ? {...m, read: true} : m)), 2000);
   };
@@ -244,18 +268,30 @@ export function RChatPage() {
     setPinnedMessage(message);
   }
 
-  const handleIcebreaker = () => {
-    const question = icebreakerQuestions[Math.floor(Math.random() * icebreakerQuestions.length)];
-    setNewMessage(question);
+  const handleIcebreaker = async () => {
+      setNewMessage('');
+      toast({title: 'Generating Icebreaker...', description: 'LIBRA AI is thinking of a fun question.'});
+      try {
+        const result = await answerQuestionsWithAI(`Generate one short, fun, and quirky icebreaker question.`);
+        setNewMessage(result);
+      } catch (e) {
+          console.error(e);
+          toast({variant: 'destructive', title: 'Error', description: 'Could not generate icebreaker.'});
+          setNewMessage(icebreakerQuestions[Math.floor(Math.random() * icebreakerQuestions.length)]);
+      }
   }
 
   const handleAiEdit = async () => {
     if (!newMessage.trim()) return;
     toast({ title: "AI Improving Text...", description: "Please wait a moment." });
-    // Simulate AI delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setNewMessage(newMessage + " (AI Improved Version ✨)");
-    toast({ title: "Text Improved!", description: "Your message has been enhanced by AI." });
+    try {
+        const result = await answerQuestionsWithAI(`Rewrite this message to be more clear and professional: "${newMessage}"`);
+        setNewMessage(result);
+        toast({ title: "Text Improved!", description: "Your message has been enhanced by AI." });
+    } catch (e) {
+        console.error(e);
+        toast({variant: 'destructive', title: 'Error', description: 'AI improvement failed.'});
+    }
   }
 
   const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
@@ -268,12 +304,12 @@ export function RChatPage() {
             <div key={index} className="space-y-1">
               <div className="flex justify-between items-center text-xs">
                 <span>{option.text}</span>
-                <span>{((option.votes / totalVotes) * 100).toFixed(0)}%</span>
+                <span>{totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%</span>
               </div>
               <div className="relative h-6 w-full rounded-full bg-background/30">
                 <div
                   className="absolute top-0 left-0 h-full rounded-full bg-blue-400"
-                  style={{ width: `${(option.votes / totalVotes) * 100}%` }}
+                  style={{ width: `${totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0}%` }}
                 />
                  <div className="absolute inset-0 flex items-center px-2">
                      <RadioGroupItem value={option.text} id={`poll-opt-${index}`} />
@@ -385,7 +421,7 @@ export function RChatPage() {
                 {realms.map(realm => (
                     <Tooltip key={realm.id}>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" className="h-12 w-12 text-2xl rounded-full bg-background">
+                            <Button variant={activeRealm.id === realm.id ? "secondary" : "ghost"} className="h-12 w-12 text-2xl rounded-full bg-background" onClick={() => handleSelectRealm(realm)}>
                                 {realm.icon}
                             </Button>
                         </TooltipTrigger>
@@ -408,27 +444,26 @@ export function RChatPage() {
         {/* Channels & DMs Panel */}
         <div className="flex flex-col border-r bg-muted/50">
             <CardHeader className="p-4 border-b">
-            <CardTitle className="text-lg">R&T Community Hub</CardTitle>
+            <CardTitle className="text-lg">{activeRealm.name}</CardTitle>
             </CardHeader>
             <ScrollArea className="flex-1 p-2">
                 <div className="space-y-1">
                     <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground">ROUTE CHANNELS</h4>
-                    {channels.map((channel) => (
-                        <Button key={channel.name} variant="ghost" className="w-full justify-start">
+                    {channelsByRealm[activeRealm.id].filter(c => c.type === 'text').map((channel) => (
+                        <Button key={channel.name} variant={activeChannel.name === channel.name && !activeDM ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => handleSelectChannel(channel)}>
                             <Hash className="mr-2 h-4 w-4" /> {channel.name}
                         </Button>
                     ))}
                     <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-4">RESONANT ROOMS</h4>
-                    {voiceChannels.map((channel) => (
+                    {channelsByRealm[activeRealm.id].filter(c => c.type === 'voice').map((channel) => (
                         <Button key={channel.name} variant="ghost" className="w-full justify-start">
                             <Headphones className="mr-2 h-4 w-4" /> 
                             <span className="flex-1 text-left">{channel.name}</span>
-                            <span className="text-xs text-muted-foreground">{channel.members}</span>
                         </Button>
                     ))}
                     <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-4">REACH DMS</h4>
                     {directMessages.map((contact) => (
-                        <Button key={contact.name} variant="secondary" className="w-full justify-start h-auto p-2">
+                        <Button key={contact.name} variant={activeDM?.id === contact.id ? 'secondary' : 'ghost'} className="w-full justify-start h-auto p-2" onClick={() => handleSelectDM(contact)}>
                         <Avatar className="mr-2 h-8 w-8">
                             <AvatarFallback><User /></AvatarFallback>
                         </Avatar>
@@ -448,8 +483,8 @@ export function RChatPage() {
                         <p className="text-xs text-muted-foreground">Online</p>
                     </div>
                     <div className="ml-auto flex items-center">
-                        <Button variant="ghost" size="icon"><Mic className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon"><Headphones className="h-4 w-4" /></Button>
+                        <Button variant={isMuted ? 'destructive' : 'ghost'} size="icon" onClick={() => setIsMuted(!isMuted)}><Mic className="h-4 w-4" /></Button>
+                        <Button variant={isDeafened ? 'destructive' : 'ghost'} size="icon" onClick={() => setIsDeafened(!isDeafened)}><Headphones className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>
                     </div>
                 </div>
@@ -462,13 +497,13 @@ export function RChatPage() {
             <div className="flex flex-row items-center gap-3">
                 <Hash className="h-5 w-5 text-muted-foreground" />
                 <div>
-                <CardTitle className="text-lg">rapid-relay</CardTitle>
-                <CardDescription className="text-xs">The main channel for all community discussions.</CardDescription>
+                <CardTitle className="text-lg">{activeDM ? activeDM.name : activeChannel.name}</CardTitle>
+                <CardDescription className="text-xs">{activeDM ? "Direct Message" : "The main channel for all community discussions."}</CardDescription>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                <Button variant="ghost" size="icon"><Phone className="h-4 w-4"/></Button>
-                <Button variant="ghost" size="icon"><Video className="h-4 w-4"/></Button>
-                <Button variant="ghost" size="icon"><Monitor className="h-4 w-4"/></Button>
+                <Button variant="ghost" size="icon" onClick={() => toast({title: "Starting Voice Call..."})}><Phone className="h-4 w-4"/></Button>
+                <Button variant="ghost" size="icon" onClick={() => toast({title: "Starting Video Call..."})}><Video className="h-4 w-4"/></Button>
+                <Button variant="ghost" size="icon" onClick={() => toast({title: "Starting Screen Share..."})}><Monitor className="h-4 w-4"/></Button>
                 </div>
             </div>
             {pinnedMessage && (
