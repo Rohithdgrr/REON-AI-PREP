@@ -143,15 +143,14 @@ export function LeftSidebar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
                <Button variant="ghost" className={cn("w-full justify-start items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary", isCollapsed && "justify-center")}>
-                  <Avatar className="h-8 w-8">
-                    {userAvatar ? <AvatarImage src={userAvatar.imageUrl} /> : <AvatarFallback><User /></AvatarFallback>}
-                  </Avatar>
-                  {!isCollapsed && <div className="text-left"><p className="font-semibold text-foreground">Srinivas</p><p className="text-xs">RaxPro</p></div>}
+                  <Settings className="h-5 w-5" />
+                  {!isCollapsed && <div className="text-left"><p className="font-semibold text-foreground">Settings</p></div>}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild><Link href="/dashboard/settings"><Avatar className="mr-2 h-5 w-5"><AvatarImage src={userAvatar?.imageUrl} /><AvatarFallback><User /></AvatarFallback></Avatar>Profile</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/dashboard/settings"><Settings className="mr-2 h-4 w-4" />Settings</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/dashboard/help"><HelpCircle className="mr-2 h-4 w-4" />Support</Link></DropdownMenuItem>
               <DropdownMenuSub>
@@ -171,3 +170,5 @@ export function LeftSidebar() {
     </div>
   );
 }
+
+    
