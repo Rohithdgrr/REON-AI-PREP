@@ -29,7 +29,8 @@ const jobNotifications = [
     endDate: "2024-08-30",
     tags: ["Railway", "Engineering"],
     url: "https://indianrailways.gov.in/railwayboard/view_section.jsp?lang=0&id=0,4,1244",
-    imageId: "job-railway"
+    imageId: "job-railway",
+    lastUpdated: "2024-07-25"
   },
   {
     id: 2,
@@ -40,7 +41,8 @@ const jobNotifications = [
     endDate: "2024-08-20",
     tags: ["Bank", "PO"],
     url: "https://sbi.co.in/web/careers",
-    imageId: "job-bank"
+    imageId: "job-bank",
+    lastUpdated: "2024-07-25"
   },
   {
     id: 3,
@@ -51,7 +53,8 @@ const jobNotifications = [
     endDate: "2024-08-15",
     tags: ["Railway", "Technical"],
      url: "https://www.rrbcdg.gov.in/",
-     imageId: "job-railway"
+     imageId: "job-railway",
+     lastUpdated: "2024-07-25"
   },
    {
     id: 4,
@@ -62,7 +65,8 @@ const jobNotifications = [
     endDate: "2024-09-30",
     tags: ["SSC", "Graduate"],
      url: "https://ssc.gov.in/",
-     imageId: "job-ssc"
+     imageId: "job-ssc",
+     lastUpdated: "2024-07-25"
   },
   {
     id: 5,
@@ -73,7 +77,8 @@ const jobNotifications = [
     endDate: "2024-07-21",
     tags: ["Bank", "Clerk"],
     url: "https://www.ibps.in/",
-    imageId: "job-bank"
+    imageId: "job-bank",
+    lastUpdated: "2024-07-25"
   },
    {
     id: 6,
@@ -84,7 +89,8 @@ const jobNotifications = [
     endDate: "2024-09-05",
     tags: ["Railway", "Technical"],
     url: "https://www.rrbcdg.gov.in/",
-    imageId: "job-railway"
+    imageId: "job-railway",
+    lastUpdated: "2024-07-25"
   }
 ];
 
@@ -197,6 +203,7 @@ export function NotificationsPage() {
                         <div>
                             <CardTitle>{job.title}</CardTitle>
                             <CardDescription>{job.department}</CardDescription>
+                             <CardDescription className="text-xs mt-1">Last Updated: {formatDate(job.lastUpdated)}</CardDescription>
                         </div>
                         <Badge className={getStatusColor(job.status)}>{job.status}</Badge>
                     </CardHeader>
