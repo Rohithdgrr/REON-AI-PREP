@@ -14,7 +14,7 @@ import {
 import { SimpleCalculator } from '../simple-calculator';
 import { MultiTimer } from '../multi-timer';
 import { InAppBrowser } from '../in-app-browser';
-import { Calendar } from '../ui/calendar';
+import { AdvancedCalendar } from '../advanced-calendar';
 import { SimpleStopwatch } from '../simple-stopwatch';
 import { Textarea } from '../ui/textarea';
 import { NotificationsPanel } from '../notifications-panel';
@@ -105,8 +105,8 @@ const toolComponents: Record<string, React.ComponentType | undefined> = {
     </>
   ),
   calendar: () => (
-    <div className="flex justify-center items-start pt-16">
-        <Calendar mode="single" selected={new Date()} className="rounded-md border" />
+    <div className="flex justify-center items-start pt-4">
+        <AdvancedCalendar />
     </div>
   ),
   calculator: () => (
