@@ -9,11 +9,11 @@ import {
   Download,
   Copy,
   Trash2,
-  Undo2,
   Plus,
   BotMessageSquare,
   Send,
   Paperclip,
+  Square,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -133,6 +133,7 @@ export function LibraSidebar({
   const { toast } = useToast();
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     try {
@@ -178,6 +179,7 @@ export function LibraSidebar({
 
     setIsLoading(true);
     setInput('');
+    abortControllerRef.current = new AbortController();
 
     // Prepare the new session entry
     const currentInput = promptOverride || input;
@@ -211,6 +213,7 @@ export function LibraSidebar({
             messages: [{ role: 'user', content: fullPrompt }],
             stream: true, // Enable streaming
           }),
+          signal: abortControllerRef.current.signal,
         }
       );
 
@@ -263,35 +266,35 @@ export function LibraSidebar({
         }
       }
 
-    } catch (error) {
-      console.error(`API Error:`, error);
-      toast({
-        variant: 'destructive',
-        title: 'AI Error',
-        description: 'The model failed to respond. Check console.',
-      });
+    } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch aborted by user.');
+        } else {
+          console.error(`API Error:`, error);
+          toast({
+            variant: 'destructive',
+            title: 'AI Error',
+            description: 'The model failed to respond. Check console.',
+          });
+        }
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
+
+  const handleStopGeneration = () => {
+    if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        setIsLoading(false);
+    }
+  }
 
 
   const handleNewChat = () => {
-    setSessionHistory(prev => prev.filter(s => s.id === 0)); // Clears the view
+    setSessionHistory([]);
     setInput('');
     setCurrentMode('Chat');
-  };
-
-  const handleRevert = (mode: AIMode) => {
-    const sessionIndex = sessionHistory.findIndex((s) => s.mode === mode);
-    if (sessionIndex > -1) {
-      const newHistory = [...sessionHistory];
-      const session = newHistory[sessionIndex];
-      if (session.currentResponseIndex > 0) {
-        session.currentResponseIndex--;
-        saveHistory(newHistory);
-      }
-    }
   };
 
   const handleClearHistory = () => {
@@ -314,11 +317,19 @@ export function LibraSidebar({
   };
 
   const handleHistoryClick = (session: Session) => {
-    setSessionHistory([session]);
-    setCurrentMode('Chat');
+    // This creates a new session history focused on the clicked item.
+    // It's a simple way to "view" a past conversation.
+    // A more robust implementation might use a different state for viewing history.
+    const newChatHistory = [
+      {
+        ...session,
+        id: Date.now(), // Give it a new ID for the current view
+      }
+    ];
+    setSessionHistory(newChatHistory);
+    setCurrentMode('Chat'); // Switch back to chat view
   };
 
-  const currentSession = sessionHistory.find((s) => s.mode === 'Chat');
   const lastSession = sessionHistory[sessionHistory.length-1];
 
   return (
@@ -526,12 +537,12 @@ export function LibraSidebar({
             </Tooltip>
           </TooltipProvider>
           <Button
-            onClick={() => handleAiRequest()}
-            disabled={isLoading || input.trim() === ''}
+            onClick={isLoading ? handleStopGeneration : () => handleAiRequest()}
+            disabled={!isLoading && input.trim() === ''}
             size="icon"
             className="h-8 w-8 rounded-full flex-shrink-0"
           >
-            <Send className="h-4 w-4" />
+            {isLoading ? <Square className="h-4 w-4" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
         <div className="text-[11px] text-muted-foreground text-center">
