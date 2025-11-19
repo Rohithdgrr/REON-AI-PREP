@@ -36,9 +36,70 @@ const modePrompts: Record<AIMode, string> = {
   History: "Provide the historical background and context for the following topic: ",
 };
 
-const FormattedAIResponse = ({ response }: { response: string }) => (
-  <pre className="whitespace-pre-wrap font-sans text-sm">{response}</pre>
-);
+const FormattedAIResponse = ({ response }: { response: string }) => {
+  const parts = response.split(/(\*\*.*?\*\*)/g).filter(Boolean);
+
+  const renderSection = (section: string) => {
+    return section.split('\n').map((line, lineIndex) => {
+      const isListItem = /^\d+\.\s/.test(line);
+      if (isListItem) {
+        return (
+          <li key={lineIndex} className="ml-4">
+            {line.replace(/^\d+\.\s/, '')}
+          </li>
+        );
+      }
+      return (
+        <React.Fragment key={lineIndex}>
+          {line}
+          <br />
+        </React.Fragment>
+      );
+    });
+  };
+
+  return (
+    <div className="whitespace-pre-wrap font-sans text-sm">
+      {parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          const content = part.substring(2, part.length - 2);
+          const isHeader = !content.includes(' '); // Simple check if it's a header-like bold text
+
+          return (
+            <strong key={index} className={cn("block my-3 font-semibold", isHeader && "text-base")}>
+              {content}
+            </strong>
+          );
+        }
+        
+        const lines = part.split('\n');
+        const listItems: string[] = [];
+        const otherContent: string[] = [];
+
+        lines.forEach(line => {
+           if (/^\d+\.\s/.test(line)) {
+               listItems.push(line);
+           } else {
+               otherContent.push(line);
+           }
+        });
+
+        return (
+          <React.Fragment key={index}>
+            <p>{otherContent.join('\n')}</p>
+            {listItems.length > 0 && (
+                <ol className="list-decimal list-inside space-y-1 my-2">
+                    {listItems.map((item, i) => (
+                        <li key={i}>{item.replace(/^\d+\.\s/, '')}</li>
+                    ))}
+                </ol>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
 
 export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pageContent?: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
