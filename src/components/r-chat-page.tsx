@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -215,9 +216,12 @@ export function RChatPage() {
             <ChatHeader
                 name={activeConversationName}
                 description={activeConversationDescription}
+                messages={messages}
+                setMessages={setMessages}
             />
             <ChatMessages messages={messages} setMessages={setMessages} />
             <ChatInput
+                messages={messages}
                 setMessages={setMessages}
                 setIsPollModalOpen={setIsPollModalOpen}
             />
