@@ -37,7 +37,7 @@ import {
   X,
   Share2,
   User,
-  Poll,
+  Vote,
   Sparkles,
   Lightbulb,
 } from 'lucide-react';
@@ -558,7 +558,7 @@ export function RChatPage() {
                          </Tooltip>
                          <Tooltip>
                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => setIsPollModalOpen(true)}><Poll className="h-5 w-5" /></Button>
+                                <Button variant="ghost" size="icon" onClick={() => setIsPollModalOpen(true)}><Vote className="h-5 w-5" /></Button>
                             </TooltipTrigger>
                             <TooltipContent><p>Create Poll</p></TooltipContent>
                         </Tooltip>
