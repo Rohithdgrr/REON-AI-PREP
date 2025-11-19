@@ -22,23 +22,6 @@ export function Header() {
           REON™
         </Link>
       </div>
-      <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Global Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-        />
-      </div>
-      <Button variant="outline" size="icon" className="relative">
-        <Bell className="h-5 w-5" />
-        <Badge
-          variant="destructive"
-          className="absolute -top-1 -right-1 h-4 w-4 justify-center rounded-full p-0 text-xs"
-        >
-          3
-        </Badge>
-      </Button>
     </header>
   );
 }

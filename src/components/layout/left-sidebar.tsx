@@ -1,6 +1,5 @@
 
-
-"use client";
+'use client';
 
 import Link from "next/link";
 import {
@@ -70,11 +69,11 @@ const bottomNavItems = [
 
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
     return (
-      <div className="flex items-center justify-center p-2">
+      <div className={cn("flex items-center justify-center p-2", isCollapsed ? "h-14" : "")}>
         <svg
           role="img"
           viewBox="0 0 256 256"
-          className={cn("transition-all duration-300", isCollapsed ? "h-10 w-10" : "h-24 w-24")}
+          className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-16 w-16")}
           fill="currentColor"
         >
           <path d="M128 0C57.31 0 0 57.31 0 128s57.31 128 128 128 128-57.31 128-128S198.69 0 128 0zm0 240C66.43 240 16 189.57 16 128S66.43 16 128 16s112 50.43 112 112-50.43 112-112 112z" />
@@ -94,7 +93,7 @@ export function LeftSidebar() {
     setIsCollapsed(!isCollapsed);
   };
 
-  const NavLink = ({ item, isCollapsed, isBottomLink = false }: { item: typeof navItems[0], isCollapsed: boolean, isBottomLink?: boolean }) => (
+  const NavLink = ({ item, isCollapsed }: { item: typeof navItems[0], isCollapsed: boolean }) => (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -122,16 +121,16 @@ export function LeftSidebar() {
   return (
     <div
       className={cn(
-        "relative hidden border-r bg-background transition-all duration-300 md:block",
+        "hidden border-r bg-background transition-all duration-300 md:block",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
       <div className="flex h-full max-h-screen flex-col gap-2">
-         <div className={cn("flex items-center border-b justify-center", isCollapsed ? 'h-[60px]' : 'h-auto py-4')}>
-          <Button onClick={toggleSidebar} variant="ghost" size="icon" className="absolute -right-4 top-4 bg-background border rounded-full h-8 w-8 z-10">
+         <div className={cn("flex items-center border-b", isCollapsed ? 'h-14 justify-center' : 'justify-between p-2')}>
+          {!isCollapsed && <Logo isCollapsed={isCollapsed} />}
+          <Button onClick={toggleSidebar} variant="ghost" size="icon" className="h-8 w-8">
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
-          <Logo isCollapsed={isCollapsed} />
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
