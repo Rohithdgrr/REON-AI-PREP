@@ -88,6 +88,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                 <div
                   className={cn(
                     'flex items-end gap-3 group relative',
+                    isFirstInGroup && 'mt-4',
                     !isFirstInGroup && 'pt-0.5',
                     message.sender === 'me' ? 'justify-end' : ''
                   )}
@@ -125,12 +126,16 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                     <div
                       className={cn(
                         'max-w-md p-3 text-sm relative group',
-                        'rounded-lg',
+                        message.sender === 'me'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted',
+                        isFirstInGroup && !isLastInGroup && (message.sender === 'me' ? 'rounded-t-lg rounded-bl-lg' : 'rounded-t-lg rounded-br-lg'),
+                        !isFirstInGroup && !isLastInGroup && (message.sender === 'me' ? 'rounded-l-lg' : 'rounded-r-lg'),
+                        !isFirstInGroup && isLastInGroup && (message.sender === 'me' ? 'rounded-b-none rounded-l-lg' : 'rounded-b-none rounded-r-lg'),
+                        isLastInGroup && (message.sender === 'me' ? 'rounded-b-lg' : 'rounded-b-lg'),
+                        isFirstInGroup && isLastInGroup && 'rounded-lg',
                         message.type === 'voice' && '!p-2',
                          message.type === 'image' && '!p-0 overflow-hidden',
-                        message.sender === 'me'
-                          ? 'bg-primary text-primary-foreground rounded-br-none'
-                          : 'bg-muted rounded-bl-none'
                       )}
                     >
                       {message.type === 'text' && <p>{message.content}</p>}
@@ -166,7 +171,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
 
                    {/* Timestamp on hover */}
                   {!isFirstInGroup && (
-                     <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-12 text-right">
+                     <div className={cn("absolute top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-12 text-right", message.sender === 'me' ? 'left-0' : 'right-0 -translate-x-full')}>
                         {formattedTimestamp}
                      </div>
                   )}
