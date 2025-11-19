@@ -260,143 +260,145 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
             </TooltipProvider>
           </div>
         </div>
-
-      {!isCollapsed && (
-        <>
-          {/* Mode Selector */}
-          <div className="p-2 border-b">
-            <div className="grid grid-cols-2 gap-1">
-              <Button
-                variant={currentMode === 'Chat' ? 'secondary' : 'ghost'}
-                onClick={() => setCurrentMode('Chat')}
-              >
-                <BotMessageSquare className="mr-2 h-4 w-4" />
-                Chat
-              </Button>
-              <Button
-                variant={currentMode === 'History' ? 'secondary' : 'ghost'}
-                onClick={() => setCurrentMode('History')}
-              >
-                <History className="mr-2 h-4 w-4" />
-                History
-              </Button>
+      
+      <div className="flex-1 flex flex-col min-h-0">
+        {!isCollapsed && (
+          <>
+            {/* Mode Selector */}
+            <div className="p-2 border-b flex-shrink-0">
+              <div className="grid grid-cols-2 gap-1">
+                <Button
+                  variant={currentMode === 'Chat' ? 'secondary' : 'ghost'}
+                  onClick={() => setCurrentMode('Chat')}
+                >
+                  <BotMessageSquare className="mr-2 h-4 w-4" />
+                  Chat
+                </Button>
+                <Button
+                  variant={currentMode === 'History' ? 'secondary' : 'ghost'}
+                  onClick={() => setCurrentMode('History')}
+                >
+                  <History className="mr-2 h-4 w-4" />
+                  History
+                </Button>
+              </div>
             </div>
-          </div>
-          
-          {/* Response Area */}
-          <ScrollArea className="flex-1 p-4">
-            {currentMode === 'History' ? (
-              <div className="space-y-4">
-                <h3 className="font-semibold">Conversation History</h3>
-                {sessionHistory.length > 0 ? sessionHistory.map(session => (
-                  <div key={session.id} className="text-xs p-2 border rounded-md bg-muted/50">
-                    <p className="font-bold">{session.mode}</p>
-                    <p className="truncate text-muted-foreground mt-1">Input: {session.input}</p>
-                    <p className="truncate text-muted-foreground">Last Response: {session.responses[session.responses.length -1]}</p>
-                  </div>
-                )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
-              </div>
-            ) : isLoading ? (
-              <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-4 w-4" /> Thinking...</div>
-            ) : currentResponse ? (
-              <FormattedAIResponse response={currentResponse} />
-            ) : (
-              <div className="text-center text-muted-foreground pt-16">
-                {React.createElement(modeIcons[currentMode], { className: 'mx-auto h-12 w-12 opacity-30 mb-4' })}
-                <p className="font-semibold">LIBRA AI - {currentMode} Mode</p>
-                <p className="text-xs">Ask a question or provide context below.</p>
-              </div>
-            )}
-          </ScrollArea>
-          
-          {/* Context and controls */}
-          <div className="p-2 border-t text-xs text-muted-foreground flex items-center justify-between">
-              <p className="truncate">Context: {pageTitle}</p>
-              <div className="flex items-center gap-1">
-                {currentSession && currentSession.responses.length > 1 && (
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert(currentMode)} disabled={currentSession.currentResponseIndex === 0}>
-                    <Undo2 className="h-4 w-4" />
+            
+            {/* Response Area */}
+            <ScrollArea className="flex-1 p-4">
+              {currentMode === 'History' ? (
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Conversation History</h3>
+                  {sessionHistory.length > 0 ? sessionHistory.map(session => (
+                    <div key={session.id} className="text-xs p-2 border rounded-md bg-muted/50">
+                      <p className="font-bold">{session.mode}</p>
+                      <p className="truncate text-muted-foreground mt-1">Input: {session.input}</p>
+                      <p className="truncate text-muted-foreground">Last Response: {session.responses[session.responses.length -1]}</p>
+                    </div>
+                  )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
+                </div>
+              ) : isLoading ? (
+                <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-4 w-4" /> Thinking...</div>
+              ) : currentResponse ? (
+                <FormattedAIResponse response={currentResponse} />
+              ) : (
+                <div className="text-center text-muted-foreground pt-16">
+                  {React.createElement(modeIcons[currentMode], { className: 'mx-auto h-12 w-12 opacity-30 mb-4' })}
+                  <p className="font-semibold">LIBRA AI - {currentMode} Mode</p>
+                  <p className="text-xs">Ask a question or provide context below.</p>
+                </div>
+              )}
+            </ScrollArea>
+            
+            {/* Context and controls */}
+            <div className="p-2 border-t text-xs text-muted-foreground flex items-center justify-between flex-shrink-0">
+                <p className="truncate">Context: {pageTitle}</p>
+                <div className="flex items-center gap-1">
+                  {currentSession && currentSession.responses.length > 1 && (
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert(currentMode)} disabled={currentSession.currentResponseIndex === 0}>
+                      <Undo2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {currentResponse && (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `${currentMode}-${Date.now()}.txt`)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClearHistory}>
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-                )}
-                {currentResponse && (
-                  <>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `${currentMode}-${Date.now()}.txt`)}>
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClearHistory}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                </div>
+            </div>
+
+            {/* Input Area */}
+            <div className="p-2 border-t flex flex-col gap-2 flex-shrink-0">
+              <div className="flex gap-2">
+                  <Textarea
+                  placeholder={`Ask LIBRA or paste text for ${currentMode} mode...`}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  rows={2}
+                  className="resize-none flex-1"
+                  disabled={currentMode === 'History'}
+                  />
+                  <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'} size="icon" className="h-auto w-10">
+                      <Sparkles className="h-5 w-5" />
+                  </Button>
               </div>
-          </div>
-
-          {/* Input Area */}
-          <div className="p-2 border-t flex flex-col gap-2">
-            <div className="flex gap-2">
-                <Textarea
-                placeholder={`Ask LIBRA or paste text for ${currentMode} mode...`}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                rows={2}
-                className="resize-none flex-1"
-                disabled={currentMode === 'History'}
-                />
-                <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'} size="icon" className="h-auto w-10">
-                    <Sparkles className="h-5 w-5" />
-                </Button>
+              <div className="flex justify-start items-center gap-2">
+                   <Select value={language} onValueChange={(v: Language) => setLanguage(v)} disabled={currentMode === 'History'}>
+                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                      <SelectValue placeholder="Language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="hi">Hindi</SelectItem>
+                      <SelectItem value="te">Telugu</SelectItem>
+                      <SelectItem value="ta">Tamil</SelectItem>
+                    </SelectContent>
+                  </Select>
+                   <Select value={model} onValueChange={(v: AIModel) => setModel(v)} disabled={currentMode === 'History'}>
+                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                       <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="L1">Llama 3.1 70B</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
             </div>
-            <div className="flex justify-start items-center gap-2">
-                 <Select value={language} onValueChange={(v: Language) => setLanguage(v)} disabled={currentMode === 'History'}>
-                  <SelectTrigger className="w-[120px] h-8 text-xs">
-                    <SelectValue placeholder="Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="hi">Hindi</SelectItem>
-                    <SelectItem value="te">Telugu</SelectItem>
-                    <SelectItem value="ta">Tamil</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <Select value={model} onValueChange={(v: AIModel) => setModel(v)} disabled={currentMode === 'History'}>
-                  <SelectTrigger className="w-[120px] h-8 text-xs">
-                     <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="L1">Llama 3.1 70B</SelectItem>
-                  </SelectContent>
-                </Select>
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {isCollapsed && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2">
-           <TooltipProvider>
-             {(Object.keys(modeIcons) as AIMode[]).map(mode => (
-                <Tooltip key={mode}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={currentMode === mode ? 'secondary' : 'ghost'}
-                      size="icon"
-                      onClick={() => {
-                          setCurrentMode(mode);
-                          setIsCollapsed(false);
-                      }}
-                    >
-                      {React.createElement(modeIcons[mode])}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left"><p>{mode}</p></TooltipContent>
-                </Tooltip>
-              ))}
-            </TooltipProvider>
-        </div>
-      )}
+        {isCollapsed && (
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2">
+             <TooltipProvider>
+               {(Object.keys(modeIcons) as AIMode[]).map(mode => (
+                  <Tooltip key={mode}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={currentMode === mode ? 'secondary' : 'ghost'}
+                        size="icon"
+                        onClick={() => {
+                            setCurrentMode(mode);
+                            setIsCollapsed(false);
+                        }}
+                      >
+                        {React.createElement(modeIcons[mode])}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left"><p>{mode}</p></TooltipContent>
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
