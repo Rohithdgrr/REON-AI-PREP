@@ -7,7 +7,7 @@
  * - GenerateQuizOutput - The return type for the generateQuiz function.
  */
 
-import { ai } from '@/ai/genkit';
+// import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const GenerateQuizInputSchema = z.object({
@@ -33,43 +33,44 @@ const GenerateQuizOutputSchema = z.object({
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
 
 export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQuizOutput> {
-  return generateQuizFlow(input);
+  // return generateQuizFlow(input);
+  return {} as GenerateQuizOutput;
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateQuizPrompt',
-  input: { schema: GenerateQuizInputSchema },
-  output: { schema: GenerateQuizOutputSchema },
-  prompt: `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
+// const prompt = ai.definePrompt({
+//   name: 'generateQuizPrompt',
+//   input: { schema: GenerateQuizInputSchema },
+//   output: { schema: GenerateQuizOutputSchema },
+//   prompt: `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
 
-Generate a quiz with {{{numQuestions}}} multiple-choice questions on the topic of "{{{topic}}}".
+// Generate a quiz with {{{numQuestions}}} multiple-choice questions on the topic of "{{{topic}}}".
 
-{{#if subTopics}}
-Focus on the following sub-topics: {{#each subTopics}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
-{{/if}}
+// {{#if subTopics}}
+// Focus on the following sub-topics: {{#each subTopics}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
+// {{/if}}
 
-{{#if difficultyLevel}}
-The difficulty of the questions should be: {{{difficultyLevel}}}.
-{{/if}}
+// {{#if difficultyLevel}}
+// The difficulty of the questions should be: {{{difficultyLevel}}}.
+// {{/if}}
 
-{{#if specialization}}
-Specialize the quiz with a focus on: {{{specialization}}}. For example, if the focus is "time management", include questions that are tricky to solve quickly.
-{{/if}}
+// {{#if specialization}}
+// Specialize the quiz with a focus on: {{{specialization}}}. For example, if the focus is "time management", include questions that are tricky to solve quickly.
+// {{/if}}
 
-For each question, provide 4 options and clearly indicate the correct answer. 
-Also provide a detailed explanation for the answer, some tricks to solve the question faster, and an analogy to better understand the concept.
-The questions should be challenging and relevant to the exam syllabus.
-`,
-});
+// For each question, provide 4 options and clearly indicate the correct answer. 
+// Also provide a detailed explanation for the answer, some tricks to solve the question faster, and an analogy to better understand the concept.
+// The questions should be challenging and relevant to the exam syllabus.
+// `,
+// });
 
-const generateQuizFlow = ai.defineFlow(
-  {
-    name: 'generateQuizFlow',
-    inputSchema: GenerateQuizInputSchema,
-    outputSchema: GenerateQuizOutputSchema,
-  },
-  async input => {
-    const { output } = await prompt(input);
-    return output!;
-  }
-);
+// const generateQuizFlow = ai.defineFlow(
+//   {
+//     name: 'generateQuizFlow',
+//     inputSchema: GenerateQuizInputSchema,
+//     outputSchema: GenerateQuizOutputSchema,
+//   },
+//   async input => {
+//     const { output } = await prompt(input);
+//     return output!;
+//   }
+// );

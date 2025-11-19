@@ -185,6 +185,7 @@ export function LibraSidebar({
     
     const baseFormatInstruction = `
 Always format your answer using this structure, unless the user explicitly asks for a different format:
+
 1. First line: **Clear Title or Topic Name**
 2. Second part: 2-3 lines of brief overview.
 3. Then use section headings in bold, for example:
@@ -194,13 +195,17 @@ Always format your answer using this structure, unless the user explicitly asks 
    **Study Plan**
    **Summary**
    **Quick Recap**
+
 4. Use:
    - Numbered lists (1., 2., 3., ...) for steps, procedures, and quiz questions.
    - Bullet points (-) for key points, advantages, tips, and recap.
+
 5. Highlight using bold:
    - Important terms and formulas.
    - Final answers and correct options (e.g., **Option C**).
+
 6. End every answer with a **Quick Recap** section summarizing 3–5 key takeaways.
+
 Keep the answer concise but clear. Aim for 10–25 lines unless user asks for detailed or long content.
 `;
 
@@ -276,24 +281,30 @@ User input: "${textToProcess}"
     saveHistory(updatedHistory);
     
     try {
-      // L1 Request
-      const responseL1 = await fetch(
-        'https://openrouter.ai/api/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'meta-llama/llama-3.1-70b-instruct',
-            messages: [{ role: 'user', content: fullPrompt }],
-            stream: true,
-          }),
-          signal: abortControllerRef.current.signal,
-        }
-      );
-      await processStream(responseL1, newSession);
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('L1 model timeout')), 20000)
+        );
+
+        const l1FetchPromise = fetch(
+            'https://openrouter.ai/api/v1/chat/completions',
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'meta-llama/llama-3.1-70b-instruct',
+                    messages: [{ role: 'user', content: fullPrompt }],
+                    stream: true,
+                }),
+                signal: abortControllerRef.current.signal,
+            }
+        );
+
+        const responseL1 = await Promise.race([l1FetchPromise, timeoutPromise]) as Response;
+        await processStream(responseL1, newSession);
+
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
@@ -301,19 +312,17 @@ User input: "${textToProcess}"
           return;
         }
 
-        console.error(`L1 API Error:`, error);
+        console.error(`L1 API Error or Timeout:`, error);
         toast({
             variant: "destructive",
-            title: 'L1 Model Failed',
+            title: 'L1 Model Failed or Timed Out',
             description: 'Switching to backup model (L2)...',
         });
         
-        // Update session to reflect L2 model usage
         newSession.model = 'L2';
         setSessionHistory(prev => prev.map(s => s.id === newSession.id ? newSession : s));
 
         try {
-            // L2 Fallback Request
             const responseL2 = await fetch(
                 'https://openrouter.ai/api/v1/chat/completions',
                 {
@@ -323,7 +332,7 @@ User input: "${textToProcess}"
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: 'anthropic/claude-3-haiku', // Using Claude Haiku as the fallback
+                        model: 'anthropic/claude-3-haiku', 
                         messages: [{ role: 'user', content: fullPrompt }],
                         stream: true,
                     }),
