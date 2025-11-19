@@ -15,72 +15,11 @@ import { SimpleCalculator } from '../simple-calculator';
 import { MultiTimer } from '../multi-timer';
 import { AdvancedCalendar } from '../advanced-calendar';
 import { SimpleStopwatch } from '../simple-stopwatch';
-import { Textarea } from '../ui/textarea';
 import { NotificationsPanel } from '../notifications-panel';
-import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { TodoList } from '../todo-list';
+import { LibraSidebar } from '../libra/LibraSidebar';
 
-function LibraAI() {
-    const [libraQuestion, setLibraQuestion] = useState('');
-    const [libraAnswer, setLibraAnswer] = useState('');
-    const [isLibraLoading, setIsLibraLoading] = useState(false);
-    const { toast } = useToast();
-
-    const handleAskLibra = async () => {
-        if (!libraQuestion.trim()) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Please enter a question.',
-        });
-        return;
-        }
-        setIsLibraLoading(true);
-        setLibraAnswer('');
-        try {
-        const result = await answerQuestionsWithAI(libraQuestion);
-        setLibraAnswer(result);
-        } catch (e) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Failed to get an answer. Please try again.',
-        });
-        console.error(e);
-        } finally {
-        setIsLibraLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col h-full">
-            <div className="flex flex-col space-y-2 text-center sm:text-left">
-                <h3 className="text-lg font-semibold text-foreground">✨ Ask LIBRA</h3>
-            </div>
-            <div className="flex flex-col flex-1 py-4">
-              <div className="flex-1 bg-muted rounded-lg p-4 text-sm overflow-y-auto">
-                {isLibraLoading ? <div className="flex items-center gap-2"><Loader2 className="animate-spin h-4 w-4" /> Answering...</div> : (libraAnswer || "Ask a question to get started.")}
-              </div>
-              <div className="mt-4">
-                <Textarea 
-                  placeholder="Ask about this topic, get summaries, or generate quizzes..." 
-                  value={libraQuestion}
-                  onChange={(e) => setLibraQuestion(e.target.value)}
-                  />
-                <Button className="w-full mt-2" onClick={handleAskLibra} disabled={isLibraLoading}>
-                  {isLibraLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send"}
-                </Button>
-              </div>
-            </div>
-        </div>
-    )
-}
-
-
-const toolComponents: Record<string, React.ComponentType | undefined> = {
+const toolComponents: Record<string, React.ComponentType<any> | undefined> = {
   notes: () => (
     <div className="h-full flex flex-col">
        <iframe src="/notes-app.html" className="w-full h-full border-0" title="Notes App" />
@@ -129,35 +68,38 @@ const toolComponents: Record<string, React.ComponentType | undefined> = {
   notifications: () => (
      <>
       <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Notifications</h3>
+        <h3 className="text-lg font-semibold text-foreground">Job Notifications</h3>
       </div>
       <NotificationsPanel />
     </>
   ),
-  libra: LibraAI,
+  libra: () => <LibraSidebar pageTitle="General" />,
 };
 
 export function ToolsSidebar() {
   const { isOpen, activeTool, setActiveTool } = useToolsSidebar();
 
   const ActiveToolComponent = activeTool ? toolComponents[activeTool] : null;
+  const isLibra = activeTool === 'libra';
 
   return (
     <div
       className={cn(
         'hidden sm:block transition-all duration-300 ease-in-out',
-        isOpen ? 'w-[400px]' : 'w-0'
+        isOpen ? (isLibra ? 'w-[450px]' : 'w-[400px]') : 'w-0'
       )}
     >
-      <div className={cn("h-full bg-background border-l", isOpen ? 'p-4' : 'p-0')}>
+      <div className={cn("h-full bg-background border-l", isOpen ? (isLibra ? 'p-0' : 'p-4') : 'p-0')}>
         {isOpen && activeTool && (
           <div className="flex flex-col h-full">
-            <div className="flex justify-end">
-              <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
+            {!isLibra && (
+              <div className="flex justify-end">
+                <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <div className={cn("flex-1", !isLibra && "overflow-y-auto")}>
               {ActiveToolComponent ? <ActiveToolComponent /> : <p>Tool not found</p>}
             </div>
           </div>
