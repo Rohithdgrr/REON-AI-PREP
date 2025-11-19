@@ -277,8 +277,8 @@ export function LibraSidebar({
 
 
   const handleNewChat = () => {
-    const newHistory = sessionHistory.filter((s) => s.mode !== 'Chat');
-    saveHistory(newHistory);
+    // This now just filters for chat-type sessions, effectively creating a new one
+    setSessionHistory(prev => prev.filter(s => s.id === 0)); // Clears the view
     setInput('');
     setCurrentMode('Chat');
     toast({ title: 'New Chat Started' });
@@ -314,6 +314,11 @@ export function LibraSidebar({
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleHistoryClick = (session: Session) => {
+    setSessionHistory([session]);
+    setCurrentMode('Chat');
   };
 
   const currentSession = sessionHistory.find((s) => s.mode === 'Chat');
@@ -397,21 +402,11 @@ export function LibraSidebar({
                 <div
                   key={session.id}
                   className="text-xs p-2 border rounded-md bg-muted/50 cursor-pointer hover:bg-muted transition"
-                  onClick={() => {
-                    toast({
-                      title: 'Session clicked',
-                      description:
-                        'This would load the selected session (hook not implemented).',
-                    });
-                  }}
+                  onClick={() => handleHistoryClick(session)}
                 >
-                  <p className="font-bold">{session.mode}</p>
+                  <p className="font-bold truncate">{session.input || 'Untitled Chat'}</p>
                   <p className="truncate text-muted-foreground mt-1">
-                    Input: {session.input}
-                  </p>
-                  <p className="truncate text-muted-foreground">
-                    Last Response:{' '}
-                    {session.responses[session.responses.length - 1]}
+                    {session.responses[session.currentResponseIndex]}
                   </p>
                 </div>
               ))
