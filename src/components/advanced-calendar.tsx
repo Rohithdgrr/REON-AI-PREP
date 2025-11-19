@@ -45,14 +45,14 @@ export function AdvancedCalendar() {
   const today = new Date();
   const isCurrentMonthView = today.getFullYear() === year && today.getMonth() === month;
 
-  const upcomingHolidays = useMemo(() => {
-    const now = new Date();
-    now.setHours(0,0,0,0);
+  const holidaysInMonth = useMemo(() => {
     return holidays
-        .filter(h => new Date(h.date) >= now)
-        .sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        .slice(0, 3);
-  }, []);
+        .filter(h => {
+            const holidayDate = new Date(h.date);
+            return holidayDate.getFullYear() === year && holidayDate.getMonth() === month;
+        })
+        .sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [year, month]);
 
   const handleAddSpecialDay = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,10 +187,10 @@ export function AdvancedCalendar() {
         
         <div className="mt-6 space-y-4">
              <div>
-                <h4 className="text-sm font-semibold mb-2">Upcoming Holidays</h4>
-                {upcomingHolidays.length > 0 ? (
+                <h4 className="text-sm font-semibold mb-2">Holidays in this Month</h4>
+                {holidaysInMonth.length > 0 ? (
                     <div className="space-y-2">
-                        {upcomingHolidays.map(holiday => (
+                        {holidaysInMonth.map(holiday => (
                             <div key={holiday.name} className="flex justify-between items-center text-xs p-2 bg-muted/50 rounded-md">
                                 <span className="font-medium">{holiday.name}</span>
                                 <Badge variant="outline">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Badge>
@@ -198,7 +198,7 @@ export function AdvancedCalendar() {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-xs text-muted-foreground text-center">No upcoming holidays in the list.</p>
+                    <p className="text-xs text-muted-foreground text-center">No holidays listed for this month.</p>
                 )}
              </div>
 
