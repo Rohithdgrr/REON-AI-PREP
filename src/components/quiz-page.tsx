@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2, ChevronLeft } from "lucide-react";
+import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2, ChevronLeft, BarChart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "./ui/input";
@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 const manualQuizzes = [
     {
@@ -136,6 +137,12 @@ const aiQuickQuizzes = [
     { topic: "Chemistry: Acids & Bases", numQuestions: 30 },
     { topic: "Sports GK", numQuestions: 30 },
     { topic: "Important Dates & Days", numQuestions: 30 },
+];
+
+const pastQuizResults = [
+    { id: "past-quiz-1", title: "Quantitative Aptitude: Time & Work", score: "25/30", accuracy: "83%" },
+    { id: "past-quiz-2", title: "Reasoning: Blood Relations", score: "28/30", accuracy: "93%" },
+    { id: "past-quiz-3", title: "AI Quiz: Indian History", score: "22/30", accuracy: "73%" },
 ];
 
 
@@ -358,6 +365,40 @@ export function QuizPage() {
                         {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Custom Quiz"}
                 </Button>
             </CardFooter>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Previous Quiz Results</CardTitle>
+                <CardDescription>Analyze your past performance.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Quiz Name</TableHead>
+                            <TableHead>Score</TableHead>
+                            <TableHead>Accuracy</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {pastQuizResults.map((result) => (
+                            <TableRow key={result.id}>
+                                <TableCell className="font-medium">{result.title}</TableCell>
+                                <TableCell>{result.score}</TableCell>
+                                <TableCell>{result.accuracy}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="outline" size="sm">
+                                        <BarChart className="mr-2 h-4 w-4" />
+                                        View Analysis
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
         </Card>
       </div>
     );

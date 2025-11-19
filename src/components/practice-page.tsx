@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Bot, Settings, Timer, ChevronLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Settings, Timer, ChevronLeft, Loader2, BarChart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -22,6 +22,7 @@ import { Input } from "./ui/input";
 import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 const manualQuizzes = [
     {
@@ -129,6 +130,12 @@ const aiQuickQuizzes = [
     { topic: "Chemistry: Acids & Bases", numQuestions: 30, subTopics: ["Properties of Acids", "Properties of Bases", "pH Scale", "Indicators", "Common Acids and Bases"] },
     { topic: "Sports GK", numQuestions: 30, subTopics: ["Cricket", "Football", "Olympics", "Tennis", "National Sports Awards"] },
     { topic: "Important Dates & Days", numQuestions: 30, subTopics: ["National Days", "International Days", "Theme-based Days", "Historical Dates", "Anniversaries"] },
+];
+
+const pastPracticeResults = [
+    { id: "past-practice-1", title: "AI Test: Advanced Puzzles", score: "7/10", accuracy: "70%" },
+    { id: "past-practice-2", title: "Reasoning: Syllogism", score: "24/30", accuracy: "80%" },
+    { id: "past-practice-3", title: "AI Test: Time, Speed & Distance", score: "9/10", accuracy: "90%" },
 ];
 
 
@@ -404,6 +411,41 @@ export function PracticePage() {
                 </Button>
             </CardFooter>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Previous Practice Results</CardTitle>
+                <CardDescription>Review your performance in past practice tests.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Test Name</TableHead>
+                            <TableHead>Score</TableHead>
+                            <TableHead>Accuracy</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {pastPracticeResults.map((result) => (
+                            <TableRow key={result.id}>
+                                <TableCell className="font-medium">{result.title}</TableCell>
+                                <TableCell>{result.score}</TableCell>
+                                <TableCell>{result.accuracy}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="outline" size="sm">
+                                        <BarChart className="mr-2 h-4 w-4" />
+                                        View Analysis
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+
       </div>
     );
   }
