@@ -30,15 +30,18 @@ export function ToolsSidebarProvider({ children }: { children: React.ReactNode }
 
   const setActiveTool = useCallback((toolId: string | null) => {
     setActiveToolState(currentTool => {
+      // If closing the tool
+      if (toolId === null) {
+        setIsOpen(false);
+        return null;
+      }
       // If the same tool is clicked again, toggle the sidebar
-      if (currentTool === toolId && toolId !== null) {
+      if (currentTool === toolId) {
         setIsOpen(prev => !prev);
         return currentTool;
       }
       // If a new tool is selected, open the sidebar
-      if (toolId !== null) {
-        setIsOpen(true);
-      }
+      setIsOpen(true);
       return toolId;
     });
   }, []);
