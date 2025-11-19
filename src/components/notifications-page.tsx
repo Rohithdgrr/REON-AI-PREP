@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BellRing, Calendar, ExternalLink, Search } from "lucide-react";
+import { BellRing, Calendar, ExternalLink, Search, Building, Train } from "lucide-react";
 import { format } from 'date-fns';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from "next/image";
@@ -28,7 +28,7 @@ const jobNotifications = [
     startDate: "2024-08-01",
     endDate: "2024-08-30",
     tags: ["Railway", "Engineering"],
-    url: "https://indianrailways.gov.in/railwayboard/view_section.jsp?lang=0&id=0,4,1244",
+    url: "https://www.rrbcdg.gov.in/",
     imageId: "job-railway",
     lastUpdated: "2024-07-25"
   },
@@ -94,6 +94,21 @@ const jobNotifications = [
   }
 ];
 
+const officialSources = {
+  railway: [
+    { name: "Centralized RRB Portal", url: "https://www.rrbapply.gov.in/" },
+    { name: "Indian Railways Main Site", url: "https://indianrailways.gov.in/" },
+    { name: "RRB Chandigarh", url: "https://rrbcdg.gov.in/" },
+    { name: "RRB Mumbai", url: "https://rrbmumbai.gov.in/" },
+  ],
+  banking: [
+    { name: "IBPS", url: "https://www.ibps.in/" },
+    { name: "SBI Careers", url: "https://sbi.co.in/careers" },
+    { name: "RBI Opportunities", url: "https://opportunities.rbi.org.in/" },
+    { name: "National Career Service", url: "https://www.ncs.gov.in/" },
+  ]
+}
+
 const formatDate = (dateString: string) => format(new Date(dateString), "dd MMM, yyyy");
 
 const getStatus = (startDate: string, endDate: string): "Live" | "Upcoming" | "Expired" => {
@@ -132,7 +147,7 @@ export function NotificationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline tracking-tight flex items-center gap-3">
@@ -143,99 +158,135 @@ export function NotificationsPage() {
           </p>
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search for jobs..." 
-                className="pl-8" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-4">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Types</SelectItem>
-                  <SelectItem value="Railway">Railway</SelectItem>
-                  <SelectItem value="Bank">Bank</SelectItem>
-                  <SelectItem value="SSC">SSC</SelectItem>
-                </SelectContent>
-              </Select>
-               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All Statuses</SelectItem>
-                  <SelectItem value="Live">Live</SelectItem>
-                  <SelectItem value="Upcoming">Upcoming</SelectItem>
-                  <SelectItem value="Expired">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {filteredNotifications.length > 0 ? filteredNotifications.map((job) => {
-            const image = PlaceHolderImages.find(img => img.id === job.imageId);
-            return (
-            <Card key={job.id} className="hover:shadow-md transition-shadow flex flex-col md:flex-row overflow-hidden">
-                {image && (
-                    <div className="md:w-1/3 relative min-h-[200px]">
-                         <Image 
-                            src={image.imageUrl} 
-                            alt={image.description} 
-                            data-ai-hint={image.imageHint}
-                            fill
-                            className="object-cover"
-                         />
-                    </div>
-                )}
-                <div className="flex flex-col flex-1">
-                    <CardHeader className="flex flex-row items-start justify-between gap-4">
-                        <div>
-                            <CardTitle>{job.title}</CardTitle>
-                            <CardDescription>{job.department}</CardDescription>
-                             <CardDescription className="text-xs mt-1">Last Updated: {formatDate(job.lastUpdated)}</CardDescription>
-                        </div>
-                        <Badge className={getStatusColor(job.status)}>{job.status}</Badge>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        <div className="flex flex-wrap gap-2">
-                            {job.tags.filter(t => t !== job.status).map(tag => (
-                                <Badge key={tag} variant="outline">{tag}</Badge>
-                            ))}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4 bg-muted/50 p-4">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Posted:</strong> {formatDate(job.postDate)}</div>
-                            <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Starts:</strong> {formatDate(job.startDate)}</div>
-                            <div className="flex items-center gap-2 col-span-2 sm:col-span-1"><Calendar className="h-4 w-4" /><strong>Ends:</strong> {formatDate(job.endDate)}</div>
-                        </div>
-                        <Button asChild disabled={job.status !== "Live"} className="flex-shrink-0">
-                            <a href={job.url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="mr-2 h-4 w-4"/>
-                                Apply Now
-                            </a>
-                        </Button>
-                    </CardFooter>
+      
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search for jobs..." 
+                    className="pl-8" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-            </Card>
-          )}) : (
-            <div className="text-center py-16 text-muted-foreground">
-                <p>No job notifications found matching your criteria.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="flex gap-4">
+                  <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Filter by type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Types</SelectItem>
+                      <SelectItem value="Railway">Railway</SelectItem>
+                      <SelectItem value="Bank">Bank</SelectItem>
+                      <SelectItem value="SSC">SSC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Statuses</SelectItem>
+                      <SelectItem value="Live">Live</SelectItem>
+                      <SelectItem value="Upcoming">Upcoming</SelectItem>
+                      <SelectItem value="Expired">Expired</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {filteredNotifications.length > 0 ? filteredNotifications.map((job) => {
+                const image = PlaceHolderImages.find(img => img.id === job.imageId);
+                return (
+                <Card key={job.id} className="hover:shadow-md transition-shadow flex flex-col md:flex-row overflow-hidden">
+                    {image && (
+                        <div className="md:w-1/3 relative min-h-[200px]">
+                            <Image 
+                                src={image.imageUrl} 
+                                alt={image.description} 
+                                data-ai-hint={image.imageHint}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    )}
+                    <div className="flex flex-col flex-1">
+                        <CardHeader className="flex flex-row items-start justify-between gap-4">
+                            <div>
+                                <CardTitle>{job.title}</CardTitle>
+                                <CardDescription>{job.department}</CardDescription>
+                                <CardDescription className="text-xs mt-1">Last Updated: {formatDate(job.lastUpdated)}</CardDescription>
+                            </div>
+                            <Badge className={getStatusColor(job.status)}>{job.status}</Badge>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                            <div className="flex flex-wrap gap-2">
+                                {job.tags.filter(t => t !== job.status).map(tag => (
+                                    <Badge key={tag} variant="outline">{tag}</Badge>
+                                ))}
+                            </div>
+                        </CardContent>
+                        <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4 bg-muted/50 p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Posted:</strong> {formatDate(job.postDate)}</div>
+                                <div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><strong>Starts:</strong> {formatDate(job.startDate)}</div>
+                                <div className="flex items-center gap-2 col-span-2 sm:col-span-1"><Calendar className="h-4 w-4" /><strong>Ends:</strong> {formatDate(job.endDate)}</div>
+                            </div>
+                            <Button asChild disabled={job.status !== "Live"} className="flex-shrink-0">
+                                <a href={job.url} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="mr-2 h-4 w-4"/>
+                                    Apply Now
+                                </a>
+                            </Button>
+                        </CardFooter>
+                    </div>
+                </Card>
+              )}) : (
+                <div className="text-center py-16 text-muted-foreground">
+                    <p>No job notifications found matching your criteria.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Train /> Railway Recruitment</CardTitle>
+              <CardDescription>Direct links to official RRB portals.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              {officialSources.railway.map(source => (
+                <Button key={source.name} asChild variant="outline" className="justify-start">
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> {source.name}
+                  </a>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Building /> Banking Sector</CardTitle>
+              <CardDescription>Direct links to official Bank recruitment portals.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              {officialSources.banking.map(source => (
+                <Button key={source.name} asChild variant="outline" className="justify-start">
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> {source.name}
+                  </a>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
