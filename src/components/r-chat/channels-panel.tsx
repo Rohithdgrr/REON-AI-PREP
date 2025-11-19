@@ -9,7 +9,7 @@ import { channelsByRealm, directMessages, realms } from "../r-chat-page";
 import { CircleUser, Hash, Headphones, Mic, Settings, User } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useState } from "react";
-import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 type ChannelsPanelProps = {
     activeRealm: typeof realms[0];
