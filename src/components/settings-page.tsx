@@ -24,9 +24,11 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { User, Upload } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function SettingsPage() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex flex-col gap-6">
@@ -99,7 +101,11 @@ export function SettingsPage() {
                             <Label htmlFor="dark-mode">Dark Mode</Label>
                             <p className="text-xs text-muted-foreground">Toggle between light and dark themes.</p>
                         </div>
-                        <Switch id="dark-mode" />
+                        <Switch 
+                            id="dark-mode"
+                            checked={theme === 'dark'}
+                            onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        />
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
