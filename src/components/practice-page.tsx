@@ -462,21 +462,12 @@ export function PracticePage() {
 
   return (
     <div className="flex flex-col gap-6">
-       <div className="flex items-center justify-between mb-4">
+       <div className="mb-4">
             <Button onClick={() => setTestState("not-started")} variant="outline" size="sm">
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                Back
+                Back to Practice Arena
             </Button>
-            <div className="flex items-center gap-4 text-sm font-medium">
-                <Badge variant="secondary" className="px-3 py-1 text-base">
-                    <Timer className="mr-2 h-4 w-4" />
-                    {formatTime(overallTime)}
-                </Badge>
-                 <Badge variant="outline" className="px-3 py-1 text-base">
-                    Q: {formatTime(perQuestionTime)}
-                </Badge>
-            </div>
-      </div>
+        </div>
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle className="text-xl">{activeTest.title}</CardTitle>
@@ -522,4 +513,5 @@ export function PracticePage() {
 }
 
     
+
 

@@ -413,11 +413,11 @@ export function QuizPage() {
 
   return (
     <div className="flex flex-col gap-6">
-       <div className="flex items-center justify-start mb-4">
-            <Button onClick={() => setQuizState("not-started")} variant="outline" size="sm">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Back
-            </Button>
+      <div className="mb-4">
+        <Button onClick={() => setQuizState("not-started")} variant="outline" size="sm">
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Back to Quiz Arena
+        </Button>
       </div>
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
