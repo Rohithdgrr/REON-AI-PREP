@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Bot, X, Sparkles, Wand2, Languages, Type, List, FileText, BotMessageSquare, History, Brain, Lightbulb, ChevronDown, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen
+  Bot, X, Sparkles, Wand2, Languages, Type, List, FileText, BotMessageSquare, History, Brain, Lightbulb, ChevronDown, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,25 +38,6 @@ const modePrompts: Record<AIMode, string> = {
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
   const parts = response.split(/(\*\*.*?\*\*)/g).filter(Boolean);
-
-  const renderSection = (section: string) => {
-    return section.split('\n').map((line, lineIndex) => {
-      const isListItem = /^\d+\.\s/.test(line);
-      if (isListItem) {
-        return (
-          <li key={lineIndex} className="ml-4">
-            {line.replace(/^\d+\.\s/, '')}
-          </li>
-        );
-      }
-      return (
-        <React.Fragment key={lineIndex}>
-          {line}
-          <br />
-        </React.Fragment>
-      );
-    });
-  };
 
   return (
     <div className="whitespace-pre-wrap font-sans text-sm">
@@ -193,6 +174,13 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     saveHistory(newHistory);
     setInput('');
   };
+  
+  const handleNewChat = () => {
+    const newHistory = sessionHistory.filter(s => s.mode !== 'Chat');
+    saveHistory(newHistory);
+    setInput('');
+    toast({ title: 'New Chat Started' });
+  };
 
   const handleRevert = (mode: AIMode) => {
     const sessionIndex = sessionHistory.findIndex(s => s.mode === mode);
@@ -240,6 +228,18 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
             </div>
           )}
           <div className={cn("flex items-center gap-1", isCollapsed && "flex-col w-full")}>
+             {!isCollapsed && (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={handleNewChat}>
+                                <Plus />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom"><p>New Chat</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+             )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -336,18 +336,22 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
 
           {/* Input Area */}
           <div className="p-2 border-t flex flex-col gap-2">
-            <Textarea
-              placeholder={`Ask LIBRA or paste text for ${currentMode} mode...`}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              rows={3}
-              className="resize-none"
-              disabled={currentMode === 'History'}
-            />
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex gap-2">
+            <div className="flex gap-2">
+                <Textarea
+                placeholder={`Ask LIBRA or paste text for ${currentMode} mode...`}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                rows={2}
+                className="resize-none flex-1"
+                disabled={currentMode === 'History'}
+                />
+                <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'} size="icon" className="h-auto w-10">
+                    <Sparkles className="h-5 w-5" />
+                </Button>
+            </div>
+            <div className="flex justify-start items-center gap-2">
                  <Select value={language} onValueChange={(v: Language) => setLanguage(v)} disabled={currentMode === 'History'}>
-                  <SelectTrigger className="w-[120px] h-9">
+                  <SelectTrigger className="w-[120px] h-8 text-xs">
                     <SelectValue placeholder="Language" />
                   </SelectTrigger>
                   <SelectContent>
@@ -358,17 +362,13 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                   </SelectContent>
                 </Select>
                  <Select value={model} onValueChange={(v: AIModel) => setModel(v)} disabled={currentMode === 'History'}>
-                  <SelectTrigger className="w-[120px] h-9">
+                  <SelectTrigger className="w-[120px] h-8 text-xs">
                      <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="L1">Llama 3.1 70B</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'}>
-                {isLoading ? 'Processing...' : 'Send'}
-              </Button>
             </div>
           </div>
         </>
