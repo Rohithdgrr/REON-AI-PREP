@@ -7,8 +7,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -73,6 +71,7 @@ const FormattedAIResponse = ({ response }: { response: string }) => {
   );
 };
 
+
 export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pageContent?: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
@@ -83,6 +82,8 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
   const { toast } = useToast();
   const { setActiveTool } = useToolsSidebar();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     try {
@@ -90,6 +91,13 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
       if (savedHistory) setSessionHistory(JSON.parse(savedHistory));
     } catch (e) { console.error("Failed to load LIBRA history from localStorage", e); }
   }, []);
+
+   useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [sessionHistory, isLoading]);
+
 
   const saveHistory = (newHistory: Session[]) => {
     const simplifiedHistory = newHistory.filter(s => s.mode === 'Chat' || s.mode === 'History');
@@ -264,7 +272,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
       <div className="flex-1 flex flex-col min-h-0">
         {!isCollapsed && (
           <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {currentMode === 'History' ? (
                 <div className="space-y-4">
                   <h3 className="font-semibold">Conversation History</h3>
@@ -322,7 +330,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t flex-shrink-0 space-y-4">
+            <div className="p-4 border-t flex-shrink-0 space-y-4 bg-background">
               <div className="relative">
                   <Textarea
                   placeholder="Ask LIBRA anything..."
@@ -330,7 +338,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiRequest(); }}}
                   rows={1}
-                  className="resize-none w-full rounded-full border bg-background px-4 py-2 pr-12 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[40px] max-h-32"
+                  className="resize-none w-full rounded-full border bg-muted px-4 py-2 pr-12 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[40px] max-h-32"
                   />
                   <Button onClick={handleAiRequest} disabled={isLoading || input.trim() === ''} size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full">
                       <Send className="h-4 w-4" />
