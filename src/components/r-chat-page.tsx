@@ -22,12 +22,12 @@ import {
   User,
   Smile,
 } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useState, useRef, useEffect } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { stickerGifData } from '@/lib/sticker-gif-data';
 import { cn } from '@/lib/utils';
 
