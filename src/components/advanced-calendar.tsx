@@ -4,11 +4,13 @@
 import { useState, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ChevronLeft, ChevronRight, PartyPopper } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PartyPopper, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card } from './ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 const holidays: { date: string; name: string }[] = [
     { date: "2024-08-15", name: "Independence Day" },
@@ -23,21 +25,18 @@ const holidays: { date: string; name: string }[] = [
     { date: "2025-03-14", name: "Holi" },
 ];
 
+type SpecialDay = {
+    date: string;
+    name: string;
+};
+
 export function AdvancedCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [specialDays, setSpecialDays] = useState<string[]>([]);
+  const [specialDays, setSpecialDays] = useState<SpecialDay[]>([]);
+  const [newSpecialDay, setNewSpecialDay] = useState({ date: '', name: '' });
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
-  const handleDayClick = (day: number) => {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    setSpecialDays(prev => 
-        prev.includes(dateStr) 
-            ? prev.filter(d => d !== dateStr)
-            : [...prev, dateStr]
-    );
-  };
   
   const firstDayOfMonth = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -48,40 +47,54 @@ export function AdvancedCalendar() {
 
   const upcomingHolidays = useMemo(() => {
     const now = new Date();
+    now.setHours(0,0,0,0);
     return holidays
         .filter(h => new Date(h.date) >= now)
+        .sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         .slice(0, 3);
   }, []);
+
+  const handleAddSpecialDay = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newSpecialDay.date && newSpecialDay.name) {
+        setSpecialDays(prev => [...prev, newSpecialDay].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+        setNewSpecialDay({ date: '', name: '' });
+    }
+  }
+
+  const handleRemoveSpecialDay = (dateToRemove: string) => {
+    setSpecialDays(prev => prev.filter(d => d.date !== dateToRemove));
+  }
 
   const DayCell = ({ day, weekdayIndex }: { day: number, weekdayIndex: number }) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const holiday = holidays.find(h => h.date === dateStr);
+    const specialDay = specialDays.find(d => d.date === dateStr);
     const isToday = isCurrentMonthView && day === today.getDate();
     const isSunday = weekdayIndex === 6;
-    const isSpecial = specialDays.includes(dateStr);
 
     const cellContent = (
       <div
-        onClick={() => handleDayClick(day)}
         className={cn(
-            "flex items-center justify-center h-10 w-10 rounded-full transition-all duration-200 cursor-pointer",
-            "hover:bg-accent",
+            "flex items-center justify-center h-10 w-10 rounded-full transition-all duration-200",
             isSunday && "text-red-500",
             isToday && "bg-primary/20 text-primary border-2 border-primary font-bold",
             holiday && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 font-semibold",
-            isSpecial && "ring-2 ring-yellow-500 ring-offset-2 ring-offset-background",
+            specialDay && "ring-2 ring-yellow-500 ring-offset-2 ring-offset-background",
         )}
       >
         {day}
       </div>
     );
+    
+    const tooltipContent = holiday?.name || specialDay?.name;
 
-    if (holiday) {
+    if (tooltipContent) {
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{cellContent}</TooltipTrigger>
-            <TooltipContent><p>{holiday.name}</p></TooltipContent>
+            <TooltipContent><p>{tooltipContent}</p></TooltipContent>
           </Tooltip>
         </TooltipProvider>
       );
@@ -132,7 +145,7 @@ export function AdvancedCalendar() {
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
-    <Card className="w-full max-w-sm mx-auto p-4 sm:p-6 bg-card text-card-foreground">
+    <Card className="w-full max-w-md mx-auto p-4 sm:p-6 bg-card text-card-foreground">
         <div className="flex justify-between items-center mb-5 font-bold">
             <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="text-primary hover:bg-accent h-9 w-9">
                 <ChevronLeft className="h-6 w-6" />
@@ -172,22 +185,56 @@ export function AdvancedCalendar() {
             ))}
         </div>
         
-        <div className="mt-6 space-y-3">
-             <h4 className="text-sm font-semibold">Upcoming Holidays</h4>
-             {upcomingHolidays.length > 0 ? (
-                <div className="space-y-2">
-                    {upcomingHolidays.map(holiday => (
-                        <div key={holiday.name} className="flex justify-between items-center text-xs p-2 bg-muted/50 rounded-md">
-                            <span className="font-medium">{holiday.name}</span>
-                            <Badge variant="outline">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Badge>
-                        </div>
-                    ))}
-                </div>
-             ) : (
-                <p className="text-xs text-muted-foreground text-center">No upcoming holidays in the list.</p>
-             )}
+        <div className="mt-6 space-y-4">
+             <div>
+                <h4 className="text-sm font-semibold mb-2">Upcoming Holidays</h4>
+                {upcomingHolidays.length > 0 ? (
+                    <div className="space-y-2">
+                        {upcomingHolidays.map(holiday => (
+                            <div key={holiday.name} className="flex justify-between items-center text-xs p-2 bg-muted/50 rounded-md">
+                                <span className="font-medium">{holiday.name}</span>
+                                <Badge variant="outline">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</Badge>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-xs text-muted-foreground text-center">No upcoming holidays in the list.</p>
+                )}
+             </div>
+
+            <div>
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><PartyPopper className="h-4 w-4 text-yellow-500"/> My Special Days</h4>
+                 <form onSubmit={handleAddSpecialDay} className="flex items-end gap-2 mb-2">
+                    <div className="flex-1 space-y-1">
+                        <Label htmlFor="special-day-date" className="text-xs">Date</Label>
+                        <Input id="special-day-date" type="date" value={newSpecialDay.date} onChange={e => setNewSpecialDay({...newSpecialDay, date: e.target.value})} className="h-9"/>
+                    </div>
+                     <div className="flex-1 space-y-1">
+                        <Label htmlFor="special-day-name" className="text-xs">Event Name</Label>
+                        <Input id="special-day-name" type="text" value={newSpecialDay.name} onChange={e => setNewSpecialDay({...newSpecialDay, name: e.target.value})} placeholder="e.g. Mock Test" className="h-9"/>
+                    </div>
+                    <Button type="submit" size="icon" className="h-9 w-9"><Plus className="h-4 w-4"/></Button>
+                 </form>
+
+                {specialDays.length > 0 ? (
+                    <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                        {specialDays.map(day => (
+                            <div key={day.date} className="flex justify-between items-center text-xs p-2 bg-yellow-400/10 rounded-md">
+                                <div className="flex flex-col">
+                                    <span className="font-medium text-yellow-700 dark:text-yellow-300">{day.name}</span>
+                                    <span className="text-muted-foreground">{new Date(day.date).toLocaleDateString(undefined, { year:'numeric', month: 'short', day: 'numeric' })}</span>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveSpecialDay(day.date)}>
+                                    <Trash2 className="h-4 w-4 text-destructive/70"/>
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-xs text-muted-foreground text-center">No special days added yet.</p>
+                )}
+            </div>
         </div>
-        <div className="mt-4 text-xs text-muted-foreground text-center">Click on a date to mark it as a special day <PartyPopper className="inline h-4 w-4 text-yellow-500" /></div>
     </Card>
   );
 }
