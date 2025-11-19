@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating personalized study plans.
@@ -12,7 +11,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GeneratePersonalizedStudyPlanInputSchema = z.object({
   targetExam: z.string().describe('The target exam for which the study plan is being generated (e.g., Railway NTPC, SBI PO).'),
@@ -29,10 +28,6 @@ const GeneratePersonalizedStudyPlanOutputSchema = z.object({
 
 export type GeneratePersonalizedStudyPlanOutput = z.infer<typeof GeneratePersonalizedStudyPlanOutputSchema>;
 
-export async function generatePersonalizedStudyPlan(input: GeneratePersonalizedStudyPlanInput): Promise<GeneratePersonalizedStudyPlanOutput> {
-  return generatePersonalizedStudyPlanFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'generatePersonalizedStudyPlanPrompt',
   input: {schema: GeneratePersonalizedStudyPlanInputSchema},
@@ -48,8 +43,7 @@ Previous Performance: {{{previousPerformance}}}
 Use the previous performance to optimize the generated study plan.
 {{/if}}
 
-Generate a study plan that allocates time appropriately to each subject, focusing more on the weak subjects. The study plan should be clear and easy to follow.
-The output should be a markdown string with a clear heading and bullet points for each day or subject.
+Generate a study plan that allocates time appropriately to each subject, focusing more on the weak subjects. The study plan should be a markdown string with a clear heading and bullet points for each day or subject.
 `,
 });
 
@@ -64,3 +58,8 @@ const generatePersonalizedStudyPlanFlow = ai.defineFlow(
     return output!;
   }
 );
+
+
+export async function generatePersonalizedStudyPlan(input: GeneratePersonalizedStudyPlanInput): Promise<GeneratePersonalizedStudyPlanOutput> {
+  return generatePersonalizedStudyPlanFlow(input);
+}
