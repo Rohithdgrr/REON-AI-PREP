@@ -17,15 +17,16 @@ type ChannelsPanelProps = {
     activeDM: typeof directMessages[0] | null;
     onSelectChannel: (channel: typeof channelsByRealm.r1[0]) => void;
     onSelectDM: (dm: typeof directMessages[0]) => void;
+    onDoubleClick: () => void;
 }
 
-export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectChannel, onSelectDM}: ChannelsPanelProps) {
+export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectChannel, onSelectDM, onDoubleClick}: ChannelsPanelProps) {
     const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
     const [isMuted, setIsMuted] = useState(false);
     const [isDeafened, setIsDeafened] = useState(false);
 
     return (
-        <div className="flex flex-col border-r bg-muted/50">
+        <div className="flex flex-col border-r bg-muted/50 h-full" onDoubleClick={onDoubleClick}>
             <CardHeader className="p-4 border-b">
                 <CardTitle className="text-lg">{activeRealm.name}</CardTitle>
             </CardHeader>

@@ -462,12 +462,6 @@ export function PracticePage() {
 
   return (
     <div className="flex flex-col gap-6">
-       <div className="mb-4">
-            <Button onClick={() => setTestState("not-started")} variant="outline" size="sm">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Back to Practice Arena
-            </Button>
-        </div>
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle className="text-xl">{activeTest.title}</CardTitle>
@@ -511,7 +505,3 @@ export function PracticePage() {
     </div>
   );
 }
-
-    
-
-

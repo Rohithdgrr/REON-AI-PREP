@@ -214,6 +214,7 @@ export function RChatPage() {
                   activeDM={activeDM}
                   onSelectChannel={handleSelectChannel}
                   onSelectDM={handleSelectDM}
+                  onDoubleClick={() => setChannelsPanelOpen(false)}
               />
             </div>
 

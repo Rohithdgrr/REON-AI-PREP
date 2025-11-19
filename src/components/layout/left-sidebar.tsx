@@ -124,6 +124,7 @@ export function LeftSidebar() {
         "hidden border-r bg-background transition-all duration-300 md:block",
         isCollapsed ? "w-20" : "w-64"
       )}
+      onDoubleClick={toggleSidebar}
     >
       <div className="flex h-full max-h-screen flex-col gap-2">
          <div className={cn("flex items-center border-b h-14", isCollapsed ? 'justify-center' : 'justify-between p-2')}>
@@ -131,8 +132,8 @@ export function LeftSidebar() {
                 <Logo isCollapsed={isCollapsed} />
                 {!isCollapsed && <span className="font-bold font-headline text-primary">REON™</span>}
             </div>
-            <Button onClick={toggleSidebar} variant="ghost" size="icon" className="h-8 w-8">
-                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            <Button onClick={toggleSidebar} variant="ghost" size="icon" className={cn("h-8 w-8", isCollapsed && "hidden")}>
+                <ChevronLeft className="h-4 w-4" />
             </Button>
         </div>
         <div className="flex-1 overflow-auto py-2">
