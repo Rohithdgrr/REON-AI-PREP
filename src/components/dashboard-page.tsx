@@ -35,8 +35,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { cn } from "@/lib/utils";
 
 const chartData = [
   { day: "Mon", hours: 2.5 },
@@ -60,42 +61,44 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16 hidden sm:flex">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" />}
-            <AvatarFallback><User /></AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl font-bold font-headline tracking-tight">
-              Welcome back, Srinivas! 🔥
-            </h1>
-            <p className="text-muted-foreground">
-              Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
-            </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-            <Card className="flex items-center p-3 gap-3">
-                <Flame className="h-8 w-8 text-orange-500" />
-                <div>
-                    <p className="text-sm font-bold">46-Day Streak</p>
-                    <p className="text-xs text-muted-foreground">Keep it going!</p>
-                </div>
-            </Card>
-             <Card className="flex items-center p-3 gap-3">
-                <Award className="h-8 w-8 text-yellow-500" />
-                <div>
-                    <p className="text-sm font-bold">Rax Banker Lvl 12</p>
-                    <p className="text-xs text-muted-foreground">Level up</p>
-                </div>
-            </Card>
-             <Card className="flex items-center p-3 gap-3">
-                <Star className="h-8 w-8 text-blue-500" />
-                <div>
-                    <p className="text-sm font-bold">12,450 XP</p>
-                    <p className="text-xs text-muted-foreground">New missions</p>
-                </div>
-            </Card>
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20 hidden sm:flex rounded-md">
+                {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" className="rounded-md" />}
+                <AvatarFallback className="rounded-md"><User /></AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold font-headline tracking-tight">
+                  Welcome back, Srinivas! 🔥
+                </h1>
+                <p className="text-muted-foreground">
+                  Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+                <Card className="flex items-center p-3 gap-3 hover:bg-accent cursor-pointer transition-colors">
+                    <Flame className="h-8 w-8 text-orange-500" />
+                    <div>
+                        <p className="text-sm font-bold">46-Day Streak</p>
+                        <p className="text-xs text-muted-foreground">Keep it going!</p>
+                    </div>
+                </Card>
+                 <Card className="flex items-center p-3 gap-3 hover:bg-accent cursor-pointer transition-colors">
+                    <Award className="h-8 w-8 text-yellow-500" />
+                    <div>
+                        <p className="text-sm font-bold">Rax Banker Lvl 12</p>
+                        <p className="text-xs text-muted-foreground">Level up</p>
+                    </div>
+                </Card>
+                 <Card className="flex items-center p-3 gap-3 hover:bg-accent cursor-pointer transition-colors">
+                    <Star className="h-8 w-8 text-blue-500" />
+                    <div>
+                        <p className="text-sm font-bold">12,450 XP</p>
+                        <p className="text-xs text-muted-foreground">New missions</p>
+                    </div>
+                </Card>
+            </div>
         </div>
       </div>
 
