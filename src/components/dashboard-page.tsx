@@ -68,10 +68,10 @@ export function DashboardPage() {
                 <AvatarFallback className="rounded-md"><User /></AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-3xl font-bold font-headline tracking-tight">
+                <h1 className="text-4xl font-bold font-headline tracking-tight">
                   Welcome back, Srinivas! 🔥
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   Your All-India Rank: #127 <ArrowUp className="inline h-4 w-4 text-green-500" />43 since yesterday
                 </p>
               </div>
