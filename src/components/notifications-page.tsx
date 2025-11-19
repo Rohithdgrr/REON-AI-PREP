@@ -25,8 +25,8 @@ const jobNotifications = [
     postDate: "2024-07-20",
     startDate: "2024-08-01",
     endDate: "2024-08-30",
-    tags: ["Railway", "Engineering", "Live"],
-    url: "#"
+    tags: ["Railway", "Engineering"],
+    url: "https://indianrailways.gov.in/railwayboard/view_section.jsp?lang=0&id=0,4,1244"
   },
   {
     id: 2,
@@ -35,8 +35,8 @@ const jobNotifications = [
     postDate: "2024-07-18",
     startDate: "2024-07-25",
     endDate: "2024-08-20",
-    tags: ["Bank", "PO", "Live"],
-    url: "#"
+    tags: ["Bank", "PO"],
+    url: "https://sbi.co.in/web/careers"
   },
   {
     id: 3,
@@ -45,8 +45,8 @@ const jobNotifications = [
     postDate: "2024-07-15",
     startDate: "2024-07-20",
     endDate: "2024-08-15",
-    tags: ["Railway", "Technical", "Live"],
-     url: "#"
+    tags: ["Railway", "Technical"],
+     url: "https://www.rrbcdg.gov.in/"
   },
    {
     id: 4,
@@ -55,18 +55,18 @@ const jobNotifications = [
     postDate: "2024-07-22",
     startDate: "2024-09-01",
     endDate: "2024-09-30",
-    tags: ["SSC", "Graduate", "Upcoming"],
-     url: "#"
+    tags: ["SSC", "Graduate"],
+     url: "https://ssc.gov.in/"
   },
   {
     id: 5,
-    title: "Clerk",
+    title: "Clerk (CRP CLERKS-XIV)",
     department: "Institute of Banking Personnel Selection (IBPS)",
     postDate: "2024-06-30",
     startDate: "2024-07-01",
     endDate: "2024-07-21",
-    tags: ["Bank", "Clerk", "Expired"],
-    url: "#"
+    tags: ["Bank", "Clerk"],
+    url: "https://www.ibps.in/"
   },
    {
     id: 6,
@@ -75,8 +75,8 @@ const jobNotifications = [
     postDate: "2024-07-25",
     startDate: "2024-08-10",
     endDate: "2024-09-05",
-    tags: ["Railway", "Technical", "Upcoming"],
-    url: "#"
+    tags: ["Railway", "Technical"],
+    url: "https://www.rrbcdg.gov.in/"
   }
 ];
 
