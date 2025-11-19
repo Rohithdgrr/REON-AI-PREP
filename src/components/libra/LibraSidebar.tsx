@@ -103,7 +103,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [sessionHistory, isLoading]);
+  }, [sessionHistory, isLoading, currentMode]);
 
 
   const saveHistory = (newHistory: Session[]) => {
@@ -263,104 +263,100 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Chat Messages Area */}
-        <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-          {currentMode === 'History' ? (
-            <div className="space-y-4">
-              <div className='flex justify-between items-center'>
-                <h3 className="font-semibold">Conversation History</h3>
-                <Button variant="destructive" size="sm" onClick={handleClearHistory}><Trash2 className="mr-2 h-4 w-4" /> Clear All</Button>
+      {/* Main Content - SCROLLABLE */}
+      <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+        {currentMode === 'History' ? (
+          <div className="space-y-4">
+            <div className='flex justify-between items-center'>
+              <h3 className="font-semibold">Conversation History</h3>
+              <Button variant="destructive" size="sm" onClick={handleClearHistory}><Trash2 className="mr-2 h-4 w-4" /> Clear All</Button>
+            </div>
+            {sessionHistory.length > 0 ? sessionHistory.map(session => (
+              <div key={session.id} className="text-xs p-2 border rounded-md bg-muted/50 cursor-pointer hover:bg-muted" onClick={() => {
+                  toast({ title: "Session clicked", description: "This would load the selected session."})
+              }}>
+                <p className="font-bold">{session.mode}</p>
+                <p className="truncate text-muted-foreground mt-1">Input: {session.input}</p>
+                <p className="truncate text-muted-foreground">Last Response: {session.responses[session.responses.length -1]}</p>
               </div>
-              {sessionHistory.length > 0 ? sessionHistory.map(session => (
-                <div key={session.id} className="text-xs p-2 border rounded-md bg-muted/50 cursor-pointer hover:bg-muted" onClick={() => {
-                    // In a real app you might load this session
-                    toast({ title: "Session clicked", description: "This would load the selected session."})
-                }}>
-                  <p className="font-bold">{session.mode}</p>
-                  <p className="truncate text-muted-foreground mt-1">Input: {session.input}</p>
-                  <p className="truncate text-muted-foreground">Last Response: {session.responses[session.responses.length -1]}</p>
-                </div>
-              )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
-            </div>
-          ) : isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-5 w-5" /> Thinking...</div>
-            </div>
-          ) : currentResponse ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3 justify-end">
-                <div className="p-3 rounded-lg bg-primary text-primary-foreground max-w-sm">
-                  <p className="text-sm">{currentSession?.input}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="h-5 w-5 text-primary"/>
-                </div>
-                <div className="p-3 rounded-lg bg-muted max-w-sm">
-                  <FormattedAIResponse response={currentResponse} />
-                  <div className="flex items-center gap-1 mt-2">
-                    {currentSession && currentSession.responses.length > 1 && (
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert('Chat')} disabled={currentSession.currentResponseIndex === 0}>
-                        <Undo2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {currentResponse && (
-                      <>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `libra-response.txt`)}>
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-             <div className="text-center h-full flex flex-col justify-center items-center">
-                <BotMessageSquare className='mx-auto h-16 w-16 opacity-10 mb-4' />
-                <h3 className="text-lg font-semibold">How can I help you today?</h3>
-                <div className="grid grid-cols-2 gap-3 mt-6 max-w-md w-full">
-                    {suggestionCards.map(card => (
-                        <Card key={card.title} className="p-3 hover:bg-muted cursor-pointer" onClick={() => handleAiRequest(card.prompt)}>
-                            <p className="font-semibold text-sm">{card.title}</p>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t flex-shrink-0 space-y-4 bg-background">
-          <div className="relative rounded-lg border bg-background shadow-sm p-2 flex gap-2 items-end">
-            <Textarea
-              placeholder="Ask LIBRA anything..."
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiRequest(); }}}
-              rows={1}
-              className="resize-none w-full border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm shadow-none"
-            />
-             <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild><Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8"><Paperclip className="h-4 w-4"/></Button></TooltipTrigger>
-                    <TooltipContent><p>Attach File (Coming Soon)</p></TooltipContent>
-                </Tooltip>
-             </TooltipProvider>
-            <Button onClick={() => handleAiRequest()} disabled={isLoading || input.trim() === ''} size="icon" className="h-8 w-8 rounded-full flex-shrink-0">
-              <Send className="h-4 w-4" />
-            </Button>
+            )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
           </div>
-           <div className="text-xs text-muted-foreground text-center">
-              Context: {pageTitle}
-           </div>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-5 w-5" /> Thinking...</div>
+          </div>
+        ) : currentResponse ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start gap-3 justify-end">
+              <div className="p-3 rounded-lg bg-primary text-primary-foreground max-w-sm">
+                <p className="text-sm">{currentSession?.input}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Bot className="h-5 w-5 text-primary"/>
+              </div>
+              <div className="p-3 rounded-lg bg-muted max-w-sm">
+                <FormattedAIResponse response={currentResponse} />
+                <div className="flex items-center gap-1 mt-2">
+                  {currentSession && currentSession.responses.length > 1 && (
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert('Chat')} disabled={currentSession.currentResponseIndex === 0}>
+                      <Undo2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {currentResponse && (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `libra-response.txt`)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+            <div className="text-center h-full flex flex-col justify-center items-center">
+              <BotMessageSquare className='mx-auto h-16 w-16 opacity-10 mb-4' />
+              <h3 className="text-lg font-semibold">How can I help you today?</h3>
+              <div className="grid grid-cols-2 gap-3 mt-6 max-w-md w-full">
+                  {suggestionCards.map(card => (
+                      <Card key={card.title} className="p-3 hover:bg-muted cursor-pointer" onClick={() => handleAiRequest(card.prompt)}>
+                          <p className="font-semibold text-sm">{card.title}</p>
+                      </Card>
+                  ))}
+              </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input Area - FIXED */}
+      <div className="p-4 border-t flex-shrink-0 space-y-4 bg-background">
+        <div className="relative rounded-lg border bg-background shadow-sm p-2 flex gap-2 items-end">
+          <Textarea
+            placeholder="Ask LIBRA anything..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiRequest(); }}}
+            rows={1}
+            className="resize-none w-full border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm shadow-none"
+          />
+            <TooltipProvider>
+              <Tooltip>
+                  <TooltipTrigger asChild><Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8"><Paperclip className="h-4 w-4"/></Button></TooltipTrigger>
+                  <TooltipContent><p>Attach File (Coming Soon)</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          <Button onClick={() => handleAiRequest()} disabled={isLoading || input.trim() === ''} size="icon" className="h-8 w-8 rounded-full flex-shrink-0">
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
+          <div className="text-xs text-muted-foreground text-center">
+            Context: {pageTitle}
+          </div>
       </div>
     </div>
   );
