@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -9,10 +10,12 @@ import {
   ChevronLeft,
   ChevronRight,
   FileQuestion,
+  Globe,
   HelpCircle,
   Home,
   LayoutDashboard,
   Lightbulb,
+  LogOut,
   Map,
   MessageCircle,
   Mic,
@@ -20,6 +23,7 @@ import {
   Settings,
   Target,
   TestTube2,
+  User,
   Users,
   Wrench,
 } from "lucide-react";
@@ -34,6 +38,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
@@ -58,6 +65,7 @@ const secondaryNavItems = [
 const bottomNavItems = [
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
   { href: "/dashboard/help", icon: HelpCircle, label: "Help" },
+  { href: "#", icon: LogOut, label: "Logout" },
 ];
 
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
@@ -80,12 +88,13 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
 export function LeftSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const NavLink = ({ item, isCollapsed }: { item: typeof navItems[0], isCollapsed: boolean }) => (
+  const NavLink = ({ item, isCollapsed, isBottomLink = false }: { item: typeof navItems[0], isCollapsed: boolean, isBottomLink?: boolean }) => (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -131,9 +140,33 @@ export function LeftSidebar() {
             {secondaryNavItems.map((item) => <NavLink key={item.href} item={item} isCollapsed={isCollapsed}/>)}
           </nav>
         </div>
-        <div className="mt-auto p-4 space-y-1">
-            <Separator className="my-4" />
-            {bottomNavItems.map((item) => <NavLink key={item.href} item={item} isCollapsed={isCollapsed} />)}
+        <div className="mt-auto p-2 space-y-1 border-t">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+               <Button variant="ghost" className={cn("w-full justify-start items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary", isCollapsed && "justify-center")}>
+                  <Avatar className="h-8 w-8">
+                    {userAvatar ? <AvatarImage src={userAvatar.imageUrl} /> : <AvatarFallback><User /></AvatarFallback>}
+                  </Avatar>
+                  {!isCollapsed && <div className="text-left"><p className="font-semibold text-foreground">Srinivas</p><p className="text-xs">RaxPro</p></div>}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild><Link href="/dashboard/settings"><Settings className="mr-2 h-4 w-4" />Settings</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/help"><HelpCircle className="mr-2 h-4 w-4" />Support</Link></DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger><Globe className="mr-2 h-4 w-4" />Language</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem>English</DropdownMenuItem>
+                  <DropdownMenuItem>Telugu</DropdownMenuItem>
+                  <DropdownMenuItem>Hindi</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" />Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
