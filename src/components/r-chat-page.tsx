@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -452,5 +451,3 @@ export function RChatPage() {
     </div>
   );
 }
-
-```
