@@ -234,19 +234,19 @@ export function NotificationsPage() {
                                 ))}
                             </div>
                         </CardContent>
-                        <CardFooter className="flex flex-col items-start gap-4 bg-muted/50 p-4">
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm w-full">
-                                <div className="flex flex-col">
-                                    <span className="text-muted-foreground text-xs">Posted</span>
-                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.postDate)}</strong>
+                        <CardFooter className="flex-col items-start gap-4 bg-muted/50 p-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-4 text-sm w-full">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-muted-foreground text-xs font-semibold">Posted:</span>
+                                    <strong>{formatDate(job.postDate)}</strong>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-muted-foreground text-xs">Starts</span>
-                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.startDate)}</strong>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-muted-foreground text-xs font-semibold">Starts:</span>
+                                    <strong>{formatDate(job.startDate)}</strong>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-muted-foreground text-xs">Ends</span>
-                                    <strong className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(job.endDate)}</strong>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-muted-foreground text-xs font-semibold">Ends:</span>
+                                    <strong>{formatDate(job.endDate)}</strong>
                                 </div>
                             </div>
                              <Button asChild disabled={job.status !== "Live"} className="w-full sm:w-auto self-end">
@@ -302,3 +302,5 @@ export function NotificationsPage() {
     </div>
   );
 }
+
+    
