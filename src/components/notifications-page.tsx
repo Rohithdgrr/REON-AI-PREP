@@ -201,7 +201,10 @@ export function NotificationsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {filteredNotifications.length > 0 ? filteredNotifications.map((job) => {
-                const image = PlaceHolderImages.find(img => img.id === job.imageId);
+                let image = PlaceHolderImages.find(img => img.id === job.imageId);
+                if (!image) {
+                    image = PlaceHolderImages.find(img => img.id === 'job-graduate');
+                }
                 return (
                 <Card key={job.id} className="hover:shadow-md transition-shadow flex flex-col md:flex-row overflow-hidden">
                     {image && (

@@ -75,25 +75,25 @@
     {
       "id": "job-railway",
       "description": "Image representing a railway job",
-      "imageUrl": "https://images.unsplash.com/photo-1616368332495-8e4a9143a40c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+      "imageUrl": "https://images.unsplash.com/photo-1616368332495-8e4a9143a40c?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
       "imageHint": "train station"
     },
     {
       "id": "job-bank",
       "description": "Image representing a banking job",
-      "imageUrl": "https://images.unsplash.com/photo-1543286386-2e6593068625?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      "imageUrl": "https://images.unsplash.com/photo-1543286386-2e6593068625?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
       "imageHint": "bank building"
     },
     {
       "id": "job-ssc",
       "description": "Image representing a government building for SSC jobs",
-      "imageUrl": "https://images.unsplash.com/photo-1606092195730-5d6b9af1efc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+      "imageUrl": "https://images.unsplash.com/photo-1606092195730-5d6b9af1efc5?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
       "imageHint": "government building"
     },
     {
       "id": "job-graduate",
       "description": "Image representing jobs for graduates",
-      "imageUrl": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxncmFkdWF0aW9ufGVufDB8fHx8MTc2MzUzOTQzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "graduation students"
     }
   ]
