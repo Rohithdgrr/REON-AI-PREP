@@ -415,10 +415,6 @@ export function PracticePage() {
             <h1 className="text-3xl font-bold font-headline tracking-tight">
             Practice Test Results
             </h1>
-            <Button onClick={() => setTestState("not-started")} variant="outline">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Back to Practice Arena
-            </Button>
         </div>
         <Card>
           <CardHeader>

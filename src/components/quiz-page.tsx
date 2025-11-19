@@ -370,10 +370,6 @@ export function QuizPage() {
             <h1 className="text-3xl font-bold font-headline tracking-tight">
             Quiz Results
             </h1>
-            <Button onClick={() => setQuizState("not-started")} variant="outline">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                Back to Quiz Arena
-            </Button>
         </div>
         <Card>
           <CardHeader>
