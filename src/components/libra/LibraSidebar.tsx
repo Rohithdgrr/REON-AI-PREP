@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Bot, X, Sparkles, History, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen, Plus, BotMessageSquare
+  Bot, X, Sparkles, History, Download, Copy, Trash2, Undo2, PanelRightClose, PanelRightOpen, Plus, BotMessageSquare, Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,15 +25,6 @@ type Session = {
   currentResponseIndex: number;
   language: Language;
   model: AIModel;
-};
-
-const modeIcons: Record<AIMode, React.ElementType> = {
-  Chat: BotMessageSquare, History: History,
-};
-
-const modePrompts: Record<AIMode, string> = {
-  Chat: "You are LIBRA, an AI assistant. Respond to the user's query: ",
-  History: "Provide the historical background and context for the following topic: ",
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
@@ -118,7 +109,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     setIsLoading(true);
     let finalResponse = '';
 
-    const fullPrompt = `${modePrompts[currentMode]} In ${language} language. User input: "${textToProcess}"`;
+    const fullPrompt = `You are LIBRA, an AI assistant. Respond to the user's query: In ${language} language. User input: "${textToProcess}"`;
 
     try {
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -179,6 +170,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     const newHistory = sessionHistory.filter(s => s.mode !== 'Chat');
     saveHistory(newHistory);
     setInput('');
+    setCurrentMode('Chat');
     toast({ title: 'New Chat Started' });
   };
 
@@ -214,7 +206,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     URL.revokeObjectURL(url);
   };
   
-  const currentSession = sessionHistory.find(s => s.mode === currentMode);
+  const currentSession = sessionHistory.find(s => s.mode === 'Chat');
   const currentResponse = currentSession ? currentSession.responses[currentSession.currentResponseIndex] : null;
 
   return (
@@ -237,6 +229,14 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom"><p>New Chat</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant={currentMode === 'History' ? 'secondary' : 'ghost'} size="icon" onClick={() => setCurrentMode(currentMode === 'History' ? 'Chat' : 'History')}>
+                                <History />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom"><p>View History</p></TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
              )}
@@ -264,27 +264,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
       <div className="flex-1 flex flex-col min-h-0">
         {!isCollapsed && (
           <>
-            {/* Mode Selector */}
-            <div className="p-2 border-b flex-shrink-0">
-              <div className="grid grid-cols-2 gap-1">
-                <Button
-                  variant={currentMode === 'Chat' ? 'secondary' : 'ghost'}
-                  onClick={() => setCurrentMode('Chat')}
-                >
-                  <BotMessageSquare className="mr-2 h-4 w-4" />
-                  Chat
-                </Button>
-                <Button
-                  variant={currentMode === 'History' ? 'secondary' : 'ghost'}
-                  onClick={() => setCurrentMode('History')}
-                >
-                  <History className="mr-2 h-4 w-4" />
-                  History
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {currentMode === 'History' ? (
                 <div className="space-y-4">
                   <h3 className="font-semibold">Conversation History</h3>
@@ -297,103 +277,105 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                   )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
                 </div>
               ) : isLoading ? (
-                <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-4 w-4" /> Thinking...</div>
+                <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-5 w-5" /> Thinking...</div>
+                </div>
               ) : currentResponse ? (
-                <FormattedAIResponse response={currentResponse} />
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3 justify-end">
+                        <div className="p-3 rounded-lg bg-primary text-primary-foreground max-w-sm">
+                            <p className="text-sm">{currentSession?.input}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <Bot className="h-5 w-5 text-primary"/>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted max-w-sm">
+                            <FormattedAIResponse response={currentResponse} />
+                             <div className="flex items-center gap-1 mt-2">
+                                {currentSession && currentSession.responses.length > 1 && (
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert('Chat')} disabled={currentSession.currentResponseIndex === 0}>
+                                    <Undo2 className="h-4 w-4" />
+                                    </Button>
+                                )}
+                                {currentResponse && (
+                                    <>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
+                                        <Copy className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `libra-response.txt`)}>
+                                        <Download className="h-4 w-4" />
+                                    </Button>
+                                    </>
+                                )}
+                             </div>
+                        </div>
+                    </div>
+                </div>
               ) : (
-                <div className="text-center text-muted-foreground pt-16">
-                  {React.createElement(modeIcons[currentMode], { className: 'mx-auto h-12 w-12 opacity-30 mb-4' })}
-                  <p className="font-semibold">LIBRA AI - {currentMode} Mode</p>
-                  <p className="text-xs">Ask a question or provide context below.</p>
+                <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
+                  <BotMessageSquare className='mx-auto h-12 w-12 opacity-30 mb-4' />
+                  <p className="font-semibold">How can I help you today?</p>
                 </div>
               )}
             </div>
-            
-            {/* Context and controls */}
-            <div className="p-2 border-t text-xs text-muted-foreground flex items-center justify-between flex-shrink-0">
-                <p className="truncate">Context: {pageTitle}</p>
-                <div className="flex items-center gap-1">
-                  {currentSession && currentSession.responses.length > 1 && (
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRevert(currentMode)} disabled={currentSession.currentResponseIndex === 0}>
-                      <Undo2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {currentResponse && (
-                    <>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(currentResponse)}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => downloadResponse(currentResponse, `${currentMode}-${Date.now()}.txt`)}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleClearHistory}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-            </div>
 
             {/* Input Area */}
-            <div className="p-2 border-t flex flex-col gap-2 flex-shrink-0">
-              <div className="flex gap-2">
+            <div className="p-4 border-t flex-shrink-0 space-y-4">
+              <div className="relative">
                   <Textarea
-                  placeholder={`Ask LIBRA or paste text for ${currentMode} mode...`}
+                  placeholder="Ask LIBRA anything..."
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  rows={2}
-                  className="resize-none flex-1"
-                  disabled={currentMode === 'History'}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAiRequest(); }}}
+                  rows={1}
+                  className="resize-none w-full rounded-full border bg-background px-4 py-2 pr-12 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[40px] max-h-32"
                   />
-                  <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'} size="icon" className="h-auto w-10">
-                      <Sparkles className="h-5 w-5" />
+                  <Button onClick={handleAiRequest} disabled={isLoading || input.trim() === ''} size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full">
+                      <Send className="h-4 w-4" />
                   </Button>
               </div>
-              <div className="flex justify-start items-center gap-2">
-                   <Select value={language} onValueChange={(v: Language) => setLanguage(v)} disabled={currentMode === 'History'}>
-                    <SelectTrigger className="w-[120px] h-8 text-xs">
-                      <SelectValue placeholder="Language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="hi">Hindi</SelectItem>
-                      <SelectItem value="te">Telugu</SelectItem>
-                      <SelectItem value="ta">Tamil</SelectItem>
-                    </SelectContent>
-                  </Select>
-                   <Select value={model} onValueChange={(v: AIModel) => setModel(v)} disabled={currentMode === 'History'}>
-                    <SelectTrigger className="w-[120px] h-8 text-xs">
-                       <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="L1">Llama 3.1 70B</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="text-xs text-muted-foreground text-center">
+                   Context: {pageTitle}
               </div>
             </div>
           </>
         )}
 
         {isCollapsed && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2">
+          <div className="flex-1 flex flex-col items-center justify-start gap-2 p-2 pt-4">
              <TooltipProvider>
-               {(Object.keys(modeIcons) as AIMode[]).map(mode => (
-                  <Tooltip key={mode}>
+                  <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant={currentMode === mode ? 'secondary' : 'ghost'}
+                        variant='secondary'
                         size="icon"
                         onClick={() => {
-                            setCurrentMode(mode);
+                            setCurrentMode('Chat');
                             setIsCollapsed(false);
                         }}
                       >
-                        {React.createElement(modeIcons[mode])}
+                        <BotMessageSquare />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="left"><p>{mode}</p></TooltipContent>
+                    <TooltipContent side="left"><p>Chat</p></TooltipContent>
                   </Tooltip>
-                ))}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size="icon"
+                        onClick={() => {
+                            setCurrentMode('History');
+                            setIsCollapsed(false);
+                        }}
+                      >
+                        <History />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left"><p>History</p></TooltipContent>
+                  </Tooltip>
               </TooltipProvider>
           </div>
         )}
