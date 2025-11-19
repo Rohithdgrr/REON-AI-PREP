@@ -63,7 +63,7 @@ export function DashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <Avatar className="h-24 w-24 hidden sm:flex rounded-md">
+              <Avatar className="h-28 w-28 hidden sm:flex rounded-md">
                 {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" className="rounded-md" />}
                 <AvatarFallback className="rounded-md"><User /></AvatarFallback>
               </Avatar>
