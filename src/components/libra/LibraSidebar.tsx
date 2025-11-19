@@ -277,11 +277,9 @@ export function LibraSidebar({
 
 
   const handleNewChat = () => {
-    // This now just filters for chat-type sessions, effectively creating a new one
     setSessionHistory(prev => prev.filter(s => s.id === 0)); // Clears the view
     setInput('');
     setCurrentMode('Chat');
-    toast({ title: 'New Chat Started' });
   };
 
   const handleRevert = (mode: AIMode) => {
@@ -298,7 +296,6 @@ export function LibraSidebar({
 
   const handleClearHistory = () => {
     saveHistory([]);
-    toast({ title: 'History Cleared' });
   };
 
   const copyToClipboard = (text: string) => {
