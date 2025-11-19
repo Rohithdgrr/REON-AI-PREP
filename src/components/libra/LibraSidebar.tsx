@@ -14,9 +14,9 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 
-type AIMode = 'Chat' | 'Grammar' | 'Summary' | 'Bullets' | 'Explain' | 'Flow' | 'History' | 'Focus' | 'Analogy';
+type AIMode = 'Chat' | 'History';
 type Language = 'en' | 'hi' | 'te' | 'ta';
-type AIModel = 'L1' | 'L2';
+type AIModel = 'L1';
 type Session = {
   id: number;
   mode: AIMode;
@@ -28,20 +28,12 @@ type Session = {
 };
 
 const modeIcons: Record<AIMode, React.ElementType> = {
-  Chat: BotMessageSquare, Grammar: Type, Summary: FileText, Bullets: List,
-  Explain: Sparkles, Flow: Wand2, History: History, Focus: Brain, Analogy: Lightbulb,
+  Chat: BotMessageSquare, History: History,
 };
 
 const modePrompts: Record<AIMode, string> = {
   Chat: "You are LIBRA, an AI assistant. Respond to the user's query: ",
-  Grammar: "Correct the grammar of the following text, providing only the corrected version: ",
-  Summary: "Summarize the following text in one concise line: ",
-  Bullets: "Break down the following text into a structured bullet-point list: ",
-  Explain: "Provide a detailed, in-depth explanation of the following topic or text with context: ",
-  Flow: "Create a simple ASCII flow diagram for the following process or text: ",
   History: "Provide the historical background and context for the following topic: ",
-  Focus: "Based on the text, suggest what to 'Focus On' and provide a helpful analogy for it: ",
-  Analogy: "Provide a simple and effective analogy to explain the following complex topic: ",
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => (
@@ -67,9 +59,10 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
   }, []);
 
   const saveHistory = (newHistory: Session[]) => {
-    setSessionHistory(newHistory);
+    const simplifiedHistory = newHistory.filter(s => s.mode === 'Chat' || s.mode === 'History');
+    setSessionHistory(simplifiedHistory);
     try {
-      localStorage.setItem('libraSessionHistory', JSON.stringify(newHistory));
+      localStorage.setItem('libraSessionHistory', JSON.stringify(simplifiedHistory));
     } catch (e) { console.error("Failed to save LIBRA history to localStorage", e); }
   };
 
@@ -116,7 +109,6 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
     
     setIsLoading(false);
     
-    // Find existing session for this mode or create new
     const existingSessionIndex = sessionHistory.findIndex(s => s.mode === currentMode);
     let newHistory = [...sessionHistory];
 
@@ -124,7 +116,7 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
       const session = newHistory[existingSessionIndex];
       session.responses.push(finalResponse);
       session.currentResponseIndex = session.responses.length - 1;
-      session.input = textToProcess; // Update input
+      session.input = textToProcess;
     } else {
       const newSession: Session = {
         id: Date.now(),
@@ -212,31 +204,38 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
         <>
           {/* Mode Selector */}
           <div className="p-2 border-b">
-            <ScrollArea orientation="horizontal" className="w-full whitespace-nowrap">
-              <div className="flex gap-1">
-                <TooltipProvider>
-                  {(Object.keys(modeIcons) as AIMode[]).map(mode => (
-                    <Tooltip key={mode}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant={currentMode === mode ? 'secondary' : 'ghost'}
-                          size="icon"
-                          onClick={() => setCurrentMode(mode)}
-                        >
-                          {React.createElement(modeIcons[mode])}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent><p>{mode}</p></TooltipContent>
-                    </Tooltip>
-                  ))}
-                </TooltipProvider>
-              </div>
-            </ScrollArea>
+            <div className="grid grid-cols-2 gap-1">
+              <Button
+                variant={currentMode === 'Chat' ? 'secondary' : 'ghost'}
+                onClick={() => setCurrentMode('Chat')}
+              >
+                <BotMessageSquare className="mr-2 h-4 w-4" />
+                Chat
+              </Button>
+              <Button
+                variant={currentMode === 'History' ? 'secondary' : 'ghost'}
+                onClick={() => setCurrentMode('History')}
+              >
+                <History className="mr-2 h-4 w-4" />
+                History
+              </Button>
+            </div>
           </div>
           
           {/* Response Area */}
           <ScrollArea className="flex-1 p-4">
-            {isLoading ? (
+            {currentMode === 'History' ? (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Conversation History</h3>
+                {sessionHistory.length > 0 ? sessionHistory.map(session => (
+                  <div key={session.id} className="text-xs p-2 border rounded-md bg-muted/50">
+                    <p className="font-bold">{session.mode}</p>
+                    <p className="truncate text-muted-foreground mt-1">Input: {session.input}</p>
+                    <p className="truncate text-muted-foreground">Last Response: {session.responses[session.responses.length -1]}</p>
+                  </div>
+                )) : <p className="text-center text-muted-foreground py-10 text-sm">No history yet.</p>}
+              </div>
+            ) : isLoading ? (
               <div className="flex items-center gap-2 text-muted-foreground"><Sparkles className="animate-spin h-4 w-4" /> Thinking...</div>
             ) : currentResponse ? (
               <FormattedAIResponse response={currentResponse} />
@@ -282,10 +281,11 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
               onChange={e => setInput(e.target.value)}
               rows={3}
               className="resize-none"
+              disabled={currentMode === 'History'}
             />
             <div className="flex justify-between items-center gap-2">
               <div className="flex gap-2">
-                 <Select value={language} onValueChange={(v: Language) => setLanguage(v)}>
+                 <Select value={language} onValueChange={(v: Language) => setLanguage(v)} disabled={currentMode === 'History'}>
                   <SelectTrigger className="w-[120px] h-9">
                     <SelectValue placeholder="Language" />
                   </SelectTrigger>
@@ -296,16 +296,16 @@ export function LibraSidebar({ pageTitle, pageContent }: { pageTitle: string; pa
                     <SelectItem value="ta">Tamil</SelectItem>
                   </SelectContent>
                 </Select>
-                 <Select value={model} onValueChange={(v: AIModel) => setModel(v)}>
-                  <SelectTrigger className="w-[90px] h-9">
-                    <SelectValue />
+                 <Select value={model} onValueChange={(v: AIModel) => setModel(v)} disabled={currentMode === 'History'}>
+                  <SelectTrigger className="w-[120px] h-9">
+                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="L1">Llama 3.1</SelectItem>
+                    <SelectItem value="L1">Llama 3.1 70B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAiRequest} disabled={isLoading}>
+              <Button onClick={handleAiRequest} disabled={isLoading || currentMode === 'History'}>
                 {isLoading ? 'Processing...' : 'Send'}
               </Button>
             </div>
