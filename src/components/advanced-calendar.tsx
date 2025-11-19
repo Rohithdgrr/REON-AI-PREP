@@ -13,6 +13,28 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 
 const holidays: { date: string; name: string }[] = [
+    // 2025 Gazetted Holidays
+    { date: "2025-01-01", name: "New Year's Day" },
+    { date: "2025-01-14", name: "Makar Sankranti / Pongal" },
+    { date: "2025-01-26", name: "Republic Day" },
+    { date: "2025-02-26", name: "Maha Shivratri" },
+    { date: "2025-03-13", name: "Holika Dahan" },
+    { date: "2025-03-14", name: "Holi" },
+    { date: "2025-03-30", name: "Eid-ul-Fitr" },
+    { date: "2025-04-03", name: "Mahavir Jayanti" },
+    { date: "2025-04-10", name: "Good Friday" },
+    { date: "2025-04-13", name: "Vaisakhi / Bishubu / Mesadi" },
+    { date: "2025-05-18", name: "Buddha Purnima" },
+    { date: "2025-06-07", name: "Eid-ul-Zuha (Bakrid)" },
+    { date: "2025-06-27", name: "Rath Yatra" },
+    { date: "2025-08-15", name: "Independence Day" },
+    { date: "2025-10-02", name: "Mahatma Gandhi Jayanti" },
+    { date: "2025-10-08", name: "Dussehra (Maha Navami)" },
+    { date: "2025-10-20", name: "Diwali (Deepavali)" },
+    { date: "2025-11-09", name: "Guru Nanak Jayanti / Kartik Purnima" },
+    { date: "2025-12-25", name: "Christmas Day" },
+    
+    // Some 2024 holidays for context
     { date: "2024-08-15", name: "Independence Day" },
     { date: "2024-08-19", name: "Raksha Bandhan" },
     { date: "2024-08-26", name: "Janmashtami" },
@@ -20,9 +42,6 @@ const holidays: { date: string; name: string }[] = [
     { date: "2024-10-12", name: "Dussehra" },
     { date: "2024-10-31", name: "Diwali" },
     { date: "2024-12-25", name: "Christmas Day" },
-    { date: "2025-01-14", name: "Makar Sankranti" },
-    { date: "2025-01-26", name: "Republic Day" },
-    { date: "2025-03-14", name: "Holi" },
 ];
 
 type SpecialDay = {
