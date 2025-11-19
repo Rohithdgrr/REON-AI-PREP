@@ -25,6 +25,7 @@ type MessageBubbleProps = {
     message: Message;
     onEdit: (id: number, content: string) => void;
     onDelete: (id: number) => void;
+    showAvatar: boolean;
 }
 
 const VoiceMessageBubble = ({ duration }: { duration: string }) => (
@@ -53,18 +54,16 @@ const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
                 {totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%
               </span>
             </div>
-            <div className="relative h-6 w-full rounded-full bg-background/30">
+            <div className="relative h-6 w-full rounded-md bg-background/30 overflow-hidden">
               <div
-                className="absolute top-0 left-0 h-full rounded-full bg-blue-400"
+                className="absolute top-0 left-0 h-full bg-blue-400/50"
                 style={{
                   width: `${totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0}%`,
                 }}
               />
               <div className="absolute inset-0 flex items-center px-2">
                 <RadioGroupItem value={option.text} id={`poll-opt-${index}`} />
-                <Label htmlFor={`poll-opt-${index}`} className="sr-only">
-                  {option.text}
-                </Label>
+                <Label htmlFor={`poll-opt-${index}`} className="ml-2 cursor-pointer">{option.text}</Label>
               </div>
             </div>
           </div>
@@ -78,22 +77,27 @@ const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
 };
 
 
-export function MessageBubble({ message, onEdit, onDelete }: MessageBubbleProps) {
+export function MessageBubble({ message, onEdit, onDelete, showAvatar }: MessageBubbleProps) {
     return (
          <ContextMenu>
               <ContextMenuTrigger>
                 <div
                   className={cn(
-                    'flex items-start gap-3 group',
+                    'flex items-start gap-3 group relative',
+                    !showAvatar && 'pl-12',
                     message.sender === 'me' ? 'justify-end' : ''
                   )}
                 >
                   {message.sender === 'other' && (
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>
-                        <Bot />
-                      </AvatarFallback>
-                    </Avatar>
+                     <div className="w-9 h-9 flex-shrink-0">
+                      {showAvatar && (
+                        <Avatar>
+                          <AvatarFallback>
+                            <Bot />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                     </div>
                   )}
                   <div
                     className={cn(
@@ -101,6 +105,14 @@ export function MessageBubble({ message, onEdit, onDelete }: MessageBubbleProps)
                       message.sender === 'me' ? 'items-end' : 'items-start'
                     )}
                   >
+                    {showAvatar && (
+                        <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm">
+                                {message.sender === 'me' ? 'Srinivas Reddy' : 'LIBRA AI'}
+                            </span>
+                             <span className="text-xs text-muted-foreground">{message.timestamp}</span>
+                        </div>
+                    )}
                     {message.replyTo && (
                       <div className="text-xs text-muted-foreground italic bg-muted/50 px-2 py-1 rounded-md border-l-2 border-primary">
                         Reply to: "{message.replyTo.content}"
@@ -110,6 +122,7 @@ export function MessageBubble({ message, onEdit, onDelete }: MessageBubbleProps)
                       className={cn(
                         'max-w-md rounded-lg p-3 text-sm relative group',
                         message.type === 'voice' && '!p-2',
+                         message.type === 'image' && '!p-0 overflow-hidden',
                         message.sender === 'me'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
@@ -120,10 +133,9 @@ export function MessageBubble({ message, onEdit, onDelete }: MessageBubbleProps)
                         <Image
                           src={message.content}
                           alt="media content"
-                          width={200}
+                          width={300}
                           height={200}
-                          unoptimized
-                          className="rounded-md"
+                          className="object-cover"
                         />
                       )}
                       {message.type === 'voice' && message.duration && (
@@ -133,26 +145,37 @@ export function MessageBubble({ message, onEdit, onDelete }: MessageBubbleProps)
                         <PollMessageBubble pollData={message.pollData} />
                       )}
 
-                      <div className="absolute -bottom-2 right-2 text-xs flex items-center gap-1">
-                        <span>{message.timestamp}</span>
-                        {message.sender === 'me' && (
-                          <CheckCheck
-                            className={cn(
-                              'h-4 w-4',
-                              message.read ? 'text-blue-400' : 'text-muted-foreground'
-                            )}
-                          />
-                        )}
-                      </div>
                     </div>
                   </div>
                   {message.sender === 'me' && (
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>
-                        <CircleUser />
-                      </AvatarFallback>
-                    </Avatar>
+                     <div className="w-9 h-9 flex-shrink-0">
+                      {showAvatar && (
+                         <Avatar>
+                          <AvatarFallback>
+                            <CircleUser />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
                   )}
+
+                   {/* Timestamp on hover */}
+                  {!showAvatar && (
+                     <div className="absolute left-0 top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-12 text-right">
+                        {message.timestamp}
+                     </div>
+                  )}
+                  {message.sender === 'me' && !showAvatar && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pl-2 w-12 text-left">
+                       <CheckCheck
+                          className={cn(
+                            'h-4 w-4',
+                            message.read ? 'text-blue-400' : 'text-muted-foreground'
+                          )}
+                        />
+                    </div>
+                  )}
+
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>

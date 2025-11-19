@@ -17,19 +17,20 @@ import {
   Video,
   Monitor,
   User,
+  Vote,
+  Sparkles,
+  Lightbulb,
 } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-} from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
 import { ChatHeader } from './r-chat/chat-header';
 import { ChatMessages } from './r-chat/chat-messages';
 import { ChatInput } from './r-chat/chat-input';
 import { RealmsSidebar } from './r-chat/realms-sidebar';
 import { ChannelsPanel } from './r-chat/channels-panel';
 import { PollCreator } from './r-chat/poll-creator';
+import { cn } from '@/lib/utils';
 
 export const realms = [
   { id: 'r1', name: 'R&T Community Hub', icon: '🤖' },
@@ -132,15 +133,43 @@ const initialMessages: Message[] = [
       ],
     },
   },
+  {
+    id: 6,
+    sender: 'other',
+    type: 'text',
+    content: "Let's do some advanced puzzles then. I'll share a resource link in the resources channel.",
+    timestamp: '10:42 AM',
+    read: true,
+  },
+  {
+    id: 7,
+    sender: 'me',
+    type: 'text',
+    content: "Sounds good! I'm heading there now.",
+    timestamp: '10:43 AM',
+    read: true,
+  },
+  {
+    id: 8,
+    sender: 'me',
+    type: 'image',
+    content: 'https://images.unsplash.com/photo-1517694712202-1428bc648c2a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    timestamp: '10:45 AM',
+    read: true,
+  }
 ];
-
 
 export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeRealm, setActiveRealm] = useState(realms[0]);
-  const [activeChannel, setActiveChannel] = useState(channelsByRealm[realms[0].id][0]);
-  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(null);
+  const [activeChannel, setActiveChannel] = useState(
+    channelsByRealm[realms[0].id][0]
+  );
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(
+    null
+  );
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
+  const [realmsSidebarOpen, setRealmsSidebarOpen] = useState(true);
 
   const handleSelectRealm = (realm: typeof realms[0]) => {
     setActiveRealm(realm);
@@ -148,53 +177,53 @@ export function RChatPage() {
     setActiveDM(null);
   };
 
-  const handleSelectChannel = (channel: typeof channelsByRealm.r1[0]) => {
+  const handleSelectChannel = (channel: (typeof channelsByRealm.r1)[0]) => {
     setActiveChannel(channel);
     setActiveDM(null);
   };
 
   const handleSelectDM = (dm: typeof directMessages[0]) => {
     setActiveDM(dm);
-    // When a DM is selected, we can conceptually move out of a channel
-    // or keep the last active channel in the background state.
-    // For simplicity, we'll just visually highlight the DM.
   };
 
   const activeConversationName = activeDM ? activeDM.name : activeChannel.name;
-  const activeConversationDescription = activeDM ? "Direct Message" : `The main channel for ${activeRealm.name}`;
-  
+  const activeConversationDescription = activeDM
+    ? 'Direct Message'
+    : `The main channel for ${activeRealm.name}`;
+
   return (
     <Dialog open={isPollModalOpen} onOpenChange={setIsPollModalOpen}>
-      <div className="grid grid-cols-[auto,1fr] lg:grid-cols-[auto,280px,1fr] h-[calc(100vh-100px)] gap-0 bg-card text-card-foreground rounded-xl overflow-hidden border">
-        
+      <div className="flex h-[calc(100vh-100px)] gap-0 bg-card text-card-foreground rounded-xl overflow-hidden border">
         <RealmsSidebar
           realms={realms}
           activeRealm={activeRealm}
           onSelectRealm={handleSelectRealm}
+          isOpen={realmsSidebarOpen}
+          setIsOpen={setRealmsSidebarOpen}
         />
 
-        <ChannelsPanel
-          activeRealm={activeRealm}
-          activeChannel={activeChannel}
-          activeDM={activeDM}
-          onSelectChannel={handleSelectChannel}
-          onSelectDM={handleSelectDM}
-        />
+        <div className={cn("grid grid-cols-[280px,1fr] w-full", !realmsSidebarOpen && "grid-cols-[280px,1fr]")}>
+            <ChannelsPanel
+                activeRealm={activeRealm}
+                activeChannel={activeChannel}
+                activeDM={activeDM}
+                onSelectChannel={handleSelectChannel}
+                onSelectDM={handleSelectDM}
+            />
 
-        <div className="flex flex-col">
-          <ChatHeader
-            name={activeConversationName}
-            description={activeConversationDescription}
-            messages={messages}
-            setMessages={setMessages}
-          />
-          <ChatMessages messages={messages} setMessages={setMessages} />
-          <ChatInput
-            messages={messages}
-            setMessages={setMessages}
-            setIsPollModalOpen={setIsPollModalOpen}
-          />
+            <div className="flex flex-col">
+            <ChatHeader
+                name={activeConversationName}
+                description={activeConversationDescription}
+            />
+            <ChatMessages messages={messages} setMessages={setMessages} />
+            <ChatInput
+                setMessages={setMessages}
+                setIsPollModalOpen={setIsPollModalOpen}
+            />
+            </div>
         </div>
+
         <PollCreator
           setMessages={setMessages}
           setIsPollModalOpen={setIsPollModalOpen}
