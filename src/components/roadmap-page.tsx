@@ -306,7 +306,9 @@ export function RoadmapPage() {
                                 <CardTitle>Your Personalized Plan</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <pre className="whitespace-pre-wrap font-sans text-sm">{aiPlan.studyPlan}</pre>
+                                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                                    {aiPlan.studyPlan}
+                                </div>
                             </CardContent>
                         </Card>
                     )}
@@ -317,5 +319,3 @@ export function RoadmapPage() {
     </div>
   );
 }
-
-    
