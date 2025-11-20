@@ -13,33 +13,32 @@ export function StatsCards() {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
-          <CardTitle>Last Mock</CardTitle>
-          <CardDescription>RRB NTPC</CardDescription>
+          <CardTitle>Level</CardTitle>
+          <CardDescription>Your current level</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">92/100</div>
-          <p className="text-xs text-muted-foreground">↑43 rank from previous</p>
+          <div className="text-4xl font-bold">12</div>
+          <p className="text-xs text-muted-foreground">+2 levels from last week</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Accuracy</CardTitle>
-          <CardDescription>Overall performance</CardDescription>
+          <CardTitle>Rank</CardTitle>
+          <CardDescription>Your overall rank</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">92%</div>
-           <p className="text-xs text-muted-foreground">Reasoning 88%, Quant 96%</p>
+          <div className="text-4xl font-bold">#1,280</div>
+           <p className="text-xs text-muted-foreground">↑150 ranks from last month</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Badges</CardTitle>
-          <CardDescription>Your achievements</CardDescription>
+          <CardTitle>RAX-Score</CardTitle>
+          <CardDescription>Your readiness score</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Badge>🏅 Night Owl</Badge>
-          <Badge>⚡ Speed King</Badge>
-          <Badge>🔥 45+ Streak</Badge>
+        <CardContent>
+            <div className="text-4xl font-bold">850</div>
+            <p className="text-xs text-muted-foreground">Top 15% of aspirants</p>
         </CardContent>
       </Card>
     </div>
