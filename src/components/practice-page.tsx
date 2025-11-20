@@ -23,6 +23,7 @@ import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
 const manualQuizzes = [
     {
@@ -179,6 +180,7 @@ export function PracticePage() {
 
 
   const { toast } = useToast();
+  const { setActiveTool } = useToolsSidebar();
 
   const [overallTime, setOverallTime] = useState(0);
   const [perQuestionTime, setPerQuestionTime] = useState(0);
@@ -299,6 +301,15 @@ export function PracticePage() {
     });
     setScore(correctAnswers);
     setTestState("finished");
+  };
+
+  const handleAskLibra = (question: QuizQuestion) => {
+    const prompt = `Deeply explain the following question and its solution. Break it down step-by-step.
+Question: "${question.question}"
+Options: ${question.options.join(", ")}
+Correct Answer: ${question.correctAnswer}
+Explanation: ${question.explanation}`;
+    setActiveTool({ id: 'libra', payload: { prompt } });
   };
 
   if (testState === "not-started") {
@@ -479,10 +490,13 @@ export function PracticePage() {
                   <p>Your answer: <Badge variant={userAnswers[q.id] === q.correctAnswer ? 'default' : 'destructive'}>{userAnswers[q.id] || "Not answered"}</Badge></p>
                   {userAnswers[q.id] !== q.correctAnswer && <p>Correct answer: <Badge variant="secondary" className="bg-green-100 text-green-800">{q.correctAnswer}</Badge></p>}
                 </div>
-                <CardFooter className="flex flex-col items-start gap-3 p-0 pt-3 mt-3 border-t">
-                  <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>
-                  {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
-                  {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
+                <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-0 pt-3 mt-3 border-t">
+                  <div className="flex-1 space-y-2">
+                    <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>
+                    {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
+                    {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleAskLibra(q)}><Bot className="mr-2 h-4 w-4" /> Ask LIBRA AI</Button>
                 </CardFooter>
               </Card>
             ))}
@@ -502,7 +516,13 @@ export function PracticePage() {
     <div className="flex flex-col gap-6">
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-xl">{activeTest.title}</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl">{activeTest.title}</CardTitle>
+            <div className="flex items-center gap-4 text-sm font-semibold">
+                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4"/> {formatTime(perQuestionTime)}</div>
+                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4 text-primary"/> {formatTime(overallTime)}</div>
+            </div>
+          </div>
           <CardDescription>Question {currentQuestionIndex + 1} of {activeTest.questions.length}</CardDescription>
           <Progress value={progress} className="mt-2" />
         </CardHeader>

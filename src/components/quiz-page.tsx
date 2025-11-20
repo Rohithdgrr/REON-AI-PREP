@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2, ChevronLeft, BarChart } from "lucide-react";
+import { Check, X, ArrowLeft, ArrowRight, Bot, Loader2, ChevronLeft, BarChart, Timer } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "./ui/input";
@@ -23,6 +23,7 @@ import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
 const manualQuizzes = [
     {
@@ -147,6 +148,7 @@ const pastQuizResults = [
 
 
 type UserAnswers = { [key: string]: string };
+type QuestionTimes = { [key: string]: number };
 
 type QuizQuestion = {
     id: string;
@@ -164,6 +166,12 @@ type QuizData = {
     questions: QuizQuestion[];
 }
 
+const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
 export function QuizPage() {
   const [quizState, setQuizState] = useState<"not-started" | "in-progress" | "finished">("not-started");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -179,6 +187,31 @@ export function QuizPage() {
   const [customSpecialization, setCustomSpecialization] = useState("");
 
   const { toast } = useToast();
+  const { setActiveTool } = useToolsSidebar();
+
+  const [overallTime, setOverallTime] = useState(0);
+  const [perQuestionTime, setPerQuestionTime] = useState(0);
+  const [questionTimes, setQuestionTimes] = useState<QuestionTimes>({});
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (quizState === "in-progress") {
+      timerRef.current = setInterval(() => {
+        setOverallTime(prev => prev + 1);
+        setPerQuestionTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [quizState]);
+
+  const recordQuestionTime = (questionId: string) => {
+      setQuestionTimes(prev => ({...prev, [questionId]: (prev[questionId] || 0) + perQuestionTime }));
+      setPerQuestionTime(0);
+  }
 
   const handleStartQuiz = (quizData: QuizData) => {
     setActiveQuiz(quizData);
@@ -186,6 +219,9 @@ export function QuizPage() {
     setCurrentQuestionIndex(0);
     setUserAnswers({});
     setScore(null);
+    setOverallTime(0);
+    setPerQuestionTime(0);
+    setQuestionTimes({});
   };
 
   const handleGenerateAndStartQuiz = async () => {
@@ -244,19 +280,27 @@ export function QuizPage() {
     setUserAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
+  const navigateQuestion = (newIndex: number) => {
+    if (quizState !== "in-progress") return;
+    const currentQuestionId = activeQuiz.questions[currentQuestionIndex].id;
+    recordQuestionTime(currentQuestionId);
+    setCurrentQuestionIndex(newIndex);
+  };
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex < activeQuiz.questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      navigateQuestion(currentQuestionIndex + 1);
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      navigateQuestion(currentQuestionIndex - 1);
     }
   };
 
   const handleSubmitQuiz = () => {
+    recordQuestionTime(activeQuiz.questions[currentQuestionIndex].id);
     let correctAnswers = 0;
     activeQuiz.questions.forEach((q) => {
       if (userAnswers[q.id] === q.correctAnswer) {
@@ -265,6 +309,15 @@ export function QuizPage() {
     });
     setScore(correctAnswers);
     setQuizState("finished");
+  };
+
+  const handleAskLibra = (question: QuizQuestion) => {
+    const prompt = `Deeply explain the following question and its solution. Break it down step-by-step.
+Question: "${question.question}"
+Options: ${question.options.join(", ")}
+Correct Answer: ${question.correctAnswer}
+Explanation: ${question.explanation}`;
+    setActiveTool({ id: 'libra', payload: { prompt } });
   };
 
   if (quizState === "not-started") {
@@ -415,25 +468,32 @@ export function QuizPage() {
         <Card>
           <CardHeader>
             <CardTitle>You scored {score}/{activeQuiz.questions.length}!</CardTitle>
-             <CardDescription>
-              {score! / activeQuiz.questions.length > 0.7 ? "Great job! You've got a good grasp of the concepts." : "Keep practicing! You'll get there."}
+             <CardDescription className="flex items-center gap-4">
+              <span>{score! / activeQuiz.questions.length > 0.7 ? "Great job! You've got a good grasp of the concepts." : "Keep practicing! You'll get there."}</span>
+              <span className="flex items-center gap-2 text-sm"><Timer className="h-4 w-4" /> Total Time: {formatTime(overallTime)}</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
              {activeQuiz.questions.map((q, index) => (
               <Card key={q.id} className="p-4 bg-muted/20 data-[correct=true]:border-green-500 data-[correct=false]:border-red-500 border-l-4">
-                <p className="font-semibold">{index + 1}. {q.question}</p>
+                 <div className="flex justify-between items-start">
+                    <p className="font-semibold flex-1 pr-4">{index + 1}. {q.question}</p>
+                    <Badge variant="outline" className="flex-shrink-0">
+                        <Timer className="mr-2 h-3 w-3"/>{formatTime(questionTimes[q.id] || 0)}
+                    </Badge>
+                </div>
                 <div className="mt-2 text-sm space-y-1">
                   <p>Your answer: <Badge variant={userAnswers[q.id] === q.correctAnswer ? 'default' : 'destructive'} className={userAnswers[q.id] === q.correctAnswer ? "bg-green-100 text-green-800" : ""}>{userAnswers[q.id] || "Not answered"}</Badge></p>
                   {userAnswers[q.id] !== q.correctAnswer && <p>Correct answer: <Badge variant="secondary">{q.correctAnswer}</Badge></p>}
                 </div>
-                {(q.explanation || q.fastSolveTricks || q.analogies) && (
-                     <CardFooter className="flex flex-col items-start gap-3 p-0 pt-3 mt-3 border-t">
-                        {q.explanation && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>}
-                        {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
-                        {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
-                    </CardFooter>
-                )}
+                <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-0 pt-3 mt-3 border-t">
+                  <div className="flex-1 space-y-2">
+                    {q.explanation && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Explanation:</span> {q.explanation}</p>}
+                    {q.fastSolveTricks && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">💡 Trick to Solve Fast:</span> {q.fastSolveTricks}</p>}
+                    {q.analogies && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">🧠 Analogy:</span> {q.analogies}</p>}
+                  </div>
+                   <Button variant="outline" size="sm" onClick={() => handleAskLibra(q)}><Bot className="mr-2 h-4 w-4" /> Ask LIBRA AI</Button>
+                </CardFooter>
               </Card>
             ))}
           </CardContent>
@@ -452,7 +512,13 @@ export function QuizPage() {
     <div className="flex flex-col gap-6">
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-xl">{activeQuiz.title}</CardTitle>
+           <div className="flex justify-between items-center">
+            <CardTitle className="text-xl">{activeQuiz.title}</CardTitle>
+            <div className="flex items-center gap-4 text-sm font-semibold">
+                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4"/> {formatTime(perQuestionTime)}</div>
+                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4 text-primary"/> {formatTime(overallTime)}</div>
+            </div>
+          </div>
           <CardDescription>Question {currentQuestionIndex + 1} of {activeQuiz.questions.length}</CardDescription>
           <Progress value={progress} className="mt-2" />
         </CardHeader>
