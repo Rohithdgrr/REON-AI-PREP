@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BellRing, Calendar, ExternalLink, Search, Building, Train } from "lucide-react";
+import { BellRing, Calendar, ExternalLink, Search, Building, Train, Shield } from "lucide-react";
 import { format } from 'date-fns';
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from "next/image";
@@ -101,12 +101,19 @@ const officialSources = {
     { name: "Indian Railways Main Site", url: "https://indianrailways.gov.in/" },
     { name: "RRB Chandigarh", url: "https://rrbcdg.gov.in/" },
     { name: "RRB Mumbai", url: "https://rrbmumbai.gov.in/" },
+    { name: "RRB Allahabad", url: "https://www.rrbald.gov.in/" },
+    { name: "RRB Kolkata", url: "https://www.rrbkolkata.gov.in/" },
   ],
   banking: [
     { name: "IBPS", url: "https://www.ibps.in/" },
     { name: "SBI Careers", url: "https://sbi.co.in/careers" },
     { name: "RBI Opportunities", url: "https://opportunities.rbi.org.in/" },
+    { name: "NABARD", url: "https://www.nabard.org/careers-notices.aspx" },
     { name: "National Career Service", url: "https://www.ncs.gov.in/" },
+  ],
+  ssc: [
+      { name: "SSC Main Site", url: "https://ssc.gov.in/" },
+      { name: "SSC Online Application", url: "https://ssc.nic.in/" },
   ]
 }
 
@@ -298,6 +305,21 @@ export function NotificationsPage() {
               ))}
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Shield /> SSC</CardTitle>
+              <CardDescription>Direct links to official SSC portals.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              {officialSources.ssc.map(source => (
+                <Button key={source.name} asChild variant="outline" className="justify-start">
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> {source.name}
+                  </a>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
@@ -305,3 +327,4 @@ export function NotificationsPage() {
 }
 
     
+
