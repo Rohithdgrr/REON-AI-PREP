@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
+import { cn } from '@/lib/utils';
 
 const tools = [
   { id: 'notes', icon: Notebook, label: 'Notes' },
@@ -29,22 +30,25 @@ const tools = [
   { id: 'timer', icon: Timer, label: 'Timer' },
   { id: 'stopwatch', icon: Clock, label: 'Stopwatch' },
   { id: 'notifications', icon: Bell, label: 'Notifications' },
+  { id: 'libra', icon: Sparkles, label: 'LIBRA AI' },
 ];
 
 function TooltipButton({
   icon: Icon,
   label,
   onClick,
+  className,
 }: {
   icon: React.ElementType;
   label: string;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={onClick}>
+          <Button variant="ghost" size="icon" onClick={onClick} className={className}>
             <Icon className="h-5 w-5" />
             <span className="sr-only">{label}</span>
           </Button>
@@ -56,7 +60,7 @@ function TooltipButton({
 }
 
 export function RightSidebar() {
-  const { setActiveTool, toggleSidebar } = useToolsSidebar();
+  const { setActiveTool } = useToolsSidebar();
 
   const handleToolClick = (toolId: string) => {
     setActiveTool({ id: toolId });
@@ -64,22 +68,30 @@ export function RightSidebar() {
   
   return (
     <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-2">
-      <div className="flex-1 flex flex-col items-center gap-4 pt-14">
-        {tools.map((tool) => (
-          <TooltipButton
-            key={tool.id}
-            icon={tool.icon}
-            label={tool.label}
-            onClick={() => handleToolClick(tool.id)}
-          />
-        ))}
-      </div>
-      <div className="mt-auto">
-        <TooltipButton
-            icon={Sparkles}
-            label="LIBRA AI"
-            onClick={() => handleToolClick('libra')}
-          />
+      <div className="flex flex-col items-center gap-2 pt-2">
+        {tools.map((tool) => {
+           if (tool.id === 'libra') {
+             return (
+               <div key={tool.id} className="relative mt-2">
+                 <TooltipButton
+                  icon={tool.icon}
+                  label={tool.label}
+                  onClick={() => handleToolClick(tool.id)}
+                  className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200"
+                />
+                <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />
+               </div>
+             )
+           }
+          return (
+            <TooltipButton
+              key={tool.id}
+              icon={tool.icon}
+              label={tool.label}
+              onClick={() => handleToolClick(tool.id)}
+            />
+          )
+        })}
       </div>
     </div>
   );
