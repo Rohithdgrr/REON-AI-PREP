@@ -82,7 +82,7 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
         ))}
       </div>
     </CardContent>
-    <CardFooter className="grid gap-2" style={{ gridTemplateColumns: material.category !== 'Videos' ? '1fr 1fr' : '1fr' }}>
+    <CardFooter className="grid grid-flow-col auto-cols-fr gap-2">
         {material.category !== 'Videos' && (
             <Button className="w-full" onClick={() => onOpenUrl(material.url, material.title)}>Start Studying</Button>
         )}
