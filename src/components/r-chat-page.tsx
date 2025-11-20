@@ -12,7 +12,7 @@ import {
   Train,
   Users,
 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { ChatHeader } from './r-chat/chat-header';
@@ -22,8 +22,11 @@ import { RealmsSidebar } from './r-chat/realms-sidebar';
 import { ChannelsPanel } from './r-chat/channels-panel';
 import { PollCreator } from './r-chat/poll-creator';
 import { MembersPanel } from './r-chat/members-panel';
+import { FriendsPanel } from './r-chat/friends-panel';
+import { Separator } from './ui/separator';
 
 export const realms = [
+  { id: 'me', name: 'Home', icon: <MessageCircle /> },
   { id: 'r1', name: 'R&T Community Hub', icon: <Users /> },
   { id: 'r2', name: 'AI Assistants & Bots', icon: <Bot /> },
   { id: 'r3', name: 'Study Groups', icon: <Flame /> },
@@ -33,6 +36,7 @@ export const channelsByRealm: Record<
   string,
   { name: string; type: 'text' | 'voice'; description: string; }[]
 > = {
+  me: [],
   r1: [
     { name: 'general-chat', type: 'text', description: 'The main channel for R&T Community Hub' },
     { name: 'announcements', type: 'text', description: 'Official announcements and updates' },
@@ -55,8 +59,10 @@ export const channelsByRealm: Record<
 };
 
 export const directMessages = [
-    { id: 'u2', name: 'RI-YYYY', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: 'u2', name: 'RI-YYYY', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'online' },
+    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'idle' },
+    { id: 'u4', name: 'RI-AAAA', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'dnd' },
+    { id: 'u5', name: 'RI-BBBB', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'offline' },
 ];
 
 export type Sender = 'me' | 'other';
@@ -167,19 +173,15 @@ export const members = [
 export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeRealm, setActiveRealm] = useState(realms[0]);
-  const [activeChannel, setActiveChannel] = useState(
-    channelsByRealm[realms[0].id][0]
-  );
-  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(
-    null
-  );
+  const [activeChannel, setActiveChannel] = useState<typeof channelsByRealm.r1[0] | null>(null);
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(null);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
   const [membersPanelOpen, setMembersPanelOpen] = useState(true);
 
   const handleSelectRealm = (realm: typeof realms[0]) => {
     setActiveRealm(realm);
-    setActiveChannel(channelsByRealm[realm.id][0]);
+    setActiveChannel(realm.id === 'me' ? null : channelsByRealm[realm.id][0]);
     setActiveDM(null);
   };
 
@@ -191,13 +193,15 @@ export function RChatPage() {
 
   const handleSelectDM = (dm: typeof directMessages[0]) => {
     setActiveDM(dm);
+    setActiveChannel(null);
+    setActiveRealm(realms.find(r => r.id === 'me')!);
     setMobileChannelsOpen(false);
   };
 
-  const activeConversationName = activeDM ? activeDM.name : activeChannel.name;
-  const activeConversationDescription = activeDM
-    ? 'Direct Message'
-    : activeChannel.description;
+  const activeConversationName = activeDM ? activeDM.name : (activeChannel ? activeChannel.name : "Friends");
+  const activeConversationDescription = activeDM ? `This is the beginning of your direct message history with ${activeDM.name}.` : (activeChannel ? activeChannel.description : "Manage your friends and direct messages.");
+
+  const showFriendsPanel = activeRealm.id === 'me' && !activeDM;
 
   return (
     <Dialog open={isPollModalOpen} onOpenChange={setIsPollModalOpen}>
@@ -208,8 +212,7 @@ export function RChatPage() {
           onSelectRealm={handleSelectRealm}
         />
 
-        {/* Mobile Channels Panel */}
-         <Sheet open={mobileChannelsOpen} onOpenChange={setMobileChannelsOpen}>
+        <Sheet open={mobileChannelsOpen} onOpenChange={setMobileChannelsOpen}>
             <SheetContent side="left" className="p-0 w-[260px] bg-muted/80 backdrop-blur-sm border-r-0">
                  <ChannelsPanel
                     activeRealm={activeRealm}
@@ -231,33 +234,37 @@ export function RChatPage() {
             />
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 bg-card">
-            <ChatHeader
-                name={activeConversationName}
-                description={activeConversationDescription}
-                messages={messages}
-                setMessages={setMessages}
-                onToggleChannels={() => setMobileChannelsOpen(true)}
-                onToggleMembers={() => setMembersPanelOpen(!membersPanelOpen)}
-                membersPanelOpen={membersPanelOpen}
-            />
-            <div className="flex-1 flex min-h-0">
-                <div className="flex-1 flex flex-col">
-                    <ChatMessages messages={messages} setMessages={setMessages} />
-                    <ChatInput
-                        channelName={activeConversationName}
-                        messages={messages}
-                        setMessages={setMessages}
-                        setIsPollModalOpen={setIsPollModalOpen}
-                    />
-                </div>
-                 {membersPanelOpen && (
-                    <div className="hidden lg:block w-[240px] border-l bg-muted/40">
-                         <MembersPanel members={members} />
-                    </div>
-                )}
-            </div>
-        </div>
+        {showFriendsPanel ? (
+          <FriendsPanel />
+        ) : (
+          <div className="flex-1 flex flex-col min-w-0 bg-card">
+              <ChatHeader
+                  name={activeConversationName}
+                  description={activeConversationDescription}
+                  messages={messages}
+                  setMessages={setMessages}
+                  onToggleChannels={() => setMobileChannelsOpen(true)}
+                  onToggleMembers={() => setMembersPanelOpen(!membersPanelOpen)}
+                  membersPanelOpen={membersPanelOpen}
+              />
+              <div className="flex-1 flex min-h-0">
+                  <div className="flex-1 flex flex-col">
+                      <ChatMessages messages={messages} setMessages={setMessages} />
+                      <ChatInput
+                          channelName={activeConversationName}
+                          messages={messages}
+                          setMessages={setMessages}
+                          setIsPollModalOpen={setIsPollModalOpen}
+                      />
+                  </div>
+                  {membersPanelOpen && (
+                      <div className="hidden lg:block w-[240px] border-l bg-muted/40">
+                          <MembersPanel members={members} />
+                      </div>
+                  )}
+              </div>
+          </div>
+        )}
 
         <PollCreator
           setMessages={setMessages}
