@@ -23,14 +23,22 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { User, Upload } from "lucide-react";
+import { User, Upload, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useUser } from "@/firebase";
+import { useUser, useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 export function SettingsPage() {
   const { user } = useUser();
+  const auth = useAuth();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const { theme, setTheme } = useTheme();
+
+  const handleLogout = () => {
+    if (auth) {
+      signOut(auth);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -141,6 +149,20 @@ export function SettingsPage() {
                     <Button>Change Password</Button>
                 </CardFooter>
              </Card>
+
+              <Card>
+                <CardHeader>
+                    <CardTitle>Account Actions</CardTitle>
+                    <CardDescription>Manage your session and account status.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     <Button variant="outline" onClick={handleLogout} className="w-full">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                    </Button>
+                </CardContent>
+             </Card>
+
               <Card className="border-destructive">
                 <CardHeader>
                     <CardTitle className="text-destructive">Delete Account</CardTitle>
@@ -155,5 +177,3 @@ export function SettingsPage() {
     </div>
   );
 }
-
-    
