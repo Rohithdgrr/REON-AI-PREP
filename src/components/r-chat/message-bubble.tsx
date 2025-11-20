@@ -31,12 +31,12 @@ type MessageBubbleProps = {
 }
 
 const VoiceMessageBubble = ({ duration }: { duration: string }) => (
-  <div className="flex items-center gap-2 p-2 rounded-lg bg-background/20 max-w-xs">
-    <Button size="icon" className="h-8 w-8 rounded-full">
+  <div className="flex items-center gap-2 p-2 rounded-lg bg-black/10 dark:bg-white/10 max-w-xs">
+    <Button size="icon" className="h-8 w-8 rounded-full flex-shrink-0">
       <Play className="h-4 w-4" />
     </Button>
-    <div className="w-40 h-1 bg-foreground/20 rounded-full">
-      <div className="w-1/3 h-full bg-foreground rounded-full" />
+    <div className="w-40 h-1 bg-black/20 dark:bg-white/20 rounded-full">
+      <div className="w-1/3 h-full bg-current rounded-full" />
     </div>
     <span className="text-xs">{duration}</span>
   </div>
@@ -45,32 +45,28 @@ const VoiceMessageBubble = ({ duration }: { duration: string }) => (
 const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
   const totalVotes = pollData.options.reduce((sum, opt) => sum + opt.votes, 0);
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-[250px]">
       <h4 className="font-semibold">{pollData.question}</h4>
-      <RadioGroup>
+      <div className="space-y-2">
         {pollData.options.map((option, index) => (
           <div key={index} className="space-y-1">
-            <div className="flex justify-between items-center text-xs">
-              <span>{option.text}</span>
-              <span>
-                {totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%
-              </span>
-            </div>
-            <div className="relative h-6 w-full rounded-md bg-background/30 overflow-hidden">
+            <div className="relative h-8 w-full rounded-md bg-black/10 dark:bg-white/10 overflow-hidden group">
               <div
-                className="absolute top-0 left-0 h-full bg-blue-400/50"
+                className="absolute top-0 left-0 h-full bg-primary/30 dark:bg-primary/50 transition-all duration-300"
                 style={{
                   width: `${totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0}%`,
                 }}
               />
-              <div className="absolute inset-0 flex items-center px-2">
-                <RadioGroupItem value={option.text} id={`poll-opt-${index}`} />
-                <Label htmlFor={`poll-opt-${index}`} className="ml-2 cursor-pointer">{option.text}</Label>
+              <div className="absolute inset-0 flex items-center justify-between px-3 text-sm">
+                <span className="font-medium">{option.text}</span>
+                <span className="font-mono text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    {totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%
+                </span>
               </div>
             </div>
           </div>
         ))}
-      </RadioGroup>
+      </div>
       <p className="text-xs text-right text-muted-foreground/80">
         {totalVotes} votes
       </p>
@@ -87,31 +83,30 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
               <ContextMenuTrigger>
                 <div
                   className={cn(
-                    'flex items-end gap-3 group relative',
-                    isFirstInGroup && 'mt-4',
-                    !isFirstInGroup && 'pt-0.5',
+                    'flex items-start gap-3 group relative',
+                    isFirstInGroup ? 'mt-4' : 'mt-1',
                     message.sender === 'me' ? 'justify-end' : ''
                   )}
                 >
                   {message.sender === 'other' && (
-                     <div className="w-9 h-9 flex-shrink-0">
-                      {isLastInGroup && (
-                        <Avatar>
+                     <div className="w-8 h-8 flex-shrink-0">
+                      {isLastInGroup ? (
+                        <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             <Bot />
                           </AvatarFallback>
                         </Avatar>
-                      )}
+                      ) : <div className="w-8"/>}
                      </div>
                   )}
                   <div
                     className={cn(
-                      'flex flex-col gap-1',
+                      'flex flex-col gap-0.5',
                       message.sender === 'me' ? 'items-end' : 'items-start'
                     )}
                   >
                     {isFirstInGroup && (
-                        <div className="flex items-center gap-2">
+                        <div className={cn("flex items-baseline gap-2", message.sender === 'me' && 'flex-row-reverse')}>
                             <span className="font-semibold text-sm">
                                 {message.sender === 'me' ? 'RI-XXXX' : 'LIBRA AI'}
                             </span>
@@ -127,18 +122,18 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                       className={cn(
                         'max-w-md p-3 text-sm relative group',
                         message.sender === 'me'
-                          ? 'bg-primary text-primary-foreground'
+                          ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground'
                           : 'bg-muted',
-                        isFirstInGroup && !isLastInGroup && (message.sender === 'me' ? 'rounded-t-lg rounded-bl-lg' : 'rounded-t-lg rounded-br-lg'),
-                        !isFirstInGroup && !isLastInGroup && (message.sender === 'me' ? 'rounded-l-lg' : 'rounded-r-lg'),
-                        !isFirstInGroup && isLastInGroup && (message.sender === 'me' ? 'rounded-b-none rounded-l-lg' : 'rounded-b-none rounded-r-lg'),
-                        isLastInGroup && (message.sender === 'me' ? 'rounded-b-lg' : 'rounded-b-lg'),
-                        isFirstInGroup && isLastInGroup && 'rounded-lg',
+                        isFirstInGroup ? 
+                            (message.sender === 'me' ? 'rounded-t-2xl rounded-bl-2xl' : 'rounded-t-2xl rounded-br-2xl') :
+                            (message.sender === 'me' ? 'rounded-l-2xl' : 'rounded-r-2xl'),
+                        isLastInGroup && (message.sender === 'me' ? 'rounded-b-2xl' : 'rounded-b-2xl'),
+                        
                         message.type === 'voice' && '!p-2',
                          message.type === 'image' && '!p-0 overflow-hidden',
                       )}
                     >
-                      {message.type === 'text' && <p>{message.content}</p>}
+                      {message.type === 'text' && <p className="whitespace-pre-wrap">{message.content}</p>}
                       {message.type === 'image' && (
                         <Image
                           src={message.content}
@@ -154,13 +149,13 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                       {message.type === 'poll' && message.pollData && (
                         <PollMessageBubble pollData={message.pollData} />
                       )}
-                       {message.edited && <span className="text-xs text-muted-foreground/60 ml-2">(edited)</span>}
+                       {message.edited && <span className="text-xs opacity-70 ml-2">(edited)</span>}
                     </div>
                   </div>
                   {message.sender === 'me' && (
-                     <div className="w-9 h-9 flex-shrink-0 flex items-end">
+                     <div className="w-8 h-8 flex-shrink-0 flex items-end">
                       {isLastInGroup && (
-                         <Avatar>
+                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             <CircleUser />
                           </AvatarFallback>
@@ -171,7 +166,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
 
                    {/* Timestamp on hover */}
                   {!isFirstInGroup && (
-                     <div className={cn("absolute top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-12 text-right", message.sender === 'me' ? 'left-0' : 'right-0 -translate-x-full')}>
+                     <div className={cn("absolute top-1/2 -translate-y-1/2 hidden group-hover:block text-xs text-muted-foreground pr-2 w-16 text-right", message.sender === 'me' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full')}>
                         {formattedTimestamp}
                      </div>
                   )}

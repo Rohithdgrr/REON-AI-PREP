@@ -6,6 +6,10 @@ import {
 } from '@/components/ui/card';
 import {
   Bot,
+  Flame,
+  MessageCircle,
+  ShipWheel,
+  Train,
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -20,9 +24,9 @@ import { PollCreator } from './r-chat/poll-creator';
 import { MembersPanel } from './r-chat/members-panel';
 
 export const realms = [
-  { id: 'r1', name: 'R&T Community Hub', icon: '🤖' },
-  { id: 'r2', name: 'Railway Aspirants', icon: '🚂' },
-  { id: 'r3', name: 'Bank PO Masters', icon: '🏦' },
+  { id: 'r1', name: 'R&T Community Hub', icon: <Flame /> },
+  { id: 'r2', name: 'Railway Aspirants', icon: <Train /> },
+  { id: 'r3', name: 'Bank PO Masters', icon: <ShipWheel /> },
 ];
 
 export const channelsByRealm: Record<

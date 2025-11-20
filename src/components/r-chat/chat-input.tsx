@@ -120,13 +120,12 @@ export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: Chat
 
   return (
     <div className="p-4 border-t bg-card flex-shrink-0">
-      <div className="relative bg-muted rounded-lg">
-         <div className="absolute left-2.5 top-1/2 -translate-y-1/2 flex items-center">
-            <TooltipProvider>
+      <div className="relative bg-muted rounded-lg flex items-center pr-2">
+         <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <PlusCircle className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="h-12 w-12 flex-shrink-0">
+                    <Paperclip className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
@@ -134,15 +133,14 @@ export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: Chat
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </div>
         <Input
           placeholder={`Message #${channelName}`}
-          className="pl-12 pr-28 h-12 text-base bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-12 text-base flex-1"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
         />
-        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
+        <div className="flex items-center">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -225,6 +223,9 @@ export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: Chat
               </Tabs>
             </PopoverContent>
           </Popover>
+          <Button size="icon" className="h-8 w-8 rounded-full ml-2" onClick={() => handleSendMessage()} disabled={!newMessage.trim()}>
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
