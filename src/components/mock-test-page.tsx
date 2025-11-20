@@ -281,11 +281,9 @@ export function MockTestPage() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {manualMockTests.map(test => (
-                 <Button key={test.id} variant="outline" className="h-auto py-4" onClick={() => handleGenerateAndStart(test.title, test.questions)} disabled={isGenerating}>
-                    <div className="flex flex-col items-center text-center">
-                        <p className="font-semibold">{test.title}</p>
-                        <p className="text-xs text-muted-foreground">{test.questions} questions</p>
-                    </div>
+                 <Button key={test.id} variant="outline" className="h-auto py-4 flex-col" onClick={() => handleGenerateAndStart(test.title, test.questions)} disabled={isGenerating}>
+                    <span className="font-semibold text-center whitespace-normal">{test.title}</span>
+                    <span className="text-xs text-muted-foreground">{test.questions} questions</span>
                 </Button>
             ))}
         </CardContent>
@@ -297,12 +295,11 @@ export function MockTestPage() {
             <CardTitle className="flex items-center gap-2"><Bot /> AI Quick Mock Test</CardTitle>
             <CardDescription>Let our AI generate a random high-difficulty mock test for a specific exam section.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
             {aiQuickMocks.map(quiz => (
-                 <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, 100, true)} disabled={isGenerating}>
-                    <div className="flex flex-col items-center text-center">
-                        <p className="font-semibold">{quiz.topic}</p>
-                    </div>
+                 <Button key={quiz.topic} variant="secondary" className="h-auto py-4 flex-col gap-1 items-center justify-center" onClick={() => handleGenerateAndStart(quiz.topic, 100, true)} disabled={isGenerating}>
+                    <span className="font-semibold text-center whitespace-normal">{quiz.topic.split(':')[0]}</span>
+                    <span className="font-bold text-lg text-primary text-center whitespace-normal">{quiz.topic.split(':')[1]}</span>
                 </Button>
             ))}
         </CardContent>
@@ -426,3 +423,4 @@ export function MockTestPage() {
     
 
     
+
