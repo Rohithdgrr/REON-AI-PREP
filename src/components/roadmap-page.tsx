@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,6 @@ import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { generatePersonalizedStudyPlan, GeneratePersonalizedStudyPlanOutput } from "@/ai/flows/generate-personalized-study-plan";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
 
@@ -141,6 +141,65 @@ const studyPlan = [
 ];
 
 const subjectsOptions = ["Quantitative Aptitude", "Reasoning", "English", "General Awareness", "General Science", "Computer Knowledge"];
+const mistralModels = [
+    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
+    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
+    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
+    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
+];
+
+
+function buildPlanPrompt(input: {targetExam: string, weakSubjects: string[], availableHours: number, previousPerformance: string}): string {
+    let prompt = `You are an expert AI career counselor who creates personalized study plans for competitive exam aspirants in India.
+
+Generate a detailed, actionable, and encouraging study plan based on the following user inputs:
+
+- Target Exam: ${input.targetExam}
+- Weak Subjects: ${input.weakSubjects.join(', ')}
+- Available Hours Per Day: ${input.availableHours}
+`;
+
+    if (input.previousPerformance) {
+        prompt += `- Previous Performance Context: ${input.previousPerformance}\nTake this previous performance into account to specifically address areas of improvement.\n`;
+    }
+
+    prompt += `
+**Instructions for the Output:**
+
+1.  **Format**: The entire output must be a single string formatted in clean **Markdown**.
+2.  **Structure**:
+    *   Start with a main heading, like \`# Your Personalized Study Plan for ${input.targetExam}\`.
+    *   Create sections for different timeframes (e.g., \`## Daily Schedule\`, \`## Weekly Breakdown\`, \`## Subject-wise Focus\`).
+    *   Use bullet points (\`-\`) or numbered lists (\`1.\`) for tasks and topics.
+    *   Use bold (\`**\`) to highlight key subjects, topics, or actions.
+3.  **Content**:
+    *   Allocate more time to the specified **weak subjects**.
+    *   The plan should be realistic for the given \`availableHours\`.
+    *   Include a mix of learning new concepts, practice sessions, and revision.
+    *   Suggest specific, actionable tasks (e.g., "Solve 20 PYQs of Profit & Loss," "Take a sectional mock test for Reasoning").
+    *   Add a concluding motivational sentence.
+
+Example Snippet:
+\`\`\`markdown
+# Your Personalized Study Plan for SBI PO
+
+Here is a plan tailored to your needs.
+
+## Daily Schedule (${input.availableHours} hours)
+- **Reasoning (Weak Subject)**: 1.5 hours
+- **Quantitative Aptitude**: 1 hour
+- **English**: 1 hour
+- **Revision & Current Affairs**: 0.5 hours
+
+## Weekly Breakdown
+- **Monday**: Focus on Puzzles (Reasoning) & Percentages (Quant).
+- **Tuesday**: English Grammar rules & Reading Comprehension practice.
+...
+\`\`\`
+`;
+    return prompt.trim();
+}
+
 
 export function RoadmapPage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -148,7 +207,9 @@ export function RoadmapPage() {
   const [weakSubjects, setWeakSubjects] = useState<string[]>(["Reasoning"]);
   const [availableHours, setAvailableHours] = useState(4);
   const [previousPerformance, setPreviousPerformance] = useState("");
-  const [aiPlan, setAiPlan] = useState<GeneratePersonalizedStudyPlanOutput | null>(null);
+  const [aiPlan, setAiPlan] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [model, setModel] = useState(mistralModels[0].value);
   const { toast } = useToast();
 
   const handleGeneratePlan = async () => {
@@ -160,26 +221,59 @@ export function RoadmapPage() {
         });
         return;
     }
+     if (!apiKey) {
+      toast({
+        variant: 'destructive',
+        title: 'API Key Missing',
+        description: 'Please provide a Mistral API Key.',
+      });
+      return;
+    }
+
     setIsGenerating(true);
     setAiPlan(null);
+
+    const prompt = buildPlanPrompt({
+        targetExam,
+        weakSubjects,
+        availableHours,
+        previousPerformance
+    });
+
     try {
-        const result = await generatePersonalizedStudyPlan({
-            targetExam,
-            weakSubjects,
-            availableHours,
-            previousPerformance: previousPerformance || undefined
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.7,
+                max_tokens: 2048,
+            })
         });
-        setAiPlan(result);
-        toast({
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        const finalResponse = data.choices[0]?.message?.content || "Could not generate a plan. Please try again.";
+
+        setAiPlan(finalResponse);
+         toast({
             title: "AI Plan Generated!",
             description: "Your personalized study plan is ready below.",
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to generate plan", error);
         toast({
             variant: "destructive",
             title: "Generation Failed",
-            description: "Could not generate AI study plan. Please try again.",
+            description: error.message || "Could not generate AI study plan. Please try again.",
         });
     } finally {
         setIsGenerating(false);
@@ -258,7 +352,7 @@ export function RoadmapPage() {
              <Card>
                 <CardHeader>
                     <CardTitle>AI-Powered Study Plan</CardTitle>
-                    <CardDescription>Enter your details and let LIBRA AI create a personalized study plan for you.</CardDescription>
+                    <CardDescription>Enter your details and let an AI create a personalized study plan for you.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
@@ -300,6 +394,26 @@ export function RoadmapPage() {
                         <Label htmlFor="prev-performance">Previous Mock Test Performance (Optional)</Label>
                         <Textarea id="prev-performance" value={previousPerformance} onChange={e => setPreviousPerformance(e.target.value)} placeholder="e.g. Scored 65/100 in last mock. Low score in DI and Puzzles." />
                     </div>
+                    <Separator />
+                     <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <Label htmlFor="api-key">Mistral API Key</Label>
+                            <Input id="api-key" type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                             <Label htmlFor="model">AI Model</Label>
+                             <Select value={model} onValueChange={setModel}>
+                                <SelectTrigger id="model">
+                                    <SelectValue placeholder="Select a model" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {mistralModels.map(m => (
+                                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
                 </CardContent>
                 <CardFooter className="flex-col items-start gap-4">
                     <Button onClick={handleGeneratePlan} disabled={isGenerating}>
@@ -310,7 +424,7 @@ export function RoadmapPage() {
                         <Card className="w-full">
                             <CardContent className="flex flex-col items-center justify-center p-16">
                                 <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                                <p className="text-muted-foreground">LIBRA AI is crafting your personalized plan...</p>
+                                <p className="text-muted-foreground">The AI is crafting your personalized plan...</p>
                             </CardContent>
                         </Card>
                     )}
@@ -320,7 +434,7 @@ export function RoadmapPage() {
                                 <CardTitle>Your Personalized Plan</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan.studyPlan.replace(/\\n/g, '<br/>') }} />
+                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan.replace(/\n/g, '<br/>') }} />
                             </CardContent>
                         </Card>
                     )}
@@ -331,3 +445,5 @@ export function RoadmapPage() {
     </div>
   );
 }
+
+    
