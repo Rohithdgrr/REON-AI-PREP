@@ -23,20 +23,72 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { User, Upload, LogOut } from "lucide-react";
+import { User, Upload, LogOut, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useUser, useAuth } from "@/firebase";
-import { signOut } from "firebase/auth";
+import { useUser, useAuth, useFirestore } from "@/firebase";
+import { signOut, deleteUser } from "firebase/auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { deleteDoc, doc } from "firebase/firestore";
 
 export function SettingsPage() {
   const { user } = useUser();
   const auth = useAuth();
+  const firestore = useFirestore();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const { theme, setTheme } = useTheme();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
 
   const handleLogout = () => {
     if (auth) {
       signOut(auth);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || !auth || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not delete account. User not found.",
+      });
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      // 1. Delete user data from Firestore
+      const userDocRef = doc(firestore, "users", user.uid);
+      await deleteDoc(userDocRef);
+
+      // 2. Delete the user from Firebase Auth
+      await deleteUser(user);
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+      // The withAuth component will handle the redirection to /login
+    } catch (error: any) {
+      console.error("Account Deletion Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Deletion Failed",
+        description: error.message || "An unexpected error occurred.",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -169,7 +221,29 @@ export function SettingsPage() {
                     <CardDescription>Permanently delete your account and all associated data.</CardDescription>
                 </CardHeader>
                 <CardFooter>
-                    <Button variant="destructive">Delete My Account</Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" disabled={isDeleting}>
+                                {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Delete My Account
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your
+                                account and remove your data from our servers.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                                Delete
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </CardFooter>
              </Card>
         </div>
