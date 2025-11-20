@@ -39,7 +39,6 @@ const prepMaterials = [
 
 const categories = [
   { name: "All", icon: Book },
-  { name: "My Uploads", icon: Upload},
   { name: "Notes", icon: FileText },
   { name: "PYQs & MCQs", icon: ListChecks },
   { name: "Cheatsheets", icon: Layers },
@@ -157,43 +156,19 @@ export function PrepPage() {
   };
 
   const currentCategoryTags = useMemo(() => {
-    let materialsToFilter = prepMaterials;
-    if (activeTab === 'My Uploads' && userMaterials) {
-        materialsToFilter = userMaterials.map(m => ({ ...m, tags: [m.type] }));
-    }
-
     const tags = new Set<string>();
-    materialsToFilter.filter(m => activeTab === 'All' || activeTab === 'My Uploads' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
+    prepMaterials.filter(m => activeTab === 'All' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
     return ['All', ...Array.from(tags)];
-  }, [activeTab, userMaterials]);
+  }, [activeTab]);
   
   const renderMaterials = (category: string) => {
     const currentFilter = activeFilters[category] || 'All';
-    let materialsToShow: any[] = [];
     
-    if (category === 'My Uploads') {
-        if (isLoadingMaterials) {
-            return Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i}>
-                    <CardHeader><Loader2 className="h-6 w-6 animate-spin" /></CardHeader>
-                    <CardContent><p>Loading material...</p></CardContent>
-                </Card>
-            ));
-        }
-        materialsToShow = (userMaterials || []).map(m => ({
-            ...m,
-            icon: FileText,
-            category: 'My Uploads',
-            tags: [m.type],
-            description: `Uploaded on: ${new Date(m.createdAt.toDate()).toLocaleDateString()}`
-        }));
-    } else {
-       materialsToShow = prepMaterials.filter(material => {
-          const categoryMatch = category === 'All' || material.category === category;
-          const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
-          return categoryMatch && filterMatch;
-        });
-    }
+    let materialsToShow = prepMaterials.filter(material => {
+        const categoryMatch = category === 'All' || material.category === category;
+        const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
+        return categoryMatch && filterMatch;
+    });
 
     if (materialsToShow.length === 0) {
       const categoryIcon = categories.find(c => c.name === category)?.icon || Book;
@@ -203,7 +178,7 @@ export function PrepPage() {
                   <categoryIcon className="h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-xl font-semibold">No Materials Found</h3>
                   <p className="text-muted-foreground mt-2">
-                    {category === 'My Uploads' ? 'You haven\'t uploaded any materials yet.' : 'There are no materials matching your filter.'}
+                    There are no materials matching your filter.
                   </p>
               </CardContent>
           </Card>
@@ -242,7 +217,7 @@ export function PrepPage() {
       
       <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
-          <TabsList className="grid w-full grid-cols-6 min-w-[600px]">
+          <TabsList className="grid w-full grid-cols-5 min-w-[500px]">
             {categories.map((cat) => (
               <TabsTrigger key={cat.name} value={cat.name}>
                 <cat.icon className="mr-2 h-4 w-4" />
