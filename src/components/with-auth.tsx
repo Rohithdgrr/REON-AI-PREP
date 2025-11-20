@@ -4,7 +4,7 @@
 import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType } from 'react';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function withAuth<P extends object>(Component: ComponentType<P>) {
   return function WithAuth(props: P) {
@@ -34,7 +34,7 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
             });
           } else {
              // User exists, update last login
-             setDoc(userRef, { lastLogin: new Date().toISOString() }, { merge: true });
+             updateDoc(userRef, { lastLogin: new Date().toISOString() });
           }
         });
       }

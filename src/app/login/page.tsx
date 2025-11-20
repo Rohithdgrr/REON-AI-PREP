@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
-import { GoogleAuthProvider, signInWithRedirect, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -45,7 +45,12 @@ export default function LoginPage() {
   const handleGoogleSignIn = () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider).catch(handleAuthError);
+    signInWithPopup(auth, provider)
+      .then(() => {
+        setIsLoading(false);
+        router.push('/dashboard');
+      })
+      .catch(handleAuthError);
   };
   
   const handleAuthError = (error: any) => {
