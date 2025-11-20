@@ -1,9 +1,6 @@
 
 'use client';
 
-import { useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,33 +8,16 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
 export default function HomePage() {
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
-
    const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
-
-  if (isUserLoading) {
-    return (
-        <div className="flex h-screen items-center justify-center bg-background">
-        <p className="text-muted-foreground animate-pulse">Loading...</p>
-        </div>
-    );
-  }
 
   return (
     <div className="w-full min-h-screen flex flex-col">
         <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm sticky top-0 z-20 border-b">
             <Link href="/" className="font-bold text-xl font-headline">REON AI</Link>
             <div>
-                {user ? (
-                    <Button asChild>
-                        <Link href="/dashboard">Go to Dashboard</Link>
-                    </Button>
-                ) : (
-                    <Button asChild>
-                        <Link href="/login">Login / Register</Link>
-                    </Button>
-                )}
+                <Button asChild>
+                    <Link href="/login">Login / Register</Link>
+                </Button>
             </div>
         </header>
 
@@ -57,7 +37,7 @@ export default function HomePage() {
                      <h1 className="text-4xl md:text-6xl font-bold font-headline">Your Personal AI Exam Partner</h1>
                      <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto">Get AI-powered insights, personalized study plans, and mock tests to ace your competitive exams.</p>
                      <Button size="lg" className="mt-8" asChild>
-                        <Link href={user ? "/dashboard" : "/login"}>Get Started</Link>
+                        <Link href="/login">Get Started</Link>
                      </Button>
                  </div>
             </section>
