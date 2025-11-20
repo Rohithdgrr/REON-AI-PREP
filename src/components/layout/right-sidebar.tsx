@@ -37,18 +37,20 @@ function TooltipButton({
   icon: Icon,
   label,
   onClick,
+  onDoubleClick,
   className,
 }: {
   icon: React.ElementType;
   label: string;
   onClick: () => void;
+  onDoubleClick?: () => void;
   className?: string;
 }) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={onClick} className={className}>
+          <Button variant="ghost" size="icon" onClick={onClick} onDoubleClick={onDoubleClick} className={className}>
             <Icon className="h-5 w-5" />
             <span className="sr-only">{label}</span>
           </Button>
@@ -60,7 +62,7 @@ function TooltipButton({
 }
 
 export function RightSidebar() {
-  const { setActiveTool } = useToolsSidebar();
+  const { setActiveTool, toggleSidebar } = useToolsSidebar();
 
   const handleToolClick = (toolId: string) => {
     setActiveTool({ id: toolId });
@@ -77,6 +79,7 @@ export function RightSidebar() {
                   icon={tool.icon}
                   label={tool.label}
                   onClick={() => handleToolClick(tool.id)}
+                  onDoubleClick={() => toggleSidebar(false)}
                   className="bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200"
                 />
                 <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />
