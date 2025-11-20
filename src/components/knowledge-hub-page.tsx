@@ -16,12 +16,13 @@ import {
   Swords,
   Timer,
   Send,
-  Upload,
   Search,
   FileQuestion,
   Bot,
   Loader2,
   Paperclip,
+  X,
+  File as FileIcon,
 } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -32,11 +33,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from './ui/badge';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { useUser, useFirebase } from '@/firebase';
-import {
-  getDownloadURL,
-  ref,
-  uploadBytes,
-} from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -108,6 +105,12 @@ const competitions = [
   },
 ];
 
+type UploadStatus = {
+  file: File | null;
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  error?: string;
+};
+
 export function KnowledgeHubPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -118,12 +121,17 @@ export function KnowledgeHubPage() {
   const [communityPosts, setCommunityPosts] = useState(initialCommunityPosts);
   const [newPost, setNewPost] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({ file: null, status: 'idle' });
+
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handlePostSubmit = (postContent?: string, hasAttachment = false, attachmentTitle?: string) => {
+  const handlePostSubmit = (
+    postContent?: string,
+    hasAttachment = false,
+    attachmentTitle?: string
+  ) => {
     const content = postContent || newPost;
-    if (content.trim() === '') return;
+    if (content.trim() === '' && !hasAttachment) return;
     const post = {
       id: Date.now(),
       user: 'RI-XXXX',
@@ -134,14 +142,28 @@ export function KnowledgeHubPage() {
       attachmentTitle,
     };
     setCommunityPosts([post, ...communityPosts]);
-    if (!postContent) {
-      setNewPost('');
+    setNewPost('');
+    setUploadStatus({ file: null, status: 'idle' });
+    if (fileInputRef.current) {
+        fileInputRef.current.value = "";
     }
     toast({ title: 'Post shared successfully!' });
   };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (file) {
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            setUploadStatus({ file, status: 'error', error: 'File size cannot exceed 5MB.' });
+        } else {
+            setUploadStatus({ file, status: 'idle' });
+        }
+    }
+  };
+
+
+  const handleFileUpload = async () => {
+    const { file } = uploadStatus;
     if (!file || !user || !storage || !firestore) {
       toast({
         variant: 'destructive',
@@ -151,8 +173,7 @@ export function KnowledgeHubPage() {
       return;
     }
 
-    setIsUploading(true);
-    toast({ title: 'Uploading file...', description: 'Please wait a moment.' });
+    setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined }));
 
     try {
       // 1. Upload to Storage
@@ -176,25 +197,14 @@ export function KnowledgeHubPage() {
         createdAt: serverTimestamp(),
       });
       
-      toast({ title: 'Success!', description: `${file.name} has been uploaded.` });
-      handlePostSubmit(`Shared a new file: ${file.name}`, true, file.name);
+      setUploadStatus(prev => ({ ...prev, status: 'success' }));
+      handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
 
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: error.message || 'An unknown error occurred.',
-      });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+       setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
     }
   };
-
 
   const handleStartChallenge = (title: string) => {
     toast({
@@ -214,6 +224,13 @@ export function KnowledgeHubPage() {
   const filteredFriends = allFriends.filter((friend) =>
     friend.riId.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
+  const handleCancelUpload = () => {
+    setUploadStatus({ file: null, status: 'idle' });
+    if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -242,43 +259,55 @@ export function KnowledgeHubPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div className="lg:col-span-2 space-y-4">
               <Card>
-                <CardHeader className="p-4">
+                <CardHeader className="p-4 pb-0">
                   <CardTitle className="text-base">Share your thoughts</CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 pt-0">
+                <CardContent className="p-4">
                   <div className="relative">
                     <Textarea
                       placeholder="What's on your mind? Share an update or ask a question..."
-                      className="pr-20"
                       value={newPost}
                       onChange={(e) => setNewPost(e.target.value)}
                     />
-                    <div className="absolute right-2 top-2 flex flex-col gap-2">
-                      <Button
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handlePostSubmit()}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
+                  </div>
+                  {uploadStatus.file && (
+                     <div className="mt-3 p-2 border rounded-md flex items-center gap-3 bg-muted/50">
+                        <FileIcon className="h-5 w-5 text-muted-foreground"/>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium truncate">{uploadStatus.file.name}</p>
+                             {uploadStatus.status === 'uploading' && <p className="text-xs text-blue-500">Uploading...</p>}
+                             {uploadStatus.status === 'error' && <p className="text-xs text-destructive">{uploadStatus.error}</p>}
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCancelUpload}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                     </div>
+                  )}
+                </CardContent>
+                <CardFooter className="p-4 pt-0 flex justify-between">
+                     <Button
+                        size="sm"
                         variant="ghost"
-                        className="h-8 w-8"
+                        className="text-muted-foreground"
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
                       >
-                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Paperclip className="h-4 w-4" />}
+                        <Paperclip className="mr-2 h-4 w-4" /> Attach File
                       </Button>
                       <Input
                         type="file"
                         ref={fileInputRef}
-                        onChange={handleFileUpload}
+                        onChange={handleFileSelect}
                         className="hidden"
                       />
-                    </div>
-                  </div>
-                </CardContent>
+                    <Button
+                        size="sm"
+                        onClick={uploadStatus.file ? handleFileUpload : () => handlePostSubmit()}
+                        disabled={uploadStatus.status === 'uploading' || (uploadStatus.status === 'error' && !newPost.trim())}
+                      >
+                         {uploadStatus.status === 'uploading' ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4" />}
+                        {uploadStatus.status === 'uploading' ? 'Posting...' : 'Post'}
+                      </Button>
+                </CardFooter>
               </Card>
               {communityPosts.map((post) => (
                 <Card key={post.id}>
