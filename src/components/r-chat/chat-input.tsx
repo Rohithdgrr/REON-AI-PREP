@@ -8,6 +8,7 @@ import {
   Vote,
   Sparkles,
   Lightbulb,
+  PlusCircle,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,12 +24,13 @@ import { useToast } from '@/hooks/use-toast';
 import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 type ChatInputProps = {
+  channelName: string;
   messages: Message[];
   setMessages: Dispatch<SetStateAction<Message[]>>;
   setIsPollModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export function ChatInput({ setMessages, setIsPollModalOpen }: ChatInputProps) {
+export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: ChatInputProps) {
   const [newMessage, setNewMessage] = useState('');
   const { toast } = useToast();
 
@@ -74,9 +76,10 @@ export function ChatInput({ setMessages, setIsPollModalOpen }: ChatInputProps) {
     if (!newMessage.trim()) return;
     toast({ title: 'AI Improving Text...', description: 'Please wait a moment.' });
     try {
-      const result = await answerQuestionsWithAI(
-        `Rewrite this message to be more clear and professional: "${newMessage}"`
-      );
+      const result = await answerQuestionsWithAI({ prompt:
+        `Rewrite this message to be more clear and professional: "${newMessage}"`,
+        model: 'L1',
+      });
       setNewMessage(result);
       toast({
         title: 'Text Improved!',
@@ -99,9 +102,10 @@ export function ChatInput({ setMessages, setIsPollModalOpen }: ChatInputProps) {
       description: 'LIBRA AI is thinking of a fun question.',
     });
     try {
-      const result = await answerQuestionsWithAI(
-        `Generate one short, fun, and quirky icebreaker question.`
-      );
+      const result = await answerQuestionsWithAI({
+        prompt: `Generate one short, fun, and quirky icebreaker question.`,
+        model: 'L1',
+      });
       setNewMessage(result);
     } catch (e) {
       console.error(e);
@@ -115,64 +119,49 @@ export function ChatInput({ setMessages, setIsPollModalOpen }: ChatInputProps) {
 
 
   return (
-    <div className="p-4 border-t bg-background">
-      <div className="relative">
-        <TooltipProvider>
-          <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Paperclip className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Attach File</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsPollModalOpen(true)}
-                >
-                  <Vote className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Create Poll</p>
-              </TooltipContent>
-            </Tooltip>
+    <div className="p-4 border-t bg-card flex-shrink-0">
+      <div className="relative bg-muted rounded-lg">
+         <div className="absolute left-2.5 top-1/2 -translate-y-1/2 flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <PlusCircle className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>Attach File</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-        </TooltipProvider>
-
         <Input
-          placeholder="Type in #rapid-relay..."
-          className="pl-24 pr-28 h-12 text-base"
+          placeholder={`Message #${channelName}`}
+          className="pl-12 pr-28 h-12 text-base bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
         />
-        <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center">
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
           <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setIsPollModalOpen(true)}>
+                  <Vote className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>Create Poll</p>
+              </TooltipContent>
+            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={handleAiEdit}>
                   <Sparkles className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>Make It Better (AI)</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleIcebreaker}>
-                  <Lightbulb className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Icebreaker</p>
+              <TooltipContent side="top">
+                <p>Improve (AI)</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -236,10 +225,6 @@ export function ChatInput({ setMessages, setIsPollModalOpen }: ChatInputProps) {
               </Tabs>
             </PopoverContent>
           </Popover>
-
-          <Button size="icon" onClick={() => handleSendMessage()}>
-            <Send className="h-5 w-5" />
-          </Button>
         </div>
       </div>
     </div>

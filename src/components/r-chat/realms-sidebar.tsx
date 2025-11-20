@@ -1,6 +1,6 @@
 
 'use client';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Tooltip,
@@ -10,48 +10,45 @@ import {
 } from '../ui/tooltip';
 import { realms } from '../r-chat-page';
 import { cn } from '@/lib/utils';
-import { Dispatch, SetStateAction } from 'react';
+import { Separator } from '../ui/separator';
 
 type RealmsSidebarProps = {
   realms: typeof realms;
   activeRealm: (typeof realms)[0];
   onSelectRealm: (realm: (typeof realms)[0]) => void;
-  isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function RealmsSidebar({
   realms,
   activeRealm,
   onSelectRealm,
-  isOpen,
-  setIsOpen,
 }: RealmsSidebarProps) {
   return (
     <div
-      className={cn(
-        'bg-muted/50 p-2 flex flex-col items-center gap-2 border-r transition-all duration-300',
-        isOpen ? 'w-20' : 'w-0 p-0 border-none'
-      )}
+      className="bg-muted/50 p-3 flex flex-col items-center gap-2 border-r"
     >
-      <div
-        className={cn(
-          'flex flex-col items-center gap-2 transition-opacity duration-200',
-          !isOpen && 'opacity-0'
-        )}
-      >
         <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+                <Button variant="ghost" className="h-12 w-12 text-lg rounded-2xl bg-primary text-primary-foreground relative hover:bg-primary/90">
+                    R
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right"><p>Direct Messages</p></TooltipContent>
+          </Tooltip>
+
+          <Separator className='my-1' />
+
           {realms.map((realm) => (
             <Tooltip key={realm.id}>
               <TooltipTrigger asChild>
                 <Button
                   variant={activeRealm.id === realm.id ? 'secondary' : 'ghost'}
-                  className="h-12 w-12 text-2xl rounded-full bg-background relative"
+                  className="h-12 w-12 text-lg rounded-2xl bg-background relative data-[active=true]:scale-110"
+                  data-active={activeRealm.id === realm.id}
                   onClick={() => onSelectRealm(realm)}
                 >
-                  {activeRealm.id === realm.id && (
-                     <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 h-8 w-1 bg-primary rounded-r-full" />
-                  )}
+                  <div className={cn("absolute left-[-12px] top-1/2 -translate-y-1/2 h-3 w-1 bg-foreground rounded-r-full transition-all", activeRealm.id === realm.id ? 'h-8' : 'group-hover:h-5')} />
                   {realm.icon}
                 </Button>
               </TooltipTrigger>
@@ -64,7 +61,7 @@ export function RealmsSidebar({
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="h-12 w-12 rounded-full border-dashed"
+                className="h-12 w-12 rounded-2xl border-dashed bg-transparent"
               >
                 <Plus />
               </Button>
@@ -74,10 +71,6 @@ export function RealmsSidebar({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      </div>
-       <button onClick={() => setIsOpen(!isOpen)} className={cn("absolute top-1/2 -translate-y-1/2 h-8 w-4 rounded-r-full bg-muted/80 border-y border-r flex items-center justify-center transition-all duration-300", isOpen ? 'left-[72px]' : 'left-0')}>
-        <ChevronLeft className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
-       </button>
     </div>
   );
 }

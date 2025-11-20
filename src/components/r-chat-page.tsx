@@ -3,29 +3,12 @@
 
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import {
   Bot,
-  Hash,
-  Headphones,
-  Plus,
-  Settings,
-  Phone,
-  Video,
-  Monitor,
-  User,
-  Vote,
-  Sparkles,
-  Lightbulb,
-  ChevronLeft,
-  ChevronRight,
+  Users,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { Dialog } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { ChatHeader } from './r-chat/chat-header';
@@ -34,8 +17,7 @@ import { ChatInput } from './r-chat/chat-input';
 import { RealmsSidebar } from './r-chat/realms-sidebar';
 import { ChannelsPanel } from './r-chat/channels-panel';
 import { PollCreator } from './r-chat/poll-creator';
-import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
+import { MembersPanel } from './r-chat/members-panel';
 
 export const realms = [
   { id: 'r1', name: 'R&T Community Hub', icon: '🤖' },
@@ -164,6 +146,16 @@ const initialMessages: Message[] = [
   }
 ];
 
+export const members = [
+    { id: '1', name: 'RI-XXXX', role: 'Online', status: 'Online', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '2', name: 'RI-YYYY', role: 'Online', status: 'Online', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '3', name: 'RI-ZZZZ', role: 'Online', status: 'Idle', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '4', name: 'RI-AAAA', role: 'Online', status: 'Do Not Disturb', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '5', name: 'RI-BBBB', role: 'Offline', status: 'Offline', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '6', name: 'RI-CCCC', role: 'Offline', status: 'Offline', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+];
+
+
 export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeRealm, setActiveRealm] = useState(realms[0]);
@@ -174,9 +166,8 @@ export function RChatPage() {
     null
   );
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
-  const [realmsSidebarOpen, setRealmsSidebarOpen] = useState(true);
-  const [channelsPanelOpen, setChannelsPanelOpen] = useState(true);
   const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
+  const [membersPanelOpen, setMembersPanelOpen] = useState(true);
 
   const handleSelectRealm = (realm: typeof realms[0]) => {
     setActiveRealm(realm);
@@ -202,60 +193,61 @@ export function RChatPage() {
 
   return (
     <Dialog open={isPollModalOpen} onOpenChange={setIsPollModalOpen}>
-      <div className="flex h-[calc(100vh-100px)] gap-0 bg-card text-card-foreground rounded-xl overflow-hidden border">
+      <div className="flex h-[calc(100vh-100px)] gap-0 bg-background text-card-foreground rounded-xl overflow-hidden border">
         <RealmsSidebar
           realms={realms}
           activeRealm={activeRealm}
           onSelectRealm={handleSelectRealm}
-          isOpen={realmsSidebarOpen}
-          setIsOpen={setRealmsSidebarOpen}
         />
 
         {/* Mobile Channels Panel */}
          <Sheet open={mobileChannelsOpen} onOpenChange={setMobileChannelsOpen}>
-            <SheetContent side="left" className="p-0 w-[260px]">
+            <SheetContent side="left" className="p-0 w-[260px] bg-muted/80 backdrop-blur-sm border-r-0">
                  <ChannelsPanel
                     activeRealm={activeRealm}
                     activeChannel={activeChannel}
                     activeDM={activeDM}
                     onSelectChannel={handleSelectChannel}
                     onSelectDM={handleSelectDM}
-                    onDoubleClick={() => setMobileChannelsOpen(false)}
                 />
             </SheetContent>
         </Sheet>
+        
+        <div className="hidden md:flex md:w-[240px] flex-col">
+            <ChannelsPanel
+                activeRealm={activeRealm}
+                activeChannel={activeChannel}
+                activeDM={activeDM}
+                onSelectChannel={handleSelectChannel}
+                onSelectDM={handleSelectDM}
+            />
+        </div>
 
-        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-1 md:grid-cols-[240px,1fr]" : "grid-cols-1 md:grid-cols-[0px,1fr]")}>
-            <div className={cn("transition-all duration-300 overflow-hidden hidden md:block", channelsPanelOpen ? "w-[240px]" : "w-0")}>
-              <ChannelsPanel
-                  activeRealm={activeRealm}
-                  activeChannel={activeChannel}
-                  activeDM={activeDM}
-                  onSelectChannel={handleSelectChannel}
-                  onSelectDM={handleSelectDM}
-                  onDoubleClick={() => setChannelsPanelOpen(false)}
-              />
-            </div>
-
-            <div className="flex flex-col relative min-w-0">
-              {!channelsPanelOpen && (
-                <Button onClick={() => setChannelsPanelOpen(true)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10 hidden md:flex">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
+        <div className="flex-1 flex flex-col min-w-0 bg-card">
             <ChatHeader
                 name={activeConversationName}
                 description={activeConversationDescription}
                 messages={messages}
                 setMessages={setMessages}
                 onToggleChannels={() => setMobileChannelsOpen(true)}
+                onToggleMembers={() => setMembersPanelOpen(!membersPanelOpen)}
+                membersPanelOpen={membersPanelOpen}
             />
-            <ChatMessages messages={messages} setMessages={setMessages} />
-            <ChatInput
-                messages={messages}
-                setMessages={setMessages}
-                setIsPollModalOpen={setIsPollModalOpen}
-            />
+            <div className="flex-1 flex min-h-0">
+                <div className="flex-1 flex flex-col">
+                    <ChatMessages messages={messages} setMessages={setMessages} />
+                    <ChatInput
+                        channelName={activeConversationName}
+                        messages={messages}
+                        setMessages={setMessages}
+                        setIsPollModalOpen={setIsPollModalOpen}
+                    />
+                </div>
+                 {membersPanelOpen && (
+                    <div className="hidden lg:block w-[240px] border-l bg-muted/40">
+                         <MembersPanel members={members} />
+                    </div>
+                )}
             </div>
         </div>
 
