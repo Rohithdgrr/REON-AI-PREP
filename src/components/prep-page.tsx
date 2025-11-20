@@ -22,7 +22,6 @@ import { InAppBrowser } from "./in-app-browser";
 import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection } from "firebase/firestore";
-import { uploadMaterial } from "@/services/materials-service";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -117,67 +116,6 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
     </CardFooter>
   </Card>
 );
-
-function UploadCard() {
-  const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const { user } = useUser();
-  const { toast } = useToast();
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file || !user) {
-      toast({
-        variant: "destructive",
-        title: "Upload Failed",
-        description: "Please select a file to upload and make sure you are logged in.",
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    toast({ title: "Uploading file...", description: "Please wait a moment." });
-
-    try {
-      await uploadMaterial(user.uid, file);
-      toast({ title: "Success!", description: `${file.name} has been uploaded.` });
-      setFile(null);
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      toast({
-        variant: "destructive",
-        title: "Upload Failed",
-        description: error.message || "An unknown error occurred.",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  return (
-    <Card className="col-span-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Upload /> Upload Your Materials</CardTitle>
-        <CardDescription>Add your own notes, cheatsheets, or documents to your personal library.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row items-center gap-4">
-        <div className="w-full flex-1">
-          <Label htmlFor="file-upload" className="sr-only">Choose file</Label>
-          <Input id="file-upload" type="file" onChange={handleFileChange} />
-        </div>
-        <Button onClick={handleUpload} disabled={!file || isUploading} className="w-full sm:w-auto">
-          {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-          {isUploading ? "Uploading..." : "Upload File"}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
 
 
 export function PrepPage() {
@@ -302,8 +240,6 @@ export function PrepPage() {
         </p>
       </div>
       
-      <UploadCard />
-
       <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
           <TabsList className="grid w-full grid-cols-6 min-w-[600px]">
