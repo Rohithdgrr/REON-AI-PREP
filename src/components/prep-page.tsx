@@ -84,7 +84,7 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
     </CardContent>
     <CardFooter className="flex-col sm:flex-row items-stretch sm:items-center gap-2">
       {material.category !== 'Videos' ? (
-        <>
+        <div className="flex w-full gap-2">
           <Button className="flex-1" onClick={() => onOpenUrl(material.url, material.title)}>
             Start Studying
           </Button>
@@ -92,10 +92,11 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
             variant="outline"
             size="icon"
             onClick={() => onAskLibra(material.title)}
+            className="flex-shrink-0"
           >
             <Bot className="h-5 w-5" />
           </Button>
-        </>
+        </div>
       ) : (
         <Button
           variant="outline"
@@ -195,31 +196,34 @@ export function PrepPage() {
       </div>
 
       <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          {categories.map((cat) => (
-            <TabsTrigger key={cat.name} value={cat.name}>
-              <cat.icon className="mr-2 h-4 w-4" />
-              {cat.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+          <TabsList className="grid w-full grid-cols-5 min-w-[500px]">
+            {categories.map((cat) => (
+              <TabsTrigger key={cat.name} value={cat.name}>
+                <cat.icon className="mr-2 h-4 w-4" />
+                {cat.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
         
         {categories.map((cat) => (
           <TabsContent key={cat.name} value={cat.name} className="mt-6">
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2">
+            <div className="mb-6 overflow-x-auto pb-2 -mx-4 px-4">
+              <div className="flex flex-nowrap gap-2">
                 {currentCategoryTags.map(tag => (
                    <Button 
                     key={tag} 
                     variant={activeFilters[cat.name] === tag || (!activeFilters[cat.name] && tag === 'All') ? "default" : "outline"}
                     onClick={() => handleFilterChange(cat.name, tag)}
+                    className="flex-shrink-0"
                   >
                     {tag}
                   </Button>
                 ))}
               </div>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {renderMaterials(cat.name)}
             </div>
           </TabsContent>
