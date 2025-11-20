@@ -166,12 +166,12 @@ Generate a detailed, actionable, and encouraging study plan based on the followi
     prompt += `
 **Instructions for the Output:**
 
-1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, and bullet points.
+1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, bullet points, and horizontal rules (\`---\`) for separation.
 2.  **Structure**:
     *   Start with a main heading, like \`# Your Personalized Study Plan for ${input.targetExam}\`.
-    *   Create sections for different timeframes (e.g., \`## Daily Schedule\`, \`## Weekly Breakdown\`, \`## Subject-wise Focus\`).
+    *   Create sections for different timeframes (e.g., \`## Daily Schedule\`, \`## Weekly Breakdown\`, \`## Subject-wise Focus\`). Use horizontal rules (\`---\`) to separate these major sections.
     *   Use bullet points (\`-\`) or numbered lists (\`1.\`) for tasks and topics.
-    *   Use bold (\`**\`) to highlight key subjects, topics, or actions.
+    *   Use bold (\`**\`) to highlight key subjects, topics, or actions for emphasis.
 3.  **Content**:
     *   Allocate more time to the specified **weak subjects**.
     *   The plan should be realistic for the given \`availableHours\`.
@@ -185,11 +185,15 @@ Example Snippet:
 
 Here is a plan tailored to your needs.
 
+---
+
 ## Daily Schedule (${input.availableHours} hours)
 - **Reasoning (Weak Subject)**: 1.5 hours
 - **Quantitative Aptitude**: 1 hour
 - **English**: 1 hour
 - **Revision & Current Affairs**: 0.5 hours
+
+---
 
 ## Weekly Breakdown
 - **Monday**: Focus on Puzzles (Reasoning) & Percentages (Quant).
@@ -201,17 +205,29 @@ Here is a plan tailored to your needs.
 }
 
 function markdownToHtml(markdown: string) {
-    return markdown
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-        .replace(/^- (.*$)/gim, '<li>$1</li>')
-        .replace(/^\* (.*$)/gim, '<li>$1</li>')
-        .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
-        .replace(/((<li>.*<\/li>\s*)+)/gim, '<ul>$1</ul>')
-        .replace(/\n/g, '<br />');
+    // Process headings, bold, italic, and horizontal rules
+    let html = markdown
+        .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mt-6 mb-3">$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+        .replace(/---/g, '<hr class="my-6 border-border" />')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Process lists (unordered and ordered)
+    html = html.replace(/^( *[-*] .*\n?)+/gm, (match) => {
+        const items = match.trim().split('\n').map(item => `<li>${item.replace(/[-*] /, '').trim()}</li>`).join('');
+        return `<ul class="list-disc list-inside space-y-2 mb-4">${items}</ul>`;
+    });
+     html = html.replace(/^( *\d+\. .*\n?)+/gm, (match) => {
+        const items = match.trim().split('\n').map(item => `<li>${item.replace(/\d+\. /, '').trim()}</li>`).join('');
+        return `<ol class="list-decimal list-inside space-y-2 mb-4">${items}</ol>`;
+    });
+
+    // Replace any remaining newlines with <br> for spacing
+    html = html.replace(/\n/g, '<br />');
+
+    return html;
 }
 
 
@@ -455,3 +471,5 @@ export function RoadmapPage() {
     </div>
   );
 }
+
+    
