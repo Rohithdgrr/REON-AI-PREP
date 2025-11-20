@@ -1,0 +1,296 @@
+/**
+ * @file firestore.rules
+ * @description Firestore Security Rules for the REON AI Prep application.
+ *
+ * @section Core Philosophy
+ * This ruleset enforces a strict user-ownership model where all user-specific
+ * data is nested within a `/users/{userId}` path. This path-based security
+ * ensures that users can only access their own documents, providing strong
+ * data isolation by default.
+ *
+ * @section Data Structure
+ * - `/users/{userId}`: A top-level collection containing individual user documents.
+ * - `/users/{userId}/{subcollection}`: All personal data (profiles, quizzes, tests, etc.)
+ *   are stored in subcollections under the user's document.
+ * - `/rChannels`, `/leaderboardEntries`, `/fileConversions`: Top-level collections for
+ *   shared, public, or semi-public data that is not tied to a single user's
+ *   data tree.
+ *
+ * @section Key Security Decisions
+ * - **Default Deny**: All paths are closed by default. Access is granted explicitly.
+ * - **No User Listing**: Listing the top-level `/users` collection is disallowed
+ *   to prevent user enumeration and protect user privacy.
+ * - **Denormalization for Authorization**: Rules are designed to be fast and
+ *   cost-effective by avoiding `get()` and `exists()` calls where possible.
+ *   Authorization-critical data (like a `userId`) is denormalized directly onto
+ *   documents. For shared data like chat channels, a `members` map on the parent
+ *   document is required to manage access.
+ * - **Cloud Functions for Complex Logic**: For operations requiring complex
+ *   validation or elevated privileges (e.g., updating the leaderboard), writes
+ *   are disabled in the rules, deferring these actions to trusted server-side
+ *   code (Cloud Functions).
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's UID matches the provided userId.
+     * @param userId The user ID to check against the request's auth UID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if a document exists AND the user is the owner.
+     *              Used for safe update and delete operations.
+     * @param userId The user ID to check for ownership.
+     */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    /**
+     * @description On create, validates that the User document's `id` field
+     *              matches the document's ID in the path ({userId}).
+     */
+    function hasValidUserDataOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * @description On update, ensures the User document's `id` field is immutable.
+     */
+    function hasImmutableUserData() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * @description On create, validates that a document in a user's subcollection
+     *              has a `userId` field matching the {userId} in the path.
+     */
+    function hasValidSubcollectionDataOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * @description On update, ensures the `userId` field in a subcollection
+     *              document is immutable.
+     */
+    function hasImmutableSubcollectionData() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+    
+    /**
+     * @description Checks if a user is a member of a given chat channel.
+     *              Requires a 'members' map on the rChannel document.
+     *              Example: { members: { "user_abc": "member", "user_xyz": "admin" } }
+     */
+    function isChannelMember(channelId) {
+      return isSignedIn() && get(/databases/$(database)/documents/rChannels/$(channelId)).data.members[request.auth.uid] != null;
+    }
+
+    /**
+     * @description Checks if a user is an admin of a given chat channel.
+     *              Requires a 'members' map with an 'admin' role on the rChannel document.
+     */
+    function isChannelAdmin(channelId) {
+      return isSignedIn() && get(/databases/$(database)/documents/rChannels/$(channelId)).data.members[request.auth.uid] == 'admin';
+    }
+
+    // ------------------------------------------------------------------------
+    // User Data Collections
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages core user data.
+     * @path /users/{userId}
+     * @allow (create) A new user creating their own user document: `auth.uid == userId`.
+     * @deny (get) An authenticated user trying to read another user's document.
+     * @deny (list) Any user trying to list all documents in the `/users` collection.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableUserData();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages user profile data.
+     * @path /users/{userId}/profiles/{profileId}
+     * @allow (create) An authenticated user creating a profile in their own space.
+     * @deny (update) A user attempting to modify another user's profile.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/profiles/{profileId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages user quiz history.
+     * @path /users/{userId}/quizzes/{quizId}
+     * @allow (list) An authenticated user listing their own quiz history.
+     * @deny (get) A user trying to view another user's quiz result.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/quizzes/{quizId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages user practice test results.
+     * @path /users/{userId}/practiceTests/{practiceTestId}
+     * @allow (create) A user saving a new practice test result for themselves.
+     * @deny (delete) A user trying to delete another user's test result.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/practiceTests/{practiceTestId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages user mock test results.
+     * @path /users/{userId}/mockTests/{mockTestId}
+     * @allow (get) A user reading their own mock test data.
+     * @deny (list) A user trying to list tests belonging to someone else.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/mockTests/{mockTestId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages user course progress.
+     * @path /users/{userId}/courseProgress/{courseProgressId}
+     * @allow (update) A user updating their own course progress.
+     * @deny (create) A user trying to create a progress record for another user.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/courseProgress/{courseProgressId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages user podcast listening history.
+     * @path /users/{userId}/podcastListening/{podcastListeningId}
+     * @allow (create) A user saving a record of a podcast they listened to.
+     * @deny (update) A user attempting to modify another user's listening history.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/podcastListening/{podcastListeningId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages user notifications.
+     * @path /users/{userId}/notifications/{notificationId}
+     * @allow (update) A user marking their own notification as read.
+     * @deny (create) A user trying to send a notification to another user.
+     * @principle Enforces strict ownership for all user-specific subcollections.
+     */
+    match /users/{userId}/notifications/{notificationId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    // ------------------------------------------------------------------------
+    // Public / Shared Collections
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages records of file conversions.
+     * @path /fileConversions/{fileConversionId}
+     * @allow (create) Any user, signed-in or guest, can create a conversion record.
+     * @deny (get) A user trying to read a conversion record they do not own.
+     * @deny (list) Any user trying to list all file conversions.
+     * @principle Allows public creation while restricting reads and writes to owners.
+     */
+    match /fileConversions/{fileConversionId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if false;
+      allow create: if request.resource.data.isGuestMode == true || request.resource.data.userId == request.auth.uid;
+      allow update: if resource != null && isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if resource != null && isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * @description Manages public leaderboard data.
+     * @path /leaderboardEntries/{leaderboardEntryId}
+     * @allow (get, list) Anyone can read the leaderboard.
+     * @deny (create, update, delete) All direct client writes are blocked to prevent cheating.
+     * @principle Data is public-read, but writes must be managed by a trusted server environment (e.g., Cloud Function) to ensure data integrity.
+     */
+    match /leaderboardEntries/{leaderboardEntryId} {
+      allow get, list: if true;
+      allow create: if false; // TODO: Writes should be handled by a Cloud Function.
+      allow update: if false; // TODO: Writes should be handled by a Cloud Function.
+      allow delete: if false; // TODO: Writes should be handled by a Cloud Function.
+    }
+
+    /**
+     * @description Manages chat channel metadata.
+     * @path /rChannels/{rChannelId}
+     * @allow (create) Any signed-in user can create a new channel, making themselves the admin.
+     * @deny (update) A channel member trying to update channel details (only admins can).
+     * @principle Uses a denormalized `members` map for role-based access control.
+     *            CRITICAL: The RChannel document MUST have a `members` map like `{ "uid": "admin" }` for these rules to work.
+     */
+    match /rChannels/{rChannelId} {
+      allow get: if isChannelMember(rChannelId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.members[request.auth.uid] == 'admin';
+      allow update: if resource != null && isChannelAdmin(rChannelId);
+      allow delete: if resource != null && isChannelAdmin(rChannelId);
+    }
+
+    /**
+     * @description Manages messages within a chat channel.
+     * @path /rChannels/{rChannelId}/rMessages/{rMessageId}
+     * @allow (create) A channel member sending a message.
+     * @deny (list) A non-member trying to list messages in a channel.
+     * @deny (delete) A regular member trying to delete another user's message (only admins or the author can).
+     * @principle Access is inherited from the parent channel by checking its `members` map.
+     */
+    match /rChannels/{rChannelId}/rMessages/{rMessageId} {
+      allow get, list: if isChannelMember(rChannelId);
+      allow create: if isChannelMember(rChannelId) && request.resource.data.userId == request.auth.uid && request.resource.data.channelId == rChannelId;
+      allow update: if resource != null && isOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId && request.resource.data.channelId == resource.data.channelId;
+      allow delete: if resource != null && (isOwner(resource.data.userId) || isChannelAdmin(rChannelId));
+    }
+  }
+}

@@ -1,0 +1,805 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the REON AI Prep application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "riId": {
+          "type": "string",
+          "description": "REON ID, the master key for tracking user data."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "mobile": {
+          "type": "string",
+          "description": "User's mobile phone number."
+        },
+        "targetExam": {
+          "type": "string",
+          "description": "User's target exam (Railway, Bank, or Both)."
+        },
+        "profilePhoto": {
+          "type": "string",
+          "description": "URL of the user's profile photo.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp of the user's last login.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "riId",
+        "fullName",
+        "email",
+        "targetExam"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores additional profile information for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 UserProfile)"
+        },
+        "currentStage": {
+          "type": "string",
+          "description": "User's current stage of exam preparation."
+        },
+        "targetExamDate": {
+          "type": "string",
+          "description": "User's target exam date.",
+          "format": "date-time"
+        },
+        "dailyAvailableHours": {
+          "type": "number",
+          "description": "Number of hours the user can study daily."
+        },
+        "weakSubjects": {
+          "type": "array",
+          "description": "Array of user's weak subjects.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strongSubjects": {
+          "type": "array",
+          "description": "Array of user's strong subjects.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    },
+    "Quiz": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quiz",
+      "type": "object",
+      "description": "Represents a quiz taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quiz entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Quiz)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Quiz mode (Manual, AI, Custom AI)."
+        },
+        "level": {
+          "type": "string",
+          "description": "Quiz difficulty level (Easy, Medium, Hard)."
+        },
+        "questions": {
+          "type": "number",
+          "description": "Number of questions in the quiz."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Quiz subject."
+        },
+        "topic": {
+          "type": "string",
+          "description": "Quiz topic."
+        },
+        "score": {
+          "type": "number",
+          "description": "Quiz score."
+        },
+        "timeTaken": {
+          "type": "number",
+          "description": "Time taken to complete the quiz (in minutes)."
+        },
+        "accuracy": {
+          "type": "number",
+          "description": "Quiz accuracy (percentage)."
+        },
+        "dateTaken": {
+          "type": "string",
+          "description": "Date when the quiz was taken.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mode",
+        "score",
+        "timeTaken",
+        "accuracy",
+        "dateTaken"
+      ]
+    },
+    "PracticeTest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PracticeTest",
+      "type": "object",
+      "description": "Represents a practice test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the practice test entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PracticeTest)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Practice test mode (Manual, AI, Custom AI)."
+        },
+        "level": {
+          "type": "string",
+          "description": "Practice test difficulty level (Moderate, Hard, Extreme)."
+        },
+        "questions": {
+          "type": "number",
+          "description": "Number of questions in the practice test."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Practice test subject."
+        },
+        "score": {
+          "type": "number",
+          "description": "Practice test score."
+        },
+        "timeTaken": {
+          "type": "number",
+          "description": "Time taken to complete the practice test (in minutes)."
+        },
+        "percentile": {
+          "type": "number",
+          "description": "Practice test percentile."
+        },
+        "dateTaken": {
+          "type": "string",
+          "description": "Date when the practice test was taken.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mode",
+        "score",
+        "timeTaken",
+        "percentile",
+        "dateTaken"
+      ]
+    },
+    "MockTest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MockTest",
+      "type": "object",
+      "description": "Represents a mock test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the mock test entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N MockTest)"
+        },
+        "exam": {
+          "type": "string",
+          "description": "Mock test exam type (RRB NTPC, SBI PO, etc.)."
+        },
+        "score": {
+          "type": "number",
+          "description": "Mock test score."
+        },
+        "timeTaken": {
+          "type": "number",
+          "description": "Time taken to complete the mock test (in minutes)."
+        },
+        "percentile": {
+          "type": "number",
+          "description": "Mock test percentile."
+        },
+        "rank": {
+          "type": "number",
+          "description": "Mock test rank."
+        },
+        "dateTaken": {
+          "type": "string",
+          "description": "Date when the mock test was taken.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "exam",
+        "score",
+        "timeTaken",
+        "percentile",
+        "rank",
+        "dateTaken"
+      ]
+    },
+    "CourseProgress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CourseProgress",
+      "type": "object",
+      "description": "Represents a user's progress in a specific course.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the course progress entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N CourseProgress)"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Reference to Course. (Relationship: Course 1:N CourseProgress)"
+        },
+        "modulesCompleted": {
+          "type": "number",
+          "description": "Number of modules completed in the course."
+        },
+        "completionRate": {
+          "type": "number",
+          "description": "Course completion rate (percentage)."
+        },
+        "lastAccessed": {
+          "type": "string",
+          "description": "Date when the course was last accessed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "courseId",
+        "modulesCompleted",
+        "completionRate",
+        "lastAccessed"
+      ]
+    },
+    "PodcastListening": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PodcastListening",
+      "type": "object",
+      "description": "Represents a user's listening history for a podcast.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the podcast listening entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PodcastListening)"
+        },
+        "podcastId": {
+          "type": "string",
+          "description": "Reference to Podcast. (Relationship: Podcast 1:N PodcastListening)"
+        },
+        "episodeId": {
+          "type": "string",
+          "description": "Reference to PodcastEpisode. (Relationship: PodcastEpisode 1:N PodcastListening)"
+        },
+        "listenedDuration": {
+          "type": "number",
+          "description": "Duration of the podcast episode listened to (in minutes)."
+        },
+        "dateListened": {
+          "type": "string",
+          "description": "Date when the podcast episode was listened to.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "podcastId",
+        "episodeId",
+        "listenedDuration",
+        "dateListened"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the notification entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Notification)"
+        },
+        "type": {
+          "type": "string",
+          "description": "Notification type (Exam, Result, News, Admit Card, etc.)."
+        },
+        "title": {
+          "type": "string",
+          "description": "Notification title."
+        },
+        "description": {
+          "type": "string",
+          "description": "Notification description."
+        },
+        "tag": {
+          "type": "string",
+          "description": "Notification tag (Railway, Bank, Both)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Notification timestamp.",
+          "format": "date-time"
+        },
+        "officialLink": {
+          "type": "string",
+          "description": "Link to the official source of the notification.",
+          "format": "uri"
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Indicates whether the notification has been read by the user."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "title",
+        "description",
+        "tag",
+        "timestamp"
+      ]
+    },
+    "FileConversion": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FileConversion",
+      "type": "object",
+      "description": "Represents a file conversion performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the file conversion entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User.  Can be null if the conversion was performed in guest mode."
+        },
+        "originalFileName": {
+          "type": "string",
+          "description": "Name of the original file."
+        },
+        "originalFileType": {
+          "type": "string",
+          "description": "Type of the original file (PDF, Word, Image, etc.)."
+        },
+        "convertedFileName": {
+          "type": "string",
+          "description": "Name of the converted file."
+        },
+        "convertedFileType": {
+          "type": "string",
+          "description": "Type of the converted file (PDF, Word, Image, etc.)."
+        },
+        "conversionDate": {
+          "type": "string",
+          "description": "Date when the file conversion was performed.",
+          "format": "date-time"
+        },
+        "isGuestMode": {
+          "type": "boolean",
+          "description": "Indicates whether the conversion was performed in guest mode."
+        }
+      },
+      "required": [
+        "id",
+        "originalFileName",
+        "originalFileType",
+        "convertedFileName",
+        "convertedFileType",
+        "conversionDate",
+        "isGuestMode"
+      ]
+    },
+    "RMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RMessage",
+      "type": "object",
+      "description": "Represents a message in the R-Chat section.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the message entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N RMessage)"
+        },
+        "channelId": {
+          "type": "string",
+          "description": "Reference to RChannel. (Relationship: RChannel 1:N RMessage)"
+        },
+        "content": {
+          "type": "string",
+          "description": "Message content."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Message timestamp.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "channelId",
+        "content",
+        "timestamp"
+      ]
+    },
+    "RChannel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RChannel",
+      "type": "object",
+      "description": "Represents a channel in the R-Chat section.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the channel entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Channel name."
+        },
+        "type": {
+          "type": "string",
+          "description": "Channel type (Text, Voice)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Channel description."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "description"
+      ]
+    },
+    "LeaderboardEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Represents an entry in the leaderboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LeaderboardEntry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User."
+        },
+        "rank": {
+          "type": "number",
+          "description": "User's rank on the leaderboard."
+        },
+        "score": {
+          "type": "number",
+          "description": "User's score for the leaderboard calculation."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Timestamp when the leaderboard entry was last updated.",
+          "format": "date-time"
+        },
+        "state": {
+          "type": "string",
+          "description": "State of the user to display in the leaderboard."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "rank",
+        "score",
+        "lastUpdated"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Only the authenticated user can access their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/profiles/{profileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores additional profile information for a user. Only the authenticated user can access their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "profileId",
+              "description": "The unique identifier of the user profile."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/quizzes/{quizId}",
+        "definition": {
+          "entityName": "Quiz",
+          "schema": {
+            "$ref": "#/backend/entities/Quiz"
+          },
+          "description": "Stores quiz data. Only the authenticated user can access their own quiz data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "quizId",
+              "description": "The unique identifier of the quiz."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/practiceTests/{practiceTestId}",
+        "definition": {
+          "entityName": "PracticeTest",
+          "schema": {
+            "$ref": "#/backend/entities/PracticeTest"
+          },
+          "description": "Stores practice test results. Only the authenticated user can access their own practice test results.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "practiceTestId",
+              "description": "The unique identifier of the practice test."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/mockTests/{mockTestId}",
+        "definition": {
+          "entityName": "MockTest",
+          "schema": {
+            "$ref": "#/backend/entities/MockTest"
+          },
+          "description": "Stores mock test results. Only the authenticated user can access their own mock test results.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "mockTestId",
+              "description": "The unique identifier of the mock test."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/courseProgress/{courseProgressId}",
+        "definition": {
+          "entityName": "CourseProgress",
+          "schema": {
+            "$ref": "#/backend/entities/CourseProgress"
+          },
+          "description": "Stores course progress data. Only the authenticated user can access their own course progress data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "courseProgressId",
+              "description": "The unique identifier of the course progress."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/podcastListening/{podcastListeningId}",
+        "definition": {
+          "entityName": "PodcastListening",
+          "schema": {
+            "$ref": "#/backend/entities/PodcastListening"
+          },
+          "description": "Stores podcast listening history. Only the authenticated user can access their own listening history.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "podcastListeningId",
+              "description": "The unique identifier of the podcast listening record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores user-specific notifications. Only the authenticated user can access their own notifications.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier of the notification."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/fileConversions/{fileConversionId}",
+        "definition": {
+          "entityName": "FileConversion",
+          "schema": {
+            "$ref": "#/backend/entities/FileConversion"
+          },
+          "description": "Stores file conversion data. Access can be public, or restricted by userId.",
+          "params": [
+            {
+              "name": "fileConversionId",
+              "description": "The unique identifier of the file conversion."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/rChannels/{rChannelId}",
+        "definition": {
+          "entityName": "RChannel",
+          "schema": {
+            "$ref": "#/backend/entities/RChannel"
+          },
+          "description": "Stores chat channel metadata. Includes denormalized 'members' map for authorization independence.",
+          "params": [
+            {
+              "name": "rChannelId",
+              "description": "The unique identifier of the chat channel."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/rChannels/{rChannelId}/rMessages/{rMessageId}",
+        "definition": {
+          "entityName": "RMessage",
+          "schema": {
+            "$ref": "#/backend/entities/RMessage"
+          },
+          "description": "Stores chat messages within a channel. Includes denormalized 'members' map (copied from the parent rChannel) for authorization independence.",
+          "params": [
+            {
+              "name": "rChannelId",
+              "description": "The unique identifier of the chat channel."
+            },
+            {
+              "name": "rMessageId",
+              "description": "The unique identifier of the chat message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leaderboardEntries/{leaderboardEntryId}",
+        "definition": {
+          "entityName": "LeaderboardEntry",
+          "schema": {
+            "$ref": "#/backend/entities/LeaderboardEntry"
+          },
+          "description": "Stores leaderboard entries. Read access should be public, but write access should be restricted to prevent abuse. Consider using Cloud Functions for data validation.",
+          "params": [
+            {
+              "name": "leaderboardEntryId",
+              "description": "The unique identifier of the leaderboard entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, DBAC (Database-Based Access Control), and support secure list operations (QAPs). It uses path-based ownership for user-specific data and denormalization to avoid `get()` calls in security rules. Every document contains the necessary authorization information within itself, eliminating the need to fetch parent document data during security rule evaluation. This approach ensures that all operations, including atomic transactions and batches, can be performed securely and efficiently.\n\n*   **Users Collection (`/users/{userId}`):** Stores user profile information. Access is restricted to the authenticated user.\n*   **User Profile Collection (`/users/{userId}/profiles/{profileId}`):** Stores additional user profile data, and only accessible to that user.\n*   **Quizzes Collection (`/users/{userId}/quizzes/{quizId}`):** Stores quiz data, ensuring users can only access their own quizzes.\n*   **Practice Tests Collection (`/users/{userId}/practiceTests/{practiceTestId}`):** Stores practice test results, ensuring users can only access their own practice tests.\n*   **Mock Tests Collection (`/users/{userId}/mockTests/{mockTestId}`):** Stores mock test results, ensuring users can only access their own mock tests.\n*   **Course Progress Collection (`/users/{userId}/courseProgress/{courseProgressId}`):** Stores course progress data, ensuring users can only access their own progress.\n*   **Podcast Listening Collection (`/users/{userId}/podcastListening/{podcastListeningId}`):** Stores podcast listening history, ensuring users can only access their own listening history.\n*   **Notifications Collection (`/users/{userId}/notifications/{notificationId}`):** Stores user-specific notifications, ensuring users can only access their own notifications.\n*   **File Conversions Collection (`/fileConversions/{fileConversionId}`):** File conversions are global, and access should be public, but userId can be checked and restrict access to only users for whom userId matches request.auth.uid and can be created if auth is null.\n*   **RChannel Collection (`/rChannels/{rChannelId}`):** Stores chat channel metadata. Access to channels could be public, with read access granted to all, or restricted based on a `members` map in each channel document.\n*   **RMessage Collection (`/rChannels/{rChannelId}/rMessages/{rMessageId}`):**  Messages inherit the security posture of their parent `rChannel`.  If channels are public, messages are public.  If channels have a `members` map, that is denormalized into each message document, granting access only to channel members.\n*   **Leaderboard Entries Collection (`/leaderboardEntries/{leaderboardEntryId}`):** Global leaderboard data. Access should be open for reading but restricted for modifications to prevent abuse.  Consider a Cloud Function triggered on write to validate data or limit write access to a service account.\n\nThis structure supports the QAPs by:\n\n1.  **Segregation:**  Each user's data is stored under their unique `userId`, preventing unauthorized access.\n2.  **Authorization Independence:** Access control information (e.g., ownership) is denormalized, avoiding costly and insecure `get()` calls in rules.\n3.  **DBAC:**  Authorization is based solely on `request.auth.uid`, simplifying role management and security rule logic.\n4.  **Rules are not Filters:** Secure `list` operations are possible because rules only need to check `request.auth.uid` against the document's `userId` or `members` map (which, again, is denormalized)."
+  }
+}
