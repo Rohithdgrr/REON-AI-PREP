@@ -24,7 +24,7 @@ export function UserProfileCard() {
                         </div>
                     </div>
                     <h3 className="text-2xl font-bold font-headline mt-6">Ananya Sharma</h3>
-                    <p className="text-sm text-muted-foreground mt-1">Cognitive Psychology & Behavioral Analytics</p>
+                    <p className="text-sm text-muted-foreground mt-1">RI-XXXX</p>
                 </div>
                 <div className="md:col-span-2 p-8">
                     <p className="text-sm font-semibold text-muted-foreground tracking-widest">REGISTERED IDENTIFIER</p>
