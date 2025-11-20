@@ -5,16 +5,21 @@
  * - answerQuestionsWithAI - A function that takes a text prompt and returns an AI-generated text response.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai, llamaL1Model, llamaL2Model } from '@/ai/genkit';
 import { z } from 'zod';
+
+const modelMap = {
+  'L1': llamaL1Model,
+  'L2': llamaL2Model,
+};
 
 const AnswerQuestionsInputSchema = z.object({
   prompt: z.string(),
-  model: z.string().optional(),
+  model: z.enum(['L1', 'L2']).optional().default('L1'),
 });
 const AnswerQuestionsOutputSchema = z.string();
 
-export async function answerQuestionsWithAI(input: { prompt: string, model?: string }): Promise<string> {
+export async function answerQuestionsWithAI(input: z.infer<typeof AnswerQuestionsInputSchema>): Promise<string> {
   return answerQuestionsFlow(input);
 }
 
@@ -25,9 +30,11 @@ const answerQuestionsFlow = ai.defineFlow(
     outputSchema: AnswerQuestionsOutputSchema,
   },
   async ({ prompt, model }) => {
+    const selectedModel = modelMap[model || 'L1'];
+
     const { text } = await ai.generate({
         prompt: prompt,
-        model: model || 'meta-llama/llama-3-8b-instruct',
+        model: selectedModel,
     });
     return text;
   }

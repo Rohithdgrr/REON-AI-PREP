@@ -7,7 +7,7 @@
  * - GenerateQuizOutput - The return type for the generateQuiz function.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai, grokModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const GenerateQuizInputSchema = z.object({
@@ -32,35 +32,37 @@ const GenerateQuizOutputSchema = z.object({
 });
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
 
-export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQuizOutput> {
-  return generateQuizFlow(input);
-}
 
-const prompt = ai.definePrompt({
-  name: 'generateQuizPrompt',
-  input: { schema: GenerateQuizInputSchema },
-  output: { schema: GenerateQuizOutputSchema },
-  prompt: `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
+function buildPrompt(input: GenerateQuizInput): string {
+    let prompt = `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
 
-Generate a quiz with {{{numQuestions}}} multiple-choice questions on the topic of "{{{topic}}}".
+Generate a quiz with ${input.numQuestions} multiple-choice questions on the topic of "${input.topic}".
+`;
 
-{{#if subTopics}}
-Focus on the following sub-topics: {{#each subTopics}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
-{{/if}}
+    if (input.subTopics && input.subTopics.length > 0) {
+        prompt += `Focus on the following sub-topics: ${input.subTopics.join(', ')}.\n`;
+    }
 
-{{#if difficultyLevel}}
-The difficulty of the questions should be: {{{difficultyLevel}}}.
-{{/if}}
+    if (input.difficultyLevel) {
+        prompt += `The difficulty of the questions should be: ${input.difficultyLevel}.\n`;
+    }
 
-{{#if specialization}}
-Specialize the quiz with a focus on: {{{specialization}}}. For example, if the focus is "time management", include questions that are tricky to solve quickly.
-{{/if}}
+    if (input.specialization) {
+        prompt += `Specialize the quiz with a focus on: ${input.specialization}. For example, if the focus is "time management", include questions that are tricky to solve quickly.\n`;
+    }
 
+    prompt += `
 For each question, provide 4 options and clearly indicate the correct answer. 
 Also provide a detailed explanation for the answer, some tricks to solve the question faster, and an analogy to better understand the concept.
 The questions should be challenging and relevant to the exam syllabus.
-`,
-});
+`;
+    return prompt.trim();
+}
+
+
+export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQuizOutput> {
+  return generateQuizFlow(input);
+}
 
 const generateQuizFlow = ai.defineFlow(
   {
@@ -69,7 +71,16 @@ const generateQuizFlow = ai.defineFlow(
     outputSchema: GenerateQuizOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input, {model: 'nous-hermes-2-mixtral-8x7b-dpo'});
-    return output!;
+    const {output} = await ai.generate({
+      model: grokModel,
+      prompt: buildPrompt(input),
+      output: { schema: GenerateQuizOutputSchema },
+    });
+    
+    if (!output) {
+      throw new Error('Model response did not match the expected schema.');
+    }
+
+    return output;
   }
 );
