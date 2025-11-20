@@ -42,57 +42,26 @@ type Session = {
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
-  const parts = response.split(/(\*\*.*?\*\*)/g).filter(Boolean);
-
-  return (
-    <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-      {parts.map((part, index) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          const content = part.substring(2, part.length - 2);
-          const isHeader = !content.includes(' ');
-
-          return (
-            <strong
-              key={index}
-              className={cn(
-                'block my-2 font-semibold text-[0.9rem]',
-                isHeader && 'text-sm'
-              )}
-            >
-              {content}
-            </strong>
-          );
-        }
-
-        const lines = part.split('\n');
-        const listItems: string[] = [];
-        const otherContent: string[] = [];
-
-        lines.forEach((line) => {
-          if (/^\d+\.\s/.test(line) || /^-\s/.test(line)) {
-            listItems.push(line);
-          } else {
-            otherContent.push(line);
-          }
+    // Process markdown-like lists (unordered and ordered) and bold/italic text.
+    const htmlContent = response
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+        .replace(/(\n|^)---(\n|$)/g, '$1<hr class="my-4 border-border" />$2') // Horizontal rule
+        .replace(/(\n|^)([-*] .+(\n|$))+/g, (match) => { // Unordered lists
+            const items = match.trim().split('\n').map(item => `<li>${item.replace(/[-*] /, '').trim()}</li>`).join('');
+            return `<ul class="list-disc list-inside space-y-1 my-3">${items}</ul>`;
+        })
+        .replace(/(\n|^)(\d+\. .+(\n|$))+/g, (match) => { // Ordered lists
+            const items = match.trim().split('\n').map(item => `<li>${item.replace(/\d+\. /, '').trim()}</li>`).join('');
+            return `<ol class="list-decimal list-inside space-y-1 my-3">${items}</ol>`;
         });
 
-        return (
-          <React.Fragment key={index}>
-            {otherContent.join('\n').trim() && (
-              <p className="mb-1">{otherContent.join('\n')}</p>
-            )}
-            {listItems.length > 0 && (
-              <ul className="list-inside space-y-1 my-2">
-                {listItems.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </React.Fragment>
-        );
-      })}
-    </div>
-  );
+    return (
+        <div
+            className="prose prose-sm dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+    );
 };
 
 const suggestionCards = [
@@ -187,7 +156,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     
     setSessionHistory(prev => [...prev, newSession]);
     
-    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM".`;
+    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM". Use markdown for formatting, including bold (**text**), italics (*text*), and lists (- item or 1. item).`;
 
     const messages = [
         { role: "system", content: systemPrompt },
