@@ -103,7 +103,7 @@ export function LeftSidebar() {
               isCollapsed && "justify-center"
             )}
           >
-            <item.icon className="h-4 w-4" />
+            <item.icon className="h-5 w-5" />
             {!isCollapsed && <span>{item.label}</span>}
           </Link>
         </TooltipTrigger>
@@ -119,7 +119,7 @@ export function LeftSidebar() {
   return (
     <div
       className={cn(
-        "hidden border-r bg-background transition-all duration-300 md:block",
+        "hidden border-r bg-card transition-all duration-300 lg:block",
         isCollapsed ? "w-20" : "w-64"
       )}
     >

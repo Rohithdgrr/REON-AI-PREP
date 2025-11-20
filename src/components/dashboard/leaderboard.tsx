@@ -28,14 +28,14 @@ const leaderboardData = [
 export function Leaderboard() {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
             <CardTitle>Live Leaderboard (Telangana)</CardTitle>
             <CardDescription>Your current standing among peers.</CardDescription>
         </div>
-        <div className="flex gap-2">
-            <Button variant="outline">View Full Leaderboard</Button>
-            <Button>Challenge #3</Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">View Full Leaderboard</Button>
+            <Button className="w-full sm:w-auto">Challenge #3</Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -44,7 +44,7 @@ export function Leaderboard() {
             <TableRow>
               <TableHead className="w-[80px]">Rank</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead className="text-right">Accuracy</TableHead>
+              <TableHead className="text-right hidden sm:table-cell">Accuracy</TableHead>
               <TableHead className="text-right">XP</TableHead>
             </TableRow>
           </TableHeader>
@@ -65,7 +65,7 @@ export function Leaderboard() {
                     {user.isCurrentUser && user.changeAmount && <Badge variant="secondary">+{user.changeAmount}</Badge>}
                   </div>
                 </TableCell>
-                <TableCell className="text-right">{user.accuracy}</TableCell>
+                <TableCell className="text-right hidden sm:table-cell">{user.accuracy}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     {user.xp} <Star className="h-4 w-4 text-blue-500" />
