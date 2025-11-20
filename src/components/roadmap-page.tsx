@@ -166,7 +166,7 @@ Generate a detailed, actionable, and encouraging study plan based on the followi
     prompt += `
 **Instructions for the Output:**
 
-1.  **Format**: The entire output must be a single string formatted in clean **Markdown**.
+1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, and bullet points.
 2.  **Structure**:
     *   Start with a main heading, like \`# Your Personalized Study Plan for ${input.targetExam}\`.
     *   Create sections for different timeframes (e.g., \`## Daily Schedule\`, \`## Weekly Breakdown\`, \`## Subject-wise Focus\`).
@@ -200,6 +200,20 @@ Here is a plan tailored to your needs.
     return prompt.trim();
 }
 
+function markdownToHtml(markdown: string) {
+    return markdown
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
+        .replace(/^\* (.*$)/gim, '<li>$1</li>')
+        .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+        .replace(/((<li>.*<\/li>\s*)+)/gim, '<ul>$1</ul>')
+        .replace(/\n/g, '<br />');
+}
+
 
 export function RoadmapPage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -208,7 +222,7 @@ export function RoadmapPage() {
   const [availableHours, setAvailableHours] = useState(4);
   const [previousPerformance, setPreviousPerformance] = useState("");
   const [aiPlan, setAiPlan] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI"); // State without setter, effectively a constant
   const [model, setModel] = useState(mistralModels[0].value);
   const { toast } = useToast();
 
@@ -225,7 +239,7 @@ export function RoadmapPage() {
       toast({
         variant: 'destructive',
         title: 'API Key Missing',
-        description: 'Please provide a Mistral API Key.',
+        description: 'An API key is required to generate the plan.',
       });
       return;
     }
@@ -263,7 +277,7 @@ export function RoadmapPage() {
         const data = await response.json();
         const finalResponse = data.choices[0]?.message?.content || "Could not generate a plan. Please try again.";
 
-        setAiPlan(finalResponse);
+        setAiPlan(markdownToHtml(finalResponse));
          toast({
             title: "AI Plan Generated!",
             description: "Your personalized study plan is ready below.",
@@ -396,10 +410,6 @@ export function RoadmapPage() {
                     </div>
                     <Separator />
                      <div className="grid md:grid-cols-2 gap-6">
-                         <div className="space-y-2">
-                            <Label htmlFor="api-key">Mistral API Key</Label>
-                            <Input id="api-key" type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} />
-                        </div>
                         <div className="space-y-2">
                              <Label htmlFor="model">AI Model</Label>
                              <Select value={model} onValueChange={setModel}>
@@ -434,7 +444,7 @@ export function RoadmapPage() {
                                 <CardTitle>Your Personalized Plan</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan.replace(/\n/g, '<br/>') }} />
+                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan }} />
                             </CardContent>
                         </Card>
                     )}
@@ -445,5 +455,3 @@ export function RoadmapPage() {
     </div>
   );
 }
-
-    
