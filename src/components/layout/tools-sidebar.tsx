@@ -1,5 +1,4 @@
 
-
 'use client';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { cn } from '@/lib/utils';
@@ -21,96 +20,87 @@ import { TodoList } from '../todo-list';
 import { LibraSidebar } from '../libra/LibraSidebar';
 import { SimpleNotes } from '../simple-notes';
 
-const toolComponents: Record<string, React.ComponentType<any> | undefined> = {
-  notes: () => (
-    <>
-      <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Notes</h3>
-        <p className="text-sm text-muted-foreground">Jot down your thoughts and ideas.</p>
-      </div>
-      <SimpleNotes />
-    </>
-  ),
-  todo: () => (
-    <>
-      <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">To-Do List</h3>
-        <p className="text-sm text-muted-foreground">Track your study tasks for the day.</p>
-      </div>
-      <TodoList />
-    </>
-  ),
-  calendar: () => (
-    <div className="flex justify-center items-start pt-4">
-        <AdvancedCalendar />
-    </div>
-  ),
-  calculator: () => (
-    <>
-      <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Calculator</h3>
-      </div>
-      <SimpleCalculator />
-    </>
-  ),
-  timer: () => (
-    <>
-      <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Timers</h3>
-        <p className="text-sm text-muted-foreground">Set multiple countdowns for your study sessions.</p>
-      </div>
-      <MultiTimer />
-    </>
-  ),
-  stopwatch: () => (
-    <>
-       <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Stopwatch</h3>
-        <p className="text-sm text-muted-foreground">Track your time for practice questions.</p>
-      </div>
-      <SimpleStopwatch />
-    </>
-  ),
-  notifications: () => (
-     <>
-      <div className="flex flex-col space-y-2 text-center sm:text-left">
-        <h3 className="text-lg font-semibold text-foreground">Job Notifications</h3>
-      </div>
-      <NotificationsPanel />
-    </>
-  ),
-  libra: (props: any) => <LibraSidebar {...props} />,
+const toolComponents: Record<string, { component: React.ComponentType<any>, title: string, description?: string } | undefined> = {
+  notes: {
+    component: SimpleNotes,
+    title: "Notes",
+    description: "Jot down your thoughts and ideas.",
+  },
+  todo: {
+    component: TodoList,
+    title: "To-Do List",
+    description: "Track your study tasks for the day.",
+  },
+  calendar: {
+    component: AdvancedCalendar,
+    title: "Calendar",
+    description: "View your schedule and events.",
+  },
+  calculator: {
+    component: SimpleCalculator,
+    title: "Calculator",
+    description: "Perform quick calculations.",
+  },
+  timer: {
+    component: MultiTimer,
+    title: "Timers",
+    description: "Set multiple countdowns for your study sessions.",
+  },
+  stopwatch: {
+    component: SimpleStopwatch,
+    title: "Stopwatch",
+    description: "Track your time for practice questions.",
+  },
+  notifications: {
+    component: NotificationsPanel,
+    title: "Job Notifications",
+  },
+  libra: {
+    component: (props: any) => <LibraSidebar {...props} />,
+    title: "LIBRA AI",
+  },
 };
 
 export function ToolsSidebar() {
   const { isOpen, activeTool, setActiveTool } = useToolsSidebar();
 
-  const ActiveToolComponent = activeTool ? toolComponents[activeTool.id] : null;
+  const activeToolConfig = activeTool ? toolComponents[activeTool.id] : null;
+  const ActiveToolComponent = activeToolConfig?.component;
   const isLibra = activeTool?.id === 'libra';
 
   return (
-    <div
-      className={cn(
-        'hidden sm:block transition-all duration-300 ease-in-out',
-        isOpen ? (isLibra ? 'w-[450px]' : 'w-[400px]') : 'w-0'
-      )}
-    >
-      <div className={cn("h-full bg-background border-l", isOpen ? (isLibra ? 'p-0' : 'p-4') : 'p-0')}>
-        {isOpen && activeTool && (
+    <Sheet open={isOpen} onOpenChange={(open) => !open && setActiveTool(null)}>
+       <SheetContent 
+        className={cn(
+          "p-0 w-full max-w-none sm:max-w-md",
+          isLibra && "sm:max-w-lg"
+        )}
+        onInteractOutside={(e) => {
+          if ((e.target as HTMLElement).closest('[data-radix-collection-item]')) {
+            e.preventDefault();
+          }
+        }}
+      >
+        {activeTool && ActiveToolComponent && (
           <div className="flex flex-col h-full">
-            {!isLibra && (
-              <div className="flex justify-end">
-                <Button variant="ghost" size="icon" onClick={() => setActiveTool(null)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+            {isLibra ? (
+               <ActiveToolComponent {...(activeTool.payload || {})} />
+            ) : (
+              <>
+                 <SheetHeader className="p-4 border-b">
+                  <SheetTitle>{activeToolConfig?.title}</SheetTitle>
+                  {activeToolConfig?.description && (
+                    <SheetDescription>{activeToolConfig.description}</SheetDescription>
+                  )}
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-4">
+                  <ActiveToolComponent {...(activeTool.payload || {})} />
+                </div>
+              </>
             )}
-            <div className={cn("flex-1", !isLibra && "overflow-y-auto")}>
-              {ActiveToolComponent ? <ActiveToolComponent {...(activeTool.payload || {})} /> : <p>Tool not found</p>}
-            </div>
           </div>
         )}
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 type ActiveTool = {
   id: string;
@@ -12,7 +11,6 @@ type ActiveTool = {
 type ToolsSidebarContextType = {
   isOpen: boolean;
   activeTool: ActiveTool | null;
-  toggleSidebar: (forceOpen?: boolean) => void;
   setActiveTool: (tool: ActiveTool | null) => void;
 };
 
@@ -27,27 +25,20 @@ export function useToolsSidebar() {
 }
 
 export function ToolsSidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [activeTool, setActiveToolState] = useState<ActiveTool | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const toggleSidebar = useCallback((forceOpen?: boolean) => {
-    setIsOpen(prev => forceOpen !== undefined ? forceOpen : !prev);
-  }, []);
+  useEffect(() => {
+    setIsOpen(activeTool !== null);
+  }, [activeTool]);
 
   const setActiveTool = useCallback((tool: ActiveTool | null) => {
     setActiveToolState(tool);
-    if (tool === null) {
-      setIsOpen(false);
-    } else {
-      setIsOpen(true);
-    }
   }, []);
-
 
   const value = {
     isOpen,
     activeTool,
-    toggleSidebar,
     setActiveTool,
   };
 

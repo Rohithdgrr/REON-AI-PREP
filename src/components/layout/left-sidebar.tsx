@@ -7,7 +7,6 @@ import {
   BookOpen,
   Camera,
   ChevronLeft,
-  ChevronRight,
   FileQuestion,
   Globe,
   HelpCircle,
@@ -18,6 +17,7 @@ import {
   Map,
   MessageCircle,
   Mic,
+  PanelLeft,
   PlayCircle,
   Settings,
   Target,
@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -42,7 +42,6 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 const navItems = [
-  { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard/notifications", icon: Bell, label: "Job Notifications" },
   { href: "/dashboard/roadmap", icon: Map, label: "Roadmap" },
@@ -58,32 +57,37 @@ const navItems = [
 
 const secondaryNavItems = [
   { href: "/dashboard/tools", icon: Wrench, label: "Tools" },
-];
-
-const bottomNavItems = [
-  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-  { href: "/dashboard/help", icon: HelpCircle, label: "Help" },
-  { href: "#", icon: LogOut, label: "Logout" },
+  { href: "/dashboard/webcam", icon: Camera, label: "Webcam" },
 ];
 
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
     return (
-      <div className={cn("flex items-center justify-center p-2", isCollapsed ? "h-14" : "")}>
-        <Link href="/dashboard" className="flex items-center gap-2">
+      <Link href="/dashboard" className={cn("flex items-center gap-2 font-semibold", isCollapsed ? "justify-center" : "px-2")}>
          <img
             src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
             alt="REON Logo"
-            className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-10 w-10")}
+            className={cn("h-8 w-8 transition-all")}
           />
-        </Link>
-      </div>
+        <span className={cn("transition-opacity", isCollapsed ? "opacity-0 w-0" : "opacity-100")}>REON™</span>
+      </Link>
     );
   }
 
 export function LeftSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280) { // xl breakpoint
+        setIsCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -96,14 +100,13 @@ export function LeftSidebar() {
           <Link
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-              pathname === item.href && "bg-accent text-primary",
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              pathname === item.href && "bg-sidebar-accent text-sidebar-primary",
               isCollapsed && "justify-center"
             )}
           >
             <item.icon className="h-5 w-5" />
-            {!isCollapsed && <span className="hidden lg:inline">{item.label}</span>}
-            <span className="lg:hidden">{item.label}</span>
+            <span className={cn("transition-opacity", isCollapsed ? "opacity-0 w-0" : "opacity-100")}>{item.label}</span>
           </Link>
         </TooltipTrigger>
         {isCollapsed && (
@@ -118,37 +121,37 @@ export function LeftSidebar() {
   return (
     <div
       className={cn(
-        "hidden border-r bg-card transition-all duration-300 lg:block",
+        "hidden border-r bg-sidebar text-sidebar-foreground transition-all duration-300 lg:flex flex-col",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
-      <div className="flex h-full max-h-screen flex-col">
-         <div className={cn("flex items-center border-b h-14", isCollapsed ? 'justify-center' : 'justify-between p-2')}>
-            <div className="flex items-center gap-2">
-                <Logo isCollapsed={isCollapsed} />
-                {!isCollapsed && <span className="font-bold font-headline text-primary hidden lg:inline">REON™</span>}
-            </div>
-        </div>
-        <div className="flex-1 overflow-y-auto py-2">
-          <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
-            {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
-            <Separator className="my-4" />
-            {secondaryNavItems.map((item) => <NavLink key={item.href} item={item} isCollapsed={isCollapsed}/>)}
-          </nav>
-        </div>
-        <div className="mt-auto p-2 space-y-1 border-t">
+      <div className={cn("flex h-14 items-center border-b p-2", isCollapsed ? 'justify-center' : 'justify-between')}>
+        <Logo isCollapsed={isCollapsed} />
+        {!isCollapsed && (
+          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
+        <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
+          {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
+          <Separator className="my-4 bg-sidebar-border" />
+          {secondaryNavItems.map((item) => <NavLink key={item.href} item={item} isCollapsed={isCollapsed}/>)}
+        </nav>
+      </div>
+      <div className="mt-auto p-2 border-t border-sidebar-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-               <Button variant="ghost" className={cn("w-full justify-start items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary", isCollapsed && "justify-center")}>
+               <Button variant="ghost" className={cn("w-full justify-start items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", isCollapsed && "justify-center")}>
                   <Settings className="h-5 w-5" />
-                  {!isCollapsed && <div className="text-left hidden lg:block"><p className="font-semibold text-foreground">Settings</p></div>}
+                  <span className={cn("text-left transition-opacity", isCollapsed ? "opacity-0 w-0" : "opacity-100")}>Settings</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link href="/dashboard/settings"><Avatar className="mr-2 h-5 w-5"><AvatarImage src={userAvatar?.imageUrl} /><AvatarFallback><User /></AvatarFallback></Avatar>Profile</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/dashboard/settings"><Settings className="mr-2 h-4 w-4" />Settings</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/settings"><User className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/dashboard/help"><HelpCircle className="mr-2 h-4 w-4" />Support</Link></DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger><Globe className="mr-2 h-4 w-4" />Language</DropdownMenuSubTrigger>
@@ -162,8 +165,14 @@ export function LeftSidebar() {
               <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" />Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
       </div>
+       {isCollapsed && (
+          <div className="p-2 border-t border-sidebar-border">
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="w-full">
+              <PanelLeft className="h-5 w-5" />
+            </Button>
+          </div>
+       )}
     </div>
   );
 }

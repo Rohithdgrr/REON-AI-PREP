@@ -14,12 +14,14 @@ export default function DashboardLayout({
       <LeftSidebar />
       <div className="flex flex-1 flex-col">
         <Header />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 lg:gap-8 lg:p-8">
           <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
         </main>
       </div>
-      <ToolsSidebar />
-      <RightSidebar />
+      <div className="hidden lg:flex">
+        <ToolsSidebar />
+        <RightSidebar />
+      </div>
     </div>
   );
 }
