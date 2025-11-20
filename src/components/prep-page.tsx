@@ -122,7 +122,6 @@ function UploadCard() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +131,7 @@ function UploadCard() {
   };
 
   const handleUpload = async () => {
-    if (!file || !user || !firestore) {
+    if (!file || !user) {
       toast({
         variant: "destructive",
         title: "Upload Failed",
@@ -248,7 +247,7 @@ export function PrepPage() {
             icon: FileText,
             category: 'My Uploads',
             tags: [m.type],
-            description: `Uploaded on: ${new Date(m.createdAt).toLocaleDateString()}`
+            description: `Uploaded on: ${new Date(m.createdAt.toDate()).toLocaleDateString()}`
         }));
     } else {
        materialsToShow = prepMaterials.filter(material => {
