@@ -46,7 +46,7 @@ export default function LoginPage() {
     console.error("Authentication Error:", error);
     let description = 'An unexpected error occurred. Please try again.';
     // Provide more specific feedback for common errors
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
       description = 'Invalid email or password. Please check your credentials.';
     } else if (error.code === 'auth/email-already-in-use') {
       description = 'This email is already registered. Please try logging in.';
@@ -54,6 +54,11 @@ export default function LoginPage() {
       description = 'The password is too weak. Please use at least 6 characters.';
     } else if (error.code === 'auth/popup-closed-by-user') {
       description = 'The sign-in window was closed before completion.';
+      return; // Don't show a toast for this common user action
+    } else if (error.code === 'auth/account-exists-with-different-credential') {
+        description = 'An account already exists with the same email address but different sign-in credentials.'
+    } else if (error.message) {
+        description = error.message;
     }
     
     toast({
@@ -67,7 +72,13 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then(() => {
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (!credential) {
+            handleAuthError({ message: "Could not get credential from Google."});
+            return;
+        }
         router.push('/dashboard');
       })
       .catch(handleAuthError);
