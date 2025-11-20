@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
@@ -26,7 +26,8 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const auth = useAuth();
-  const { isUserLoading } = useUser();
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -34,6 +35,12 @@ export default function LoginPage() {
   const [name, setName] = useState('');
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+        router.replace('/dashboard');
+    }
+  }, [user, isUserLoading, router]);
 
   const handleAuthError = (error: any) => {
     setIsLoading(false);
@@ -115,7 +122,7 @@ export default function LoginPage() {
       });
   }
   
-  if (isUserLoading) {
+  if (isUserLoading || user) {
      return (
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
