@@ -44,8 +44,14 @@ export default function LoginPage() {
   const handleAuthError = (error: any) => {
     setIsLoading(false);
     console.error("Authentication Error:", error);
+    
+    // Don't show a toast for this common user action, but explain the likely cause in the console.
+    if (error.code === 'auth/popup-closed-by-user') {
+        console.log("Sign-in popup was closed. If this happens immediately, ensure your domain is authorized in the Firebase console.");
+        return;
+    }
+
     let description = 'An unexpected error occurred. Please try again.';
-    // Provide more specific feedback for common errors
     if (error.code) {
         switch (error.code) {
             case 'auth/user-not-found':
@@ -59,17 +65,14 @@ export default function LoginPage() {
             case 'auth/weak-password':
                 description = 'The password is too weak. Please use at least 6 characters.';
                 break;
-            case 'auth/popup-closed-by-user':
-                description = 'The sign-in window was closed before completion.';
-                return; // Don't show a toast for this common user action
             case 'auth/account-exists-with-different-credential':
-                description = 'An account already exists with the same email address but different sign-in credentials.';
+                description = 'An account already exists with this email. Please sign in using the method you originally used.';
                 break;
             case 'auth/operation-not-allowed':
-                description = 'Sign-in with this method is not enabled. Contact support.';
+                description = 'This sign-in method is not enabled. Please contact support.';
                 break;
             default:
-                description = `Firebase: ${error.code}. Please check the console for more details.`;
+                description = `An error occurred. (Code: ${error.code})`;
                 break;
         }
     } else if (error.message) {
@@ -90,7 +93,10 @@ export default function LoginPage() {
       .then((result) => {
         router.push('/dashboard');
       })
-      .catch(handleAuthError);
+      .catch(handleAuthError)
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleEmailLogin = (e: React.FormEvent) => {
@@ -100,7 +106,10 @@ export default function LoginPage() {
       .then(() => {
         router.push('/dashboard');
       })
-      .catch(handleAuthError);
+      .catch(handleAuthError)
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
 
   const handleEmailRegister = (e: React.FormEvent) => {
@@ -110,7 +119,10 @@ export default function LoginPage() {
      .then(() => {
         router.push('/dashboard');
       })
-      .catch(handleAuthError);
+      .catch(handleAuthError)
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
   
   if (isUserLoading || user) {
@@ -211,3 +223,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+    
