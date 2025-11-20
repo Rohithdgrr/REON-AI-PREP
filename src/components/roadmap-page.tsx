@@ -152,6 +152,14 @@ export function RoadmapPage() {
   const { toast } = useToast();
 
   const handleGeneratePlan = async () => {
+    if (!targetExam) {
+        toast({
+            variant: "destructive",
+            title: "Target Exam Required",
+            description: "Please enter your target exam.",
+        });
+        return;
+    }
     setIsGenerating(true);
     setAiPlan(null);
     try {
@@ -162,6 +170,10 @@ export function RoadmapPage() {
             previousPerformance: previousPerformance || undefined
         });
         setAiPlan(result);
+        toast({
+            title: "AI Plan Generated!",
+            description: "Your personalized study plan is ready below.",
+        });
     } catch (error) {
         console.error("Failed to generate plan", error);
         toast({
@@ -217,7 +229,7 @@ export function RoadmapPage() {
                                     <Badge variant={weekData.status === "Completed" ? "default" : (weekData.status === "In Progress" ? "secondary" : "outline")}>{weekData.status}</Badge>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    {weekData.subjects.map(subject => (
+                                    {weekData.subjects.map((subject, sIndex) => (
                                         <div key={subject.name}>
                                             <h4 className="font-semibold text-lg flex items-center gap-2 mb-3">
                                                 <subject.icon className="h-5 w-5 text-primary" />
@@ -231,7 +243,7 @@ export function RoadmapPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <Separator className="mt-6" />
+                                            {sIndex < weekData.subjects.length - 1 && <Separator className="mt-6" />}
                                         </div>
                                     ))}
                                 </CardContent>
@@ -295,9 +307,12 @@ export function RoadmapPage() {
                         {isGenerating ? "Generating Plan..." : "Generate AI Plan"}
                     </Button>
                     {isGenerating && (
-                        <div className="w-full flex justify-center items-center p-8">
-                            <Loader2 className="h-8 w-8 text-primary animate-spin" />
-                        </div>
+                        <Card className="w-full">
+                            <CardContent className="flex flex-col items-center justify-center p-16">
+                                <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                                <p className="text-muted-foreground">LIBRA AI is crafting your personalized plan...</p>
+                            </CardContent>
+                        </Card>
                     )}
                     {aiPlan && (
                         <Card className="w-full bg-muted/50">
@@ -305,9 +320,7 @@ export function RoadmapPage() {
                                 <CardTitle>Your Personalized Plan</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
-                                    {aiPlan.studyPlan}
-                                </div>
+                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan.studyPlan.replace(/\\n/g, '<br/>') }} />
                             </CardContent>
                         </Card>
                     )}
