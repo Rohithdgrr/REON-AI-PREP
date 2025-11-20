@@ -8,11 +8,14 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
-const AnswerQuestionsInputSchema = z.string();
+const AnswerQuestionsInputSchema = z.object({
+  prompt: z.string(),
+  model: z.string().optional(),
+});
 const AnswerQuestionsOutputSchema = z.string();
 
-export async function answerQuestionsWithAI(prompt: string): Promise<string> {
-  return answerQuestionsFlow(prompt);
+export async function answerQuestionsWithAI(input: { prompt: string, model?: string }): Promise<string> {
+  return answerQuestionsFlow(input);
 }
 
 const answerQuestionsFlow = ai.defineFlow(
@@ -21,10 +24,10 @@ const answerQuestionsFlow = ai.defineFlow(
     inputSchema: AnswerQuestionsInputSchema,
     outputSchema: AnswerQuestionsOutputSchema,
   },
-  async (prompt) => {
+  async ({ prompt, model }) => {
     const { text } = await ai.generate({
         prompt: prompt,
-        model: 'x-ai/grok-4.1-fast',
+        model: model || 'meta-llama/llama-3-8b-instruct',
     });
     return text;
   }

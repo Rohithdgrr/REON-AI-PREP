@@ -29,6 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
 import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 
 type AIMode = 'Chat' | 'History';
 type Language = 'en' | 'hi' | 'te' | 'ta';
@@ -118,6 +119,11 @@ const suggestionCards = [
       'Summarize my notes on the Mughal Empire into 5 key points.',
   },
 ];
+
+const modelMap: Record<AIModel, string> = {
+    L1: 'meta-llama/llama-3-8b-instruct',
+    L2: 'meta-llama/llama-3-70b-instruct'
+}
 
 export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
@@ -230,7 +236,10 @@ User input: "${textToProcess}"
     setSessionHistory(updatedHistory);
     
     try {
-        const finalResponse = await answerQuestionsWithAI(fullPrompt);
+        const finalResponse = await answerQuestionsWithAI({
+            prompt: fullPrompt,
+            model: modelMap[model]
+        });
 
         setSessionHistory(prevHistory => {
            const newHistory = [...prevHistory];
@@ -312,7 +321,7 @@ User input: "${textToProcess}"
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
-          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">grok-4.1-fast</span>}
+          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{modelMap[lastSession.model]}</span>}
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>
@@ -480,6 +489,14 @@ User input: "${textToProcess}"
 
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
+        <div className="flex justify-center mb-2">
+            <Tabs value={model} onValueChange={(v) => setModel(v as AIModel)} className="w-fit">
+                <TabsList className="grid w-full grid-cols-2 h-8 text-xs">
+                    <TabsTrigger value="L1" className="h-6">Llama 3 (L1)</TabsTrigger>
+                    <TabsTrigger value="L2" className="h-6">Llama 3 (L2)</TabsTrigger>
+                </TabsList>
+            </Tabs>
+        </div>
         <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end">
           <Textarea
             placeholder="Ask LIBRA anything..."
