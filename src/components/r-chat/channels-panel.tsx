@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import { CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { channelsByRealm, directMessages, realms } from "../r-chat-page";
-import { CircleUser, Hash, Headphones, Mic, Settings, User } from "lucide-react";
+import { ChevronLeft, CircleUser, Hash, Headphones, Mic, Settings, User } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
@@ -26,26 +26,36 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
     const [isDeafened, setIsDeafened] = useState(false);
 
     return (
-        <div className="flex flex-col border-r bg-muted/50 h-full" onDoubleClick={onDoubleClick}>
-            <CardHeader className="p-4 border-b">
+        <div className="flex flex-col border-r bg-muted/40 h-full" onDoubleClick={onDoubleClick}>
+            <CardHeader className="p-4 border-b flex-row items-center justify-between shadow-sm">
                 <CardTitle className="text-lg">{activeRealm.name}</CardTitle>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDoubleClick}>
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Collapse Panel</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </CardHeader>
             <ScrollArea className="flex-1 p-2">
                 <div className="space-y-1">
-                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground">ROUTE CHANNELS</h4>
+                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Route Channels</h4>
                     {channelsByRealm[activeRealm.id].filter(c => c.type === 'text').map((channel) => (
                         <Button key={channel.name} variant={activeChannel.name === channel.name && !activeDM ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => onSelectChannel(channel)}>
-                            <Hash className="mr-2 h-4 w-4" /> {channel.name}
+                            <Hash className="mr-2 h-4 w-4 text-muted-foreground" /> {channel.name}
                         </Button>
                     ))}
-                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-4">RESONANT ROOMS</h4>
+                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4">Resonant Rooms</h4>
                     {channelsByRealm[activeRealm.id].filter(c => c.type === 'voice').map((channel) => (
                         <Button key={channel.name} variant="ghost" className="w-full justify-start">
-                            <Headphones className="mr-2 h-4 w-4" /> 
+                            <Headphones className="mr-2 h-4 w-4 text-muted-foreground" /> 
                             <span className="flex-1 text-left">{channel.name}</span>
                         </Button>
                     ))}
-                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-4">REACH DMS</h4>
+                    <h4 className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4">Reach DMs</h4>
                     {directMessages.map((contact) => (
                         <Button key={contact.id} variant={activeDM?.id === contact.id ? 'secondary' : 'ghost'} className="w-full justify-start h-auto p-2" onClick={() => onSelectDM(contact)}>
                         <Avatar className="mr-2 h-8 w-8">
@@ -56,7 +66,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                     ))}
                 </div>
             </ScrollArea>
-            <div className="p-2 border-t mt-auto bg-background/50">
+            <div className="p-2 border-t mt-auto bg-background/30">
                 <div className="flex items-center gap-2">
                     <Avatar className="h-9 w-9">
                         {userAvatar && <AvatarImage src={userAvatar.imageUrl} />}

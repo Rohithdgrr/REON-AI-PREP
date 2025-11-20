@@ -43,22 +43,22 @@ export const realms = [
 
 export const channelsByRealm: Record<
   string,
-  { name: string; type: 'text' | 'voice' }[]
+  { name: string; type: 'text' | 'voice'; description: string; }[]
 > = {
   r1: [
-    { name: 'rapid-relay', type: 'text' },
-    { name: 'announcements', type: 'text' },
-    { name: 'resources', type: 'text' },
-    { name: 'Resonant Room 1', type: 'voice' },
-    { name: 'Study Session', type: 'voice' },
+    { name: 'rapid-relay', type: 'text', description: 'The main channel for R&T Community Hub' },
+    { name: 'announcements', type: 'text', description: 'Official announcements and updates' },
+    { name: 'resources', type: 'text', description: 'Share and find study materials' },
+    { name: 'Resonant Room 1', type: 'voice', description: 'Voice chat for general discussion' },
+    { name: 'Study Session', type: 'voice', description: 'Focused group study sessions' },
   ],
   r2: [
-    { name: 'railway-general', type: 'text' },
-    { name: 'Railway Voice', type: 'voice' },
+    { name: 'railway-general', type: 'text', description: 'General chat for railway aspirants' },
+    { name: 'Railway Voice', type: 'voice', description: 'Voice chat for railway exam prep' },
   ],
   r3: [
-    { name: 'bank-general', type: 'text' },
-    { name: 'Bank Voice', type: 'voice' },
+    { name: 'bank-general', type: 'text', description: 'General chat for banking aspirants' },
+    { name: 'Bank Voice', type: 'voice', description: 'Voice chat for banking exam prep' },
   ],
 };
 
@@ -188,12 +188,13 @@ export function RChatPage() {
 
   const handleSelectDM = (dm: typeof directMessages[0]) => {
     setActiveDM(dm);
+    // In a real app you might set activeChannel to null here
   };
 
   const activeConversationName = activeDM ? activeDM.name : activeChannel.name;
   const activeConversationDescription = activeDM
     ? 'Direct Message'
-    : `The main channel for ${activeRealm.name}`;
+    : activeChannel.description;
 
   return (
     <Dialog open={isPollModalOpen} onOpenChange={setIsPollModalOpen}>
@@ -206,8 +207,8 @@ export function RChatPage() {
           setIsOpen={setRealmsSidebarOpen}
         />
 
-        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-[280px,1fr]" : "grid-cols-[0px,1fr]")}>
-            <div className={cn("transition-all duration-300 overflow-hidden", channelsPanelOpen ? "w-[280px]" : "w-0")}>
+        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-[240px,1fr]" : "grid-cols-[0px,1fr]")}>
+            <div className={cn("transition-all duration-300 overflow-hidden", channelsPanelOpen ? "w-[240px]" : "w-0")}>
               <ChannelsPanel
                   activeRealm={activeRealm}
                   activeChannel={activeChannel}
@@ -219,9 +220,11 @@ export function RChatPage() {
             </div>
 
             <div className="flex flex-col relative">
-              <Button onClick={() => setChannelsPanelOpen(!channelsPanelOpen)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10">
-                <ChevronLeft className={cn("h-4 w-4 transition-transform", !channelsPanelOpen && "rotate-180")} />
-              </Button>
+              {!channelsPanelOpen && (
+                <Button onClick={() => setChannelsPanelOpen(true)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10">
+                  <ChevronLeft className="h-4 w-4 rotate-180" />
+                </Button>
+              )}
             <ChatHeader
                 name={activeConversationName}
                 description={activeConversationDescription}
