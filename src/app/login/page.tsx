@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -44,7 +43,7 @@ export default function LoginPage() {
 
   const handleAuthError = (error: any) => {
     setIsLoading(false);
-    console.error("Authentication Error:", error);
+    console.error("Authentication Error:", error.code, error.message);
     
     let title = "Authentication Failed";
     let description = 'An unexpected error occurred. Please try again.';
@@ -53,28 +52,32 @@ export default function LoginPage() {
       case 'auth/popup-closed-by-user':
       case 'auth/cancelled-popup-request':
         title = "Sign-in Cancelled";
-        description = "The sign-in window was closed before completion. If this persists, please check if your browser is blocking pop-ups.";
+        description = "The sign-in window was closed. If this happened automatically, please ensure your domain is authorized in the Firebase Console.";
         break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
+        title = "Invalid Credentials";
         description = 'Invalid email or password. Please check your credentials and try again.';
         break;
       case 'auth/email-already-in-use':
+        title = "Email Already Registered";
         description = 'This email is already registered. Please try logging in instead.';
         break;
       case 'auth/weak-password':
+        title = "Weak Password";
         description = 'The password is too weak. Please use at least 6 characters.';
         break;
       case 'auth/account-exists-with-different-credential':
+        title = "Account Exists";
         description = 'An account already exists with this email. Please sign in using the method you originally used.';
         break;
       case 'auth/operation-not-allowed':
         title = "Sign-in Method Disabled";
-        description = 'This sign-in method is not enabled. Please contact support if you believe this is an error.';
+        description = 'This sign-in method is not enabled in the Firebase Console. Please contact support.';
         break;
       default:
-        description = error.message || `An error occurred. (Code: ${error.code})`;
+        description = error.message || `An unknown error occurred. (Code: ${error.code})`;
         break;
     }
     
@@ -86,6 +89,7 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = () => {
+    if (!auth) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
@@ -97,6 +101,7 @@ export default function LoginPage() {
 
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .catch(handleAuthError)
@@ -107,6 +112,7 @@ export default function LoginPage() {
 
   const handleEmailRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     setIsLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
       .catch(handleAuthError)
@@ -212,5 +218,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    
