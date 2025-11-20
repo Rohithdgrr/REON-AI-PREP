@@ -71,7 +71,6 @@ export function SimpleNotes() {
   }
 
   const handleUpdateNote = (id: number, title: string, content: string) => {
-    // Also update the selected note in real-time
     if (selectedNote && selectedNote.id === id) {
       setSelectedNote({ ...selectedNote, title, content, lastModified: Date.now() });
     }
@@ -127,9 +126,14 @@ export function SimpleNotes() {
   return (
     <div className="mt-4 flex flex-col h-[calc(100%-80px)]">
       <div className="flex items-center justify-between mb-4">
-         <Button variant="outline" size="sm" onClick={() => setSelectedNote(null)}>
-            <X className="mr-2 h-4 w-4" /> All Notes
-        </Button>
+         <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSelectedNote(null)}>
+                <X className="mr-2 h-4 w-4" /> All Notes
+            </Button>
+             <Button variant="default" size="sm" onClick={handleAddNote}>
+                <Plus className="mr-2 h-4 w-4" /> New
+            </Button>
+         </div>
          <div className="flex gap-2">
             <Dialog>
                 <DialogTrigger asChild>
