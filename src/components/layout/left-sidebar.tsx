@@ -41,6 +41,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -72,27 +73,9 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
     );
   }
 
-export function LeftSidebar() {
+function NavLink({ item, isCollapsed }: { item: typeof navItems[0], isCollapsed: boolean }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) { // lg breakpoint
-        setIsCollapsed(true);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const NavLink = ({ item, isCollapsed }: { item: typeof navItems[0], isCollapsed: boolean }) => (
+  return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -116,17 +99,15 @@ export function LeftSidebar() {
       </Tooltip>
     </TooltipProvider>
   );
+}
 
+
+function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, toggleSidebar?: () => void }) {
   return (
-    <div
-      className={cn(
-        "hidden border-r bg-sidebar text-sidebar-foreground transition-all duration-300 sm:flex flex-col",
-        isCollapsed ? "w-20" : "w-64"
-      )}
-    >
-      <div className={cn("flex h-14 items-center border-b p-2", isCollapsed ? 'justify-center' : 'justify-between')}>
+    <>
+      <div className={cn("flex h-16 items-center border-b p-2", isCollapsed ? 'justify-center' : 'justify-between')}>
         <Logo isCollapsed={isCollapsed} />
-        {!isCollapsed && (
+        {!isCollapsed && toggleSidebar && (
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -165,13 +146,52 @@ export function LeftSidebar() {
             </DropdownMenuContent>
           </DropdownMenu>
       </div>
-       {isCollapsed && (
+       {isCollapsed && toggleSidebar && (
           <div className="p-2 border-t border-sidebar-border">
             <Button variant="ghost" size="icon" onClick={toggleSidebar} className="w-full">
               <PanelRight className="h-5 w-5" />
             </Button>
           </div>
        )}
-    </div>
+    </>
+  )
+}
+
+export function LeftSidebar() {
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) { // lg breakpoint
+        setIsDesktopCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
+  const toggleDesktopSidebar = () => {
+    setIsDesktopCollapsed(!isDesktopCollapsed);
+  };
+  
+  return (
+    <>
+      {/* Mobile Sidebar */}
+      <div className="sm:hidden flex flex-col w-20 border-r bg-sidebar text-sidebar-foreground">
+        <SidebarContent isCollapsed={true} />
+      </div>
+
+      {/* Desktop Sidebar */}
+      <div
+        className={cn(
+          "hidden sm:flex flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300",
+          isDesktopCollapsed ? "w-20" : "w-64"
+        )}
+      >
+        <SidebarContent isCollapsed={isDesktopCollapsed} toggleSidebar={toggleDesktopSidebar} />
+      </div>
+    </>
   );
 }

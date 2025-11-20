@@ -83,8 +83,8 @@ export function RightSidebar() {
   };
   
   return (
-    <aside className="fixed inset-y-0 right-0 z-10 hidden w-14 flex-col border-l bg-background lg:flex">
-      <div className="flex flex-col items-center gap-4 px-2 py-4">
+    <aside className="fixed inset-y-0 right-0 z-10 hidden w-16 flex-col border-l bg-background lg:flex">
+      <div className="flex flex-col items-center gap-6 px-2 py-6">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';
            return (
@@ -95,6 +95,7 @@ export function RightSidebar() {
                 onClick={() => handleToolClick(tool.id)}
                 onDoubleClick={() => handleDoubleClick(tool.id)}
                 className={cn(
+                    "h-10 w-10",
                     activeTool?.id === tool.id && 'bg-accent text-accent-foreground',
                     isLibra && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200"
                 )}
