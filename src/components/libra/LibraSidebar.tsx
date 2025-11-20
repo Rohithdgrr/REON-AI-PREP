@@ -28,21 +28,18 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
-import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
 
 type AIMode = 'Chat' | 'History';
-type Language = 'en' | 'hi' | 'te' | 'ta';
-type AIModel = 'L1' | 'L2';
 
 type Session = {
   id: number;
   mode: AIMode;
   input: string;
-  responses: string[];
-  currentResponseIndex: number;
-  language: Language;
-  model: AIModel;
+  response: string;
+  model: string;
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
@@ -120,15 +117,17 @@ const suggestionCards = [
   },
 ];
 
-const modelMap: Record<AIModel, string> = {
-    L1: 'meta-llama/llama-3-8b-instruct',
-    L2: 'meta-llama/llama-3-70b-instruct'
-}
+const mistralModels = [
+    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
+    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
+    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
+    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
+];
 
 export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
-  const [language, setLanguage] = useState<Language>('en');
-  const [model, setModel] = useState<AIModel>('L1');
+  const [model, setModel] = useState<string>('open-mistral-nemo');
+  const [apiKey, setApiKey] = useState('nJCcmgS1lSo13OVE79Q64QndL3nCDjQI');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -156,28 +155,14 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     }
   }, [sessionHistory, isLoading, currentMode]);
 
-  const saveHistory = (newHistory: Session[]) => {
-    const simplifiedHistory = newHistory.filter(
-      (s) => s.mode === 'Chat' || s.mode === 'History'
-    );
-    setSessionHistory(simplifiedHistory);
-    try {
-      localStorage.setItem(
-        'libraSessionHistory',
-        JSON.stringify(simplifiedHistory)
-      );
-    } catch (e) {
-      console.error('Failed to save LIBRA history to localStorage', e);
-    }
-  };
 
   const handleAiRequest = async (promptOverride?: string) => {
     const textToProcess = promptOverride || input;
-    if (!textToProcess) {
+    if (!textToProcess || !apiKey) {
       toast({
         variant: 'destructive',
         title: 'Input required',
-        description: 'Please type or provide content to process.',
+        description: 'Please type a message and provide an API key.',
       });
       return;
     }
@@ -186,66 +171,45 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     setInput('');
     abortControllerRef.current = new AbortController();
 
-    const currentInput = promptOverride || input;
-    
-    const baseFormatInstruction = `
-Always format your answer using this structure, unless the user explicitly asks for a different format:
-
-1. First line: **Clear Title or Topic Name**
-2. Second part: 2-3 lines of brief overview.
-3. Then use section headings in bold, for example:
-   **Key Concepts**
-   **Step-by-Step Approach**
-   **Questions**
-   **Study Plan**
-   **Summary**
-   **Quick Recap**
-
-4. Use:
-   - Numbered lists (1., 2., 3., ...) for steps, procedures, and quiz questions.
-   - Bullet points (-) for key points, advantages, tips, and recap.
-
-5. Highlight using bold:
-   - Important terms and formulas.
-   - Final answers and correct options (e.g., **Option C**).
-
-6. End every answer with a **Quick Recap** section summarizing 3–5 key takeaways.
-
-Keep the answer concise but clear. Aim for 10–25 lines unless user asks for detailed or long content.
-`;
-
-    const fullPrompt = `
-You are LIBRA, an AI assistant for competitive exam preparation. Your persona is helpful, encouraging, and an expert in subjects like Quantitative Aptitude, Reasoning, English, and General Awareness for Indian exams (Railway, Bank PO, etc.).
-Respond to the user's query in ${language} language.
-Follow this response format strictly so that the UI can render it nicely:
-${baseFormatInstruction}
-User input: "${textToProcess}"
-`;
-
     const newSession: Session = {
       id: Date.now(),
       mode: 'Chat',
-      input: currentInput,
-      responses: [''],
-      currentResponseIndex: 0,
-      language,
+      input: textToProcess,
+      response: '',
       model,
     };
     
-    const updatedHistory = [...sessionHistory, newSession];
-    setSessionHistory(updatedHistory);
+    setSessionHistory(prev => [...prev, newSession]);
     
     try {
-        const finalResponse = await answerQuestionsWithAI({
-            prompt: fullPrompt,
-            model: modelMap[model]
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: textToProcess }],
+                temperature: 0.7,
+                max_tokens: 1024
+            }),
+            signal: abortControllerRef.current.signal,
         });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        const finalResponse = data.choices[0]?.message?.content || "No content";
 
         setSessionHistory(prevHistory => {
            const newHistory = [...prevHistory];
            const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
            if (sessionIndex > -1) {
-               newHistory[sessionIndex].responses[0] = finalResponse;
+               newHistory[sessionIndex].response = finalResponse;
            }
            return newHistory;
         });
@@ -261,6 +225,7 @@ User input: "${textToProcess}"
                   title: 'AI Error',
                   description: error.message || 'The model failed to respond. Please check console.',
               });
+              setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
         }
     } finally {
       setIsLoading(false);
@@ -283,7 +248,7 @@ User input: "${textToProcess}"
   };
 
   const handleClearHistory = () => {
-    saveHistory([]);
+    setSessionHistory([]);
   };
 
   const copyToClipboard = (text: string) => {
@@ -321,7 +286,7 @@ User input: "${textToProcess}"
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
-          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{modelMap[lastSession.model]}</span>}
+          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{lastSession.model}</span>}
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>
@@ -397,7 +362,7 @@ User input: "${textToProcess}"
                 >
                   <p className="font-bold truncate">{session.input || 'Untitled Chat'}</p>
                   <p className="truncate text-muted-foreground mt-1">
-                    {session.responses[session.currentResponseIndex]}
+                    {session.response}
                   </p>
                 </div>
               ))
@@ -447,15 +412,15 @@ User input: "${textToProcess}"
                     <Bot className="h-5 w-5 text-primary" />
                   </div>
                   <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                    {session.responses[0] ? (
+                    {session.response ? (
                       <>
-                        <FormattedAIResponse response={session.responses[0]} />
+                        <FormattedAIResponse response={session.response} />
                         <div className="flex items-center gap-1 mt-2">
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6"
-                            onClick={() => copyToClipboard(session.responses[0])}
+                            onClick={() => copyToClipboard(session.response)}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -465,7 +430,7 @@ User input: "${textToProcess}"
                             className="h-6 w-6"
                             onClick={() =>
                               downloadResponse(
-                                session.responses[0],
+                                session.response,
                                 `libra-response.txt`
                               )
                             }
@@ -490,12 +455,16 @@ User input: "${textToProcess}"
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
         <div className="flex justify-center mb-2">
-            <Tabs value={model} onValueChange={(v) => setModel(v as AIModel)} className="w-fit">
-                <TabsList className="grid w-full grid-cols-2 h-8 text-xs">
-                    <TabsTrigger value="L1" className="h-6">Llama 3 (L1)</TabsTrigger>
-                    <TabsTrigger value="L2" className="h-6">Llama 3 (L2)</TabsTrigger>
-                </TabsList>
-            </Tabs>
+            <Select value={model} onValueChange={setModel}>
+                <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Select a model" />
+                </SelectTrigger>
+                <SelectContent>
+                    {mistralModels.map(m => (
+                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
         <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end">
           <Textarea
@@ -537,9 +506,12 @@ User input: "${textToProcess}"
           </Button>
         </div>
         <div className="text-[11px] text-muted-foreground text-center">
-          LIBRA AI can make mistake . Check important info.
+          LIBRA AI can make mistakes. Check important info.
         </div>
       </div>
     </div>
   );
 }
+
+
+    
