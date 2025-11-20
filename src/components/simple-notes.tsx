@@ -71,11 +71,20 @@ export function SimpleNotes() {
   }
 
   const handleUpdateNote = (id: number, title: string, content: string) => {
-     const updatedNotes = notes.map(note =>
-      note.id === id ? { ...note, title, content, lastModified: Date.now() } : note
+    // Also update the selected note in real-time
+    if (selectedNote && selectedNote.id === id) {
+      setSelectedNote({ ...selectedNote, title, content, lastModified: Date.now() });
+    }
+  };
+
+  const handleSaveEdits = () => {
+    if (!selectedNote) return;
+    const updatedNotes = notes.map(note =>
+      note.id === selectedNote.id ? { ...selectedNote, lastModified: Date.now() } : note
     );
     saveNotes(updatedNotes);
-  };
+    setIsEditing(false);
+  }
 
   const handleDeleteNote = (id: number) => {
     const updatedNotes = notes.filter(note => note.id !== id);
@@ -143,7 +152,13 @@ export function SimpleNotes() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <Button size="sm" onClick={() => setIsEditing(!isEditing)}>
+            <Button size="sm" onClick={() => {
+                if (isEditing) {
+                    handleSaveEdits();
+                } else {
+                    setIsEditing(true)
+                }
+            }}>
                 {isEditing ? <Save className="mr-2 h-4 w-4" /> : <Edit className="mr-2 h-4 w-4" />}
                 {isEditing ? 'Save' : 'Edit'}
             </Button>
