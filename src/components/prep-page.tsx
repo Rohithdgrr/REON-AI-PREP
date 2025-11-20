@@ -82,13 +82,19 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
         ))}
       </div>
     </CardContent>
-    <CardFooter className="grid grid-flow-col auto-cols-fr gap-2">
-        {material.category !== 'Videos' && (
-            <Button className="w-full" onClick={() => onOpenUrl(material.url, material.title)}>Start Studying</Button>
-        )}
-        <Button variant="outline" className="w-full" onClick={() => onAskLibra(material.title)}>
-            <Bot className="mr-2 h-4 w-4" /> Ask LIBRA
+    <CardFooter className="flex-col sm:flex-row items-stretch sm:items-center gap-2">
+      {material.category !== 'Videos' && (
+        <Button className="flex-1" onClick={() => onOpenUrl(material.url, material.title)}>
+          Start Studying
         </Button>
+      )}
+      <Button
+        variant="outline"
+        className="flex-1"
+        onClick={() => onAskLibra(material.title)}
+      >
+        <Bot className="mr-2 h-4 w-4" /> Ask LIBRA
+      </Button>
     </CardFooter>
   </Card>
 );
