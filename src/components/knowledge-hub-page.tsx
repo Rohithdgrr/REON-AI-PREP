@@ -33,9 +33,10 @@ import { useRouter } from 'next/navigation';
 import { Badge } from './ui/badge';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { useUser, useFirebase } from '@/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytesResumable, UploadTaskSnapshot } from 'firebase/storage';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Progress } from './ui/progress';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
@@ -108,6 +109,7 @@ const competitions = [
 type UploadStatus = {
   file: File | null;
   status: 'idle' | 'uploading' | 'success' | 'error';
+  progress: number;
   error?: string;
 };
 
@@ -121,7 +123,7 @@ export function KnowledgeHubPage() {
   const [communityPosts, setCommunityPosts] = useState(initialCommunityPosts);
   const [newPost, setNewPost] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({ file: null, status: 'idle' });
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({ file: null, status: 'idle', progress: 0 });
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -143,7 +145,7 @@ export function KnowledgeHubPage() {
     };
     setCommunityPosts([post, ...communityPosts]);
     setNewPost('');
-    setUploadStatus({ file: null, status: 'idle' });
+    setUploadStatus({ file: null, status: 'idle', progress: 0 });
     if (fileInputRef.current) {
         fileInputRef.current.value = "";
     }
@@ -154,9 +156,9 @@ export function KnowledgeHubPage() {
     const file = e.target.files?.[0];
     if (file) {
         if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            setUploadStatus({ file, status: 'error', error: 'File size cannot exceed 5MB.' });
+            setUploadStatus({ file, status: 'error', progress: 0, error: 'File size cannot exceed 5MB.' });
         } else {
-            setUploadStatus({ file, status: 'idle' });
+            setUploadStatus({ file, status: 'idle', progress: 0 });
         }
     }
   };
@@ -173,37 +175,42 @@ export function KnowledgeHubPage() {
       return;
     }
 
-    setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined }));
+    setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined, progress: 0 }));
 
-    try {
-      // 1. Upload to Storage
-      const storageRef = ref(
-        storage,
-        `users/${user.uid}/materials/${Date.now()}_${file.name}`
-      );
-      const uploadResult = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(uploadResult.ref);
+    const storageRef = ref(
+      storage,
+      `users/${user.uid}/materials/${Date.now()}_${file.name}`
+    );
+    
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-      // 2. Create document in Firestore
-      const materialsCollection = collection(
-        firestore,
-        `users/${user.uid}/materials`
-      );
-      await addDoc(materialsCollection, {
-        userId: user.uid,
-        title: file.name,
-        url: downloadURL,
-        type: file.type || 'unknown',
-        createdAt: serverTimestamp(),
-      });
-      
-      setUploadStatus(prev => ({ ...prev, status: 'success' }));
-      handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
+    uploadTask.on('state_changed',
+        (snapshot: UploadTaskSnapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadStatus(prev => ({ ...prev, progress: progress }));
+        },
+        (error: any) => {
+            console.error('Upload error:', error);
+            setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
+        },
+        async () => {
+            // Upload completed successfully, now get the download URL
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-    } catch (error: any) {
-      console.error('Upload error:', error);
-       setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
-    }
+            // Create document in Firestore
+            const materialsCollection = collection(firestore, `users/${user.uid}/materials`);
+            await addDoc(materialsCollection, {
+                userId: user.uid,
+                title: file.name,
+                url: downloadURL,
+                type: file.type || 'unknown',
+                createdAt: serverTimestamp(),
+            });
+
+            setUploadStatus(prev => ({ ...prev, status: 'success' }));
+            handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
+        }
+    );
   };
 
   const handleStartChallenge = (title: string) => {
@@ -226,7 +233,7 @@ export function KnowledgeHubPage() {
   );
   
   const handleCancelUpload = () => {
-    setUploadStatus({ file: null, status: 'idle' });
+    setUploadStatus({ file: null, status: 'idle', progress: 0 });
     if(fileInputRef.current) {
         fileInputRef.current.value = "";
     }
@@ -275,7 +282,12 @@ export function KnowledgeHubPage() {
                         <FileIcon className="h-5 w-5 text-muted-foreground"/>
                         <div className="flex-1">
                             <p className="text-sm font-medium truncate">{uploadStatus.file.name}</p>
-                             {uploadStatus.status === 'uploading' && <p className="text-xs text-blue-500">Uploading...</p>}
+                             {uploadStatus.status === 'uploading' && (
+                                <div className="flex items-center gap-2">
+                                  <Progress value={uploadStatus.progress} className="w-24 h-1"/>
+                                  <p className="text-xs text-blue-500">{Math.round(uploadStatus.progress)}%</p>
+                                </div>
+                             )}
                              {uploadStatus.status === 'error' && <p className="text-xs text-destructive">{uploadStatus.error}</p>}
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCancelUpload}>
