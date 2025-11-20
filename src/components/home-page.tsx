@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ const features = [
 const howItWorks = [
     {
         step: 1,
-        title: 'Sign Up & Personalize',
+        title: 'Register & Personalize',
         description: 'Create your account and tell us your target exams and weak subjects.'
     },
     {
@@ -158,7 +159,7 @@ export function HomePage() {
             </Button>
             <Button asChild>
                 <Link href="/login" prefetch={false}>
-                    Sign Up Free
+                    Register for Free
                 </Link>
             </Button>
             </nav>
@@ -322,10 +323,10 @@ export function HomePage() {
                 <div className="flex flex-col items-center gap-4 text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Ready to Start Your Journey?</h2>
                     <p className="max-w-2xl">
-                        Join thousands of aspirants who are preparing smarter with REON AI. Sign up for free and get your personalized study plan today.
+                        Join thousands of aspirants who are preparing smarter with REON AI. Register for free and get your personalized study plan today.
                     </p>
                     <Button size="lg" variant="secondary" asChild className="transform transition-transform duration-300 hover:scale-105">
-                         <Link href="/login" prefetch={false}>Start For Free <ArrowRight className="ml-2"/></Link>
+                         <Link href="/login" prefetch={false}>Register For Free <ArrowRight className="ml-2"/></Link>
                     </Button>
                 </div>
             </div>

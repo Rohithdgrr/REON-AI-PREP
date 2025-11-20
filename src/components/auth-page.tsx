@@ -13,13 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from './ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -130,7 +123,7 @@ export function AuthPage() {
                     </div>
                     <Link href="/dashboard" className="w-full">
                       <Button type="submit" className="w-full">
-                        Sign Up
+                        Register
                       </Button>
                     </Link>
                   </CardContent>
