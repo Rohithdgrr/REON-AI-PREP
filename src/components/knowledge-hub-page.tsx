@@ -214,7 +214,7 @@ export function KnowledgeHubPage() {
                          <p className="text-sm text-muted-foreground">Put your skills to the test with these high-difficulty challenges. Solve them within the time limit to earn bonus XP and climb the leaderboard.</p>
                          {competitions.map(comp => (
                              <Card key={comp.id}>
-                                 <CardHeader className="flex flex-row items-center justify-between">
+                                 <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                                     <div>
                                         <CardTitle className="text-base">{comp.title}</CardTitle>
                                         <CardDescription>{comp.description}</CardDescription>
