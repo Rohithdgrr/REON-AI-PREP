@@ -155,8 +155,8 @@ export function KnowledgeHubPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-        if (file.size > 15 * 1024 * 1024) { // 15MB limit
-            setUploadStatus({ file, status: 'error', progress: 0, error: 'File size cannot exceed 15MB.' });
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            setUploadStatus({ file, status: 'error', progress: 0, error: 'File size cannot exceed 10MB.' });
         } else {
             setUploadStatus({ file, status: 'idle', progress: 0 });
         }
