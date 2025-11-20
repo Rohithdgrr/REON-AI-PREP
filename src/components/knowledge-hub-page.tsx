@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -46,14 +46,14 @@ const initialCommunityPosts = [
   {
     id: 1,
     user: 'RI-YYYY',
-    avatar: userAvatar?.imageUrl || "/avatars/01.png",
+    avatar: userAvatar?.imageUrl,
     time: '5m ago',
     post: 'Just finished the Reasoning Puzzles course! The AI-generated tests are a game-changer. Anyone have tips for the advanced seating arrangements?',
   },
   {
     id: 2,
     user: 'RI-ZZZZ',
-    avatar: userAvatar?.imageUrl || "/avatars/02.png",
+    avatar: userAvatar?.imageUrl,
     time: '1h ago',
     post: 'Uploaded my handwritten notes for the Quantitative Aptitude percentage chapter. Hope it helps someone! #Quant #Notes',
     hasAttachment: true,
