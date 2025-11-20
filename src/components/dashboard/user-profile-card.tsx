@@ -15,9 +15,9 @@ export function UserProfileCard() {
             <div className="grid md:grid-cols-3 items-center">
                 <div className="md:col-span-1 p-8 bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 dark:from-blue-900/50 dark:via-purple-900/30 dark:to-gray-900/50 flex flex-col items-center text-center">
                     <div className="relative">
-                        <div className="absolute -inset-1.5 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full animate-pulse blur-md" />
-                        <Avatar className="h-32 w-32 relative border-4 border-background">
-                            {userAvatar ? <AvatarImage src={userAvatar.imageUrl} /> : <AvatarFallback><Bot className="h-16 w-16" /></AvatarFallback>}
+                        <div className="absolute -inset-1.5 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl animate-pulse blur-md" />
+                        <Avatar className="h-40 w-40 relative border-4 border-background rounded-2xl">
+                            {userAvatar ? <AvatarImage src={userAvatar.imageUrl} className="rounded-xl" /> : <AvatarFallback className="rounded-xl"><Bot className="h-20 w-20" /></AvatarFallback>}
                         </Avatar>
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 px-3 py-1 rounded-full bg-blue-400/50 text-white text-xs backdrop-blur-sm border border-white/20">
                             RI RI-2045
