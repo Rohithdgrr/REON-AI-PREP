@@ -59,7 +59,7 @@ export default function LoginPage() {
       case 'auth/popup-closed-by-user':
       case 'auth/cancelled-popup-request':
         title = "Sign-in Cancelled";
-        description = "The sign-in window was closed. Please ensure your domain is authorized in the Firebase Console.";
+        description = "The sign-in window was closed. To use Google Sign-In, please enable pop-ups for this site and ensure your domain is authorized in the Firebase Console.";
         break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -77,11 +77,11 @@ export default function LoginPage() {
         break;
       case 'auth/account-exists-with-different-credential':
         title = "Account Exists";
-        description = 'An account already exists with this email. Please sign in using the method you originally used.';
+        description = 'An account already exists with this email address. Please sign in using the method you originally used (e.g., Google or Email).';
         break;
       case 'auth/operation-not-allowed':
         title = "Sign-in Method Disabled";
-        description = 'This sign-in method is not enabled. Please enable it in your Firebase Console under Authentication > Sign-in method.';
+        description = 'This sign-in method is not enabled. Please contact support or enable it in your Firebase project settings.';
         break;
       default:
         description = error.message || `An unknown error occurred. (Code: ${error.code})`;
@@ -129,10 +129,8 @@ export default function LoginPage() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { 
             displayName: name,
-            // We'll store DOB in a custom claim or Firestore, not directly on the auth profile
         });
         
-        // Manually setting a temporary item in localStorage to pass DOB to the next page
         localStorage.setItem('temp_user_dob', format(dob, 'yyyy-MM-dd'));
 
     } catch (error) {
