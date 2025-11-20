@@ -122,7 +122,7 @@ const carouselSlides = [
         title: 'LIBRA: Your Personal AI Tutor',
         description: 'Stuck on a concept? Need a quick summary of a topic? Just ask LIBRA. Get instant, 24/7 doubt clarification, topic explanations, and even generate custom quizzes on the fly.',
         imageHint: 'robot assistant',
-        imageId: 'job-ssc' 
+        imageId: 'suggestion-concepts' 
     },
     {
         id: 'slide-4',
