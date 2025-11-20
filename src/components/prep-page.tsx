@@ -100,10 +100,11 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
       ) : (
         <Button
           variant="outline"
+          size="icon"
           className="w-full"
           onClick={() => onAskLibra(material.title)}
         >
-          <Bot className="mr-2 h-4 w-4" /> Ask LIBRA
+          <Bot className="h-4 w-4" />
         </Button>
       )}
     </CardFooter>
@@ -127,7 +128,7 @@ export function PrepPage() {
   };
 
   const handleAskLibra = (materialTitle: string) => {
-    setActiveTool({ id: 'libra', payload: { prompt: `Explain the key concepts from "${materialTitle}" and create a 3-question mini-quiz based on it.` }});
+    setActiveTool({ id: 'libra', payload: { initialPrompt: `Explain the key concepts from "${materialTitle}" and create a 3-question mini-quiz based on it.` }});
   };
 
   const handleCloseBrowser = () => {

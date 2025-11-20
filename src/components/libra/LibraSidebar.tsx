@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -122,7 +123,7 @@ const mistralModels = [
     { value: "open-mixtral-8x22b", label: "LIBRA L4 141b"},
 ];
 
-export function LibraSidebar({ prompt }: { prompt?: string }) {
+export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
   const [model, setModel] = useState(mistralModels[0].value);
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
@@ -136,11 +137,10 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (prompt) {
-      handleAiRequest(prompt);
+    if (initialPrompt) {
+      setInput(initialPrompt);
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prompt]);
+  }, [initialPrompt]);
 
   useEffect(() => {
     setSessionHistory([]);
@@ -554,7 +554,3 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     </div>
   );
 }
-
-    
-
-    
