@@ -426,7 +426,7 @@ Explanation: ${question.explanation}`;
                 <CardTitle>Topic-wise Practice Tests</CardTitle>
                 <CardDescription>Test your knowledge on specific topics with our manually curated practice tests.</CardDescription>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {manualQuizzes.map(quiz => (
                     <Button key={quiz.id} variant="outline" className="h-auto py-4" onClick={() => handleStartTest(quiz)}>
                         <div className="flex flex-col items-center text-center">
@@ -443,7 +443,7 @@ Explanation: ${question.explanation}`;
                 <CardTitle className="flex items-center gap-2"><Bot /> AI Quick Practice Tests</CardTitle>
                 <CardDescription>Let our AI generate a random practice test for you on a popular topic.</CardDescription>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {aiQuickQuizzes.map(quiz => (
                      <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, quiz.numQuestions, quiz.subTopics, 'Medium')} disabled={isGenerating}>
                         <div className="flex flex-col items-center text-center">
@@ -534,31 +534,33 @@ Explanation: ${question.explanation}`;
                 <CardDescription>Review your performance in past practice tests.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Test Name</TableHead>
-                            <TableHead>Score</TableHead>
-                            <TableHead>Accuracy</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {pastPracticeResults.map((result) => (
-                            <TableRow key={result.id}>
-                                <TableCell className="font-medium">{result.title}</TableCell>
-                                <TableCell>{result.score}</TableCell>
-                                <TableCell>{result.accuracy}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="outline" size="sm">
-                                        <BarChart className="mr-2 h-4 w-4" />
-                                        View Analysis
-                                    </Button>
-                                </TableCell>
+                 <div className="w-full overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Test Name</TableHead>
+                                <TableHead>Score</TableHead>
+                                <TableHead>Accuracy</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {pastPracticeResults.map((result) => (
+                                <TableRow key={result.id}>
+                                    <TableCell className="font-medium">{result.title}</TableCell>
+                                    <TableCell>{result.score}</TableCell>
+                                    <TableCell>{result.accuracy}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" size="sm">
+                                            <BarChart className="mr-2 h-4 w-4" />
+                                            View Analysis
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             </CardContent>
         </Card>
 
@@ -577,7 +579,7 @@ Explanation: ${question.explanation}`;
         <Card>
           <CardHeader>
             <CardTitle>You scored {score}/{activeTest.questions.length}!</CardTitle>
-             <CardDescription className="flex items-center gap-4">
+             <CardDescription className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <span>{score! / activeTest.questions.length > 0.7 ? "Excellent work! Your practice is paying off." : "Good effort. Review the explanations to improve."}</span>
               <span className="flex items-center gap-2 text-sm"><Timer className="h-4 w-4" /> Total Time: {formatTime(overallTime)}</span>
             </CardDescription>
@@ -621,7 +623,7 @@ Explanation: ${question.explanation}`;
     <div className="flex flex-col gap-6">
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <CardTitle className="text-xl">{activeTest.title}</CardTitle>
             <div className="flex items-center gap-4 text-sm font-semibold">
                 <div className="flex items-center gap-1.5"><Timer className="h-4 w-4"/> {formatTime(perQuestionTime)}</div>

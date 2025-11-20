@@ -279,7 +279,7 @@ export function MockTestPage() {
             <CardTitle>Manual Mock Tests</CardTitle>
             <CardDescription>Curated full-length mock tests to simulate the real exam.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {manualMockTests.map(test => (
                  <Button key={test.id} variant="outline" className="h-auto py-4" onClick={() => handleGenerateAndStart(test.title, test.questions)} disabled={isGenerating}>
                     <div className="flex flex-col items-center text-center">
@@ -297,7 +297,7 @@ export function MockTestPage() {
             <CardTitle className="flex items-center gap-2"><Bot /> AI Quick Mock Test</CardTitle>
             <CardDescription>Let our AI generate a random high-difficulty mock test for a specific exam section.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {aiQuickMocks.map(quiz => (
                  <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStart(quiz.topic, 100, true)} disabled={isGenerating}>
                     <div className="flex flex-col items-center text-center">
@@ -368,7 +368,7 @@ export function MockTestPage() {
                 </div>
             </div>
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
+        <CardFooter className="flex-col sm:flex-row flex justify-between items-center gap-4">
             <Button onClick={() => handleGenerateAndStart(customTopic, customNumQuestions)} disabled={isGenerating}>
                     {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Mock Test"}
             </Button>
@@ -388,33 +388,35 @@ export function MockTestPage() {
           <CardDescription>Analyze your performance and learn from your mistakes.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Test Name</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Rank</TableHead>
-                <TableHead>Accuracy</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pastResults.map((result) => (
-                <TableRow key={result.id}>
-                  <TableCell className="font-medium">{result.title}</TableCell>
-                  <TableCell>{result.score}</TableCell>
-                  <TableCell>{result.rank}</TableCell>
-                  <TableCell>{result.accuracy}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
-                       <BarChart className="mr-2 h-4 w-4" />
-                       View Analysis
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Test Name</TableHead>
+                    <TableHead>Score</TableHead>
+                    <TableHead>Rank</TableHead>
+                    <TableHead>Accuracy</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pastResults.map((result) => (
+                    <TableRow key={result.id}>
+                      <TableCell className="font-medium">{result.title}</TableCell>
+                      <TableCell>{result.score}</TableCell>
+                      <TableCell>{result.rank}</TableCell>
+                      <TableCell>{result.accuracy}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm">
+                           <BarChart className="mr-2 h-4 w-4" />
+                           View Analysis
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
         </CardContent>
       </Card>
     </div>

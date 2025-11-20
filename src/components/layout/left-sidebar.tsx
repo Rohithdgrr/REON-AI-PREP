@@ -56,9 +56,7 @@ const navItems = [
   { href: "/dashboard/r-chat", icon: MessageCircle, label: "R-Chat" },
 ];
 
-const secondaryNavItems = [
-  { href: "/dashboard/tools", icon: Wrench, label: "Tools" },
-  { href: "/dashboard/webcam", icon: Camera, label: "Webcam" },
+const secondaryNavItems: any[] = [
 ];
 
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
@@ -137,7 +135,7 @@ export function LeftSidebar() {
       <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
           {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
-          <Separator className="my-4 bg-sidebar-border" />
+          {secondaryNavItems.length > 0 && <Separator className="my-4 bg-sidebar-border" />}
           {secondaryNavItems.map((item) => <NavLink key={item.href} item={item} isCollapsed={isCollapsed}/>)}
         </nav>
       </div>
