@@ -46,17 +46,32 @@ export default function LoginPage() {
     console.error("Authentication Error:", error);
     let description = 'An unexpected error occurred. Please try again.';
     // Provide more specific feedback for common errors
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-      description = 'Invalid email or password. Please check your credentials.';
-    } else if (error.code === 'auth/email-already-in-use') {
-      description = 'This email is already registered. Please try logging in.';
-    } else if (error.code === 'auth/weak-password') {
-      description = 'The password is too weak. Please use at least 6 characters.';
-    } else if (error.code === 'auth/popup-closed-by-user') {
-      description = 'The sign-in window was closed before completion.';
-      return; // Don't show a toast for this common user action
-    } else if (error.code === 'auth/account-exists-with-different-credential') {
-        description = 'An account already exists with the same email address but different sign-in credentials.'
+    if (error.code) {
+        switch (error.code) {
+            case 'auth/user-not-found':
+            case 'auth/wrong-password':
+            case 'auth/invalid-credential':
+                description = 'Invalid email or password. Please check your credentials.';
+                break;
+            case 'auth/email-already-in-use':
+                description = 'This email is already registered. Please try logging in.';
+                break;
+            case 'auth/weak-password':
+                description = 'The password is too weak. Please use at least 6 characters.';
+                break;
+            case 'auth/popup-closed-by-user':
+                description = 'The sign-in window was closed before completion.';
+                return; // Don't show a toast for this common user action
+            case 'auth/account-exists-with-different-credential':
+                description = 'An account already exists with the same email address but different sign-in credentials.';
+                break;
+            case 'auth/operation-not-allowed':
+                description = 'Sign-in with this method is not enabled. Contact support.';
+                break;
+            default:
+                description = `Firebase: ${error.code}. Please check the console for more details.`;
+                break;
+        }
     } else if (error.message) {
         description = error.message;
     }
@@ -73,12 +88,6 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        if (!credential) {
-            handleAuthError({ message: "Could not get credential from Google."});
-            return;
-        }
         router.push('/dashboard');
       })
       .catch(handleAuthError);
