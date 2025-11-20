@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Inter, Lexend } from 'next/font/google';
 import './globals.css';
@@ -22,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn('min-h-screen bg-background font-body antialiased', inter.variable, lexend.variable)}>
+      <body className={cn('min-h-screen bg-background font-body antialiased', inter.variable, lexend.variable)} suppressHydrationWarning>
         <FirebaseClientProvider>
           <ThemeProvider
             attribute="class"
@@ -40,5 +41,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    
