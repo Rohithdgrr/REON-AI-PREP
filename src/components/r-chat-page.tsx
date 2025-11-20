@@ -22,6 +22,7 @@ import {
   Sparkles,
   Lightbulb,
   ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -207,8 +208,8 @@ export function RChatPage() {
           setIsOpen={setRealmsSidebarOpen}
         />
 
-        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-[240px,1fr]" : "grid-cols-[0px,1fr]")}>
-            <div className={cn("transition-all duration-300 overflow-hidden", channelsPanelOpen ? "w-[240px]" : "w-0")}>
+        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-1 md:grid-cols-[240px,1fr]" : "grid-cols-[0px,1fr]")}>
+            <div className={cn("transition-all duration-300 overflow-hidden hidden md:block", channelsPanelOpen ? "w-[240px]" : "w-0")}>
               <ChannelsPanel
                   activeRealm={activeRealm}
                   activeChannel={activeChannel}
@@ -221,8 +222,8 @@ export function RChatPage() {
 
             <div className="flex flex-col relative">
               {!channelsPanelOpen && (
-                <Button onClick={() => setChannelsPanelOpen(true)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10">
-                  <ChevronLeft className="h-4 w-4 rotate-180" />
+                <Button onClick={() => setChannelsPanelOpen(true)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10 hidden md:flex">
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
             <ChatHeader

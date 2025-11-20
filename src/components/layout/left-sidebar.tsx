@@ -18,6 +18,7 @@ import {
   MessageCircle,
   Mic,
   PanelLeft,
+  PanelRight,
   PlayCircle,
   Settings,
   Target,
@@ -79,7 +80,7 @@ export function LeftSidebar() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1280) { // xl breakpoint
+      if (window.innerWidth < 1024) { // lg breakpoint
         setIsCollapsed(true);
       }
     };
@@ -121,7 +122,7 @@ export function LeftSidebar() {
   return (
     <div
       className={cn(
-        "hidden border-r bg-sidebar text-sidebar-foreground transition-all duration-300 lg:flex flex-col",
+        "hidden border-r bg-sidebar text-sidebar-foreground transition-all duration-300 sm:flex flex-col",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
@@ -169,7 +170,7 @@ export function LeftSidebar() {
        {isCollapsed && (
           <div className="p-2 border-t border-sidebar-border">
             <Button variant="ghost" size="icon" onClick={toggleSidebar} className="w-full">
-              <PanelLeft className="h-5 w-5" />
+              <PanelRight className="h-5 w-5" />
             </Button>
           </div>
        )}

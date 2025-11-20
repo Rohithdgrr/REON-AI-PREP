@@ -83,7 +83,7 @@ export function RightSidebar() {
   };
   
   return (
-    <aside className="fixed inset-y-0 right-0 z-10 hidden w-14 flex-col border-l bg-background sm:flex">
+    <aside className="fixed inset-y-0 right-0 z-10 hidden w-14 flex-col border-l bg-background lg:flex">
       <div className="flex flex-col items-center gap-4 px-2 py-4">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';
