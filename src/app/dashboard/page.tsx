@@ -1,3 +1,4 @@
+
 import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { MissionsCard } from "@/components/dashboard/missions-card";
 import { ProgressCard } from "@/components/dashboard/progress-card";
@@ -21,13 +22,13 @@ export default function DashboardPage() {
                 <WeaknessRadar />
                 <TodaysPlan />
             </div>
-
-            <Leaderboard />
             
             <div className="grid gap-6 lg:grid-cols-2">
                 <TasksCard />
                 <MissionsCard />
             </div>
+
+            <Leaderboard />
 
         </div>
     )
