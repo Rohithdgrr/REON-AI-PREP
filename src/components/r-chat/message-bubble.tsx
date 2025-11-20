@@ -113,7 +113,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                     {isFirstInGroup && (
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-sm">
-                                {message.sender === 'me' ? 'Srinivas Reddy' : 'LIBRA AI'}
+                                {message.sender === 'me' ? 'RI-XXXX' : 'LIBRA AI'}
                             </span>
                              <span className="text-xs text-muted-foreground">{formattedTimestamp}</span>
                         </div>

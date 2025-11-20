@@ -73,7 +73,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                         <AvatarFallback><CircleUser /></AvatarFallback>
                     </Avatar>
                     <div className="text-sm">
-                        <p className="font-semibold">Srinivas Reddy</p>
+                        <p className="font-semibold">RI-XXXX</p>
                         <p className="text-xs text-muted-foreground">Online</p>
                     </div>
                     <div className="ml-auto flex items-center">

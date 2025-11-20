@@ -22,9 +22,7 @@ export function UserProfileCard() {
                         </Avatar>
                     </div>
                 </div>
-                <div className="md:col-span-2 p-12">
-                    <h3 className="text-4xl font-bold font-headline">Ananya Sharma</h3>
-                    <p className="text-base text-muted-foreground mt-1">RI-XXXX</p>
+                <div className="md:col-span-2 p-12 text-center md:text-left">
                     <p className="text-base font-semibold text-muted-foreground tracking-widest uppercase mt-8">Registered Identifier</p>
                     <h2 className="text-6xl font-bold font-headline mt-2">RI-XXXX</h2>
                     <p className="text-muted-foreground mt-4 text-lg">Welcome back! Use this RI for quick logins and progress sync.</p>

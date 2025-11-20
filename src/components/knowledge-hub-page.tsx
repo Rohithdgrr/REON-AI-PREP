@@ -31,14 +31,14 @@ import { Badge } from "./ui/badge";
 const initialCommunityPosts = [
     {
         id: 1,
-        user: "Neha Sharma",
+        user: "RI-YYYY",
         avatar: "/avatars/01.png",
         time: "5m ago",
         post: "Just finished the Reasoning Puzzles course! The AI-generated tests are a game-changer. Anyone have tips for the advanced seating arrangements?",
     },
     {
         id: 2,
-        user: "Ravi Kumar",
+        user: "RI-ZZZZ",
         avatar: "/avatars/02.png",
         time: "1h ago",
         post: "Uploaded my handwritten notes for the Quantitative Aptitude percentage chapter. Hope it helps someone! #Quant #Notes",
@@ -47,10 +47,10 @@ const initialCommunityPosts = [
 ];
 
 const allFriends = [
-    { id: 1, name: 'Anil Kumar', riId: 'RAX202514790' },
-    { id: 2, name: 'Priya Sharma', riId: 'RAX202514791' },
-    { id: 3, name: 'Ravi Teja', riId: 'RAX202514792' },
-    { id: 4, name: 'Sunita Devi', riId: 'RAX202514793' },
+    { id: 1, riId: 'RAX202514790' },
+    { id: 2, riId: 'RAX202514791' },
+    { id: 3, riId: 'RAX202514792' },
+    { id: 4, riId: 'RAX202514793' },
 ];
 
 const competitions = [
@@ -86,7 +86,7 @@ export function KnowledgeHubPage() {
     if (newPost.trim() === "") return;
     const post = {
       id: Date.now(),
-      user: "Srinivas Reddy",
+      user: "RI-XXXX",
       avatar: "/avatars/03.png", // Assuming current user avatar
       time: "Just now",
       post: newPost,
@@ -106,7 +106,6 @@ export function KnowledgeHubPage() {
   };
 
   const filteredFriends = allFriends.filter(friend => 
-    friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     friend.riId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -187,7 +186,7 @@ export function KnowledgeHubPage() {
                                         <div className="relative">
                                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                             <Input 
-                                                placeholder="Search by name or RI ID" 
+                                                placeholder="Search by RI ID" 
                                                 className="pl-8"
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -197,8 +196,7 @@ export function KnowledgeHubPage() {
                                             {filteredFriends.map(friend => (
                                                 <div key={friend.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
                                                     <div>
-                                                        <p className="font-semibold text-sm">{friend.name}</p>
-                                                        <p className="text-xs text-muted-foreground">{friend.riId}</p>
+                                                        <p className="font-semibold text-sm">{friend.riId}</p>
                                                     </div>
                                                     <Button size="sm" variant="outline">Connect</Button>
                                                 </div>
