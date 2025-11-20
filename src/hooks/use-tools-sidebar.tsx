@@ -38,17 +38,10 @@ export function ToolsSidebarProvider({ children }: { children: React.ReactNode }
     if (tool === null) {
         setIsOpen(false);
         setActiveToolState(null);
-        return;
+    } else {
+        setIsOpen(true);
+        setActiveToolState(tool);
     }
-    
-    setActiveToolState(currentTool => {
-      if (currentTool?.id === tool.id) {
-        setIsOpen(prev => !prev);
-        return tool; 
-      }
-      setIsOpen(true);
-      return tool;
-    });
   }, []);
 
   const value = {
