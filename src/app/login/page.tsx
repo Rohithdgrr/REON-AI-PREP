@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -45,9 +46,13 @@ export default function LoginPage() {
     setIsLoading(false);
     console.error("Authentication Error:", error);
     
-    // Don't show a toast for this common user action, but explain the likely cause in the console.
-    if (error.code === 'auth/popup-closed-by-user') {
-        console.log("Sign-in popup was closed. If this happens immediately, ensure your domain is authorized in the Firebase console.");
+    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        console.log("Sign-in popup was closed before completion. This can happen if the application's domain (e.g., localhost) is not an authorized domain in the Firebase Console.");
+        toast({
+            variant: "destructive",
+            title: "Sign-in Cancelled",
+            description: "The sign-in window was closed. If this happened automatically, please ensure your domain is authorized in the Firebase Console.",
+        });
         return;
     }
 
@@ -69,7 +74,7 @@ export default function LoginPage() {
                 description = 'An account already exists with this email. Please sign in using the method you originally used.';
                 break;
             case 'auth/operation-not-allowed':
-                description = 'This sign-in method is not enabled. Please contact support.';
+                description = 'This sign-in method is not enabled in the Firebase Console.';
                 break;
             default:
                 description = `An error occurred. (Code: ${error.code})`;
@@ -90,9 +95,6 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        router.push('/dashboard');
-      })
       .catch(handleAuthError)
       .finally(() => {
         setIsLoading(false);
@@ -103,9 +105,6 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        router.push('/dashboard');
-      })
       .catch(handleAuthError)
       .finally(() => {
         setIsLoading(false);
@@ -116,9 +115,6 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
-     .then(() => {
-        router.push('/dashboard');
-      })
       .catch(handleAuthError)
       .finally(() => {
         setIsLoading(false);
@@ -197,7 +193,6 @@ export default function LoginPage() {
                 </div>
 
                  <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
-                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                    <GoogleIcon /> Sign in with Google
                  </Button>
 
