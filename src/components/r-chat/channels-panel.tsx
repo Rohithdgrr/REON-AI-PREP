@@ -59,7 +59,8 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                     {directMessages.map((contact) => (
                         <Button key={contact.id} variant={activeDM?.id === contact.id ? 'secondary' : 'ghost'} className="w-full justify-start h-auto p-2" onClick={() => onSelectDM(contact)}>
                         <Avatar className="mr-2 h-8 w-8">
-                            <AvatarFallback><User /></AvatarFallback>
+                            <AvatarImage src={contact.avatarUrl} />
+                            <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <span className="font-semibold text-sm">{contact.name}</span>
                         </Button>

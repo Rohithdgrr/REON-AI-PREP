@@ -63,8 +63,8 @@ export const channelsByRealm: Record<
 };
 
 export const directMessages = [
-  { id: 'u2', name: 'RI-YYYY', avatarId: 'user-avatar-2' },
-  { id: 'u3', name: 'RI-ZZZZ', avatarId: 'user-avatar-3' },
+    { id: 'u2', name: 'RI-YYYY', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
 ];
 
 export type Sender = 'me' | 'other';
