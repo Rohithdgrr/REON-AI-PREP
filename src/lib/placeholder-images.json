@@ -87,7 +87,7 @@
     {
       "id": "job-ssc",
       "description": "Image representing a government building for SSC jobs",
-      "imageUrl": "https://images.unsplash.com/photo-1606092195730-5d6b9af1efc5?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
+      "imageUrl": "https://images.unsplash.com/photo-1543286386-2e6593068625?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
       "imageHint": "government building"
     },
     {
@@ -95,6 +95,12 @@
       "description": "Image representing jobs for graduates",
       "imageUrl": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "graduation students"
+    },
+    {
+      "id": "r-chat-image-1",
+      "description": "Sample image for r-chat",
+      "imageUrl": "https://images.unsplash.com/photo-1517694712202-1428bc648c2a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "laptop code"
     }
   ]
 }
