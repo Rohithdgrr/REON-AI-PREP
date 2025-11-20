@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog, Sheet, SheetContent } from '@/components/ui/sheet';
 import { ChatHeader } from './r-chat/chat-header';
 import { ChatMessages } from './r-chat/chat-messages';
 import { ChatInput } from './r-chat/chat-input';
@@ -175,6 +175,7 @@ export function RChatPage() {
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [realmsSidebarOpen, setRealmsSidebarOpen] = useState(true);
   const [channelsPanelOpen, setChannelsPanelOpen] = useState(true);
+  const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
 
   const handleSelectRealm = (realm: typeof realms[0]) => {
     setActiveRealm(realm);
@@ -185,11 +186,12 @@ export function RChatPage() {
   const handleSelectChannel = (channel: (typeof channelsByRealm.r1)[0]) => {
     setActiveChannel(channel);
     setActiveDM(null);
+    setMobileChannelsOpen(false);
   };
 
   const handleSelectDM = (dm: typeof directMessages[0]) => {
     setActiveDM(dm);
-    // In a real app you might set activeChannel to null here
+    setMobileChannelsOpen(false);
   };
 
   const activeConversationName = activeDM ? activeDM.name : activeChannel.name;
@@ -208,7 +210,21 @@ export function RChatPage() {
           setIsOpen={setRealmsSidebarOpen}
         />
 
-        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-1 md:grid-cols-[240px,1fr]" : "grid-cols-[0px,1fr]")}>
+        {/* Mobile Channels Panel */}
+         <Sheet open={mobileChannelsOpen} onOpenChange={setMobileChannelsOpen}>
+            <SheetContent side="left" className="p-0 w-[260px]">
+                 <ChannelsPanel
+                    activeRealm={activeRealm}
+                    activeChannel={activeChannel}
+                    activeDM={activeDM}
+                    onSelectChannel={handleSelectChannel}
+                    onSelectDM={handleSelectDM}
+                    onDoubleClick={() => setMobileChannelsOpen(false)}
+                />
+            </SheetContent>
+        </Sheet>
+
+        <div className={cn("grid w-full transition-all duration-300", channelsPanelOpen ? "grid-cols-1 md:grid-cols-[240px,1fr]" : "grid-cols-1 md:grid-cols-[0px,1fr]")}>
             <div className={cn("transition-all duration-300 overflow-hidden hidden md:block", channelsPanelOpen ? "w-[240px]" : "w-0")}>
               <ChannelsPanel
                   activeRealm={activeRealm}
@@ -220,7 +236,7 @@ export function RChatPage() {
               />
             </div>
 
-            <div className="flex flex-col relative">
+            <div className="flex flex-col relative min-w-0">
               {!channelsPanelOpen && (
                 <Button onClick={() => setChannelsPanelOpen(true)} variant="ghost" size="icon" className="absolute top-1/2 -left-4 -translate-y-1/2 bg-muted/80 hover:bg-muted border rounded-full h-8 w-8 z-10 hidden md:flex">
                   <ChevronRight className="h-4 w-4" />
@@ -231,6 +247,7 @@ export function RChatPage() {
                 description={activeConversationDescription}
                 messages={messages}
                 setMessages={setMessages}
+                onToggleChannels={() => setMobileChannelsOpen(true)}
             />
             <ChatMessages messages={messages} setMessages={setMessages} />
             <ChatInput
