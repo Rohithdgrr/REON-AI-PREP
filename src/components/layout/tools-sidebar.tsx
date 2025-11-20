@@ -19,12 +19,17 @@ import { SimpleStopwatch } from '../simple-stopwatch';
 import { NotificationsPanel } from '../notifications-panel';
 import { TodoList } from '../todo-list';
 import { LibraSidebar } from '../libra/LibraSidebar';
+import { SimpleNotes } from '../simple-notes';
 
 const toolComponents: Record<string, React.ComponentType<any> | undefined> = {
   notes: () => (
-    <div className="h-full flex flex-col">
-       <iframe src="/notes-app.html" className="w-full h-full border-0" title="Notes App" />
-    </div>
+    <>
+      <div className="flex flex-col space-y-2 text-center sm:text-left">
+        <h3 className="text-lg font-semibold text-foreground">Notes</h3>
+        <p className="text-sm text-muted-foreground">Jot down your thoughts and ideas.</p>
+      </div>
+      <SimpleNotes />
+    </>
   ),
   todo: () => (
     <>
