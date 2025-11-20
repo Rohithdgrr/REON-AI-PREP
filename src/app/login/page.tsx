@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -45,8 +44,18 @@ export default function LoginPage() {
   const handleGoogleSignIn = () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
+    // Explicitly setting the auth domain can resolve popup issues in some environments
+    provider.setCustomParameters({
+        'auth_type': 'reauthenticate',
+        'prompt': 'select_account'
+    });
     signInWithPopup(auth, provider)
-      .then(() => {
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        // The signed-in user info.
+        const user = result.user;
         setIsLoading(false);
         router.push('/dashboard');
       })
@@ -55,11 +64,16 @@ export default function LoginPage() {
   
   const handleAuthError = (error: any) => {
     setIsLoading(false);
+    // The auth/popup-closed-by-user error is common and can be ignored if the user intentionally closes it.
+    if (error.code === 'auth/popup-closed-by-user') {
+        console.log("Sign-in popup closed by user.");
+        return;
+    }
     console.error("Authentication Error:", error);
     toast({
         variant: "destructive",
         title: "Authentication Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description: `Error: ${error.code} - ${error.message}`,
     });
   }
 
