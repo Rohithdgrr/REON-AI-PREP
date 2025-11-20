@@ -116,10 +116,10 @@ const suggestionCards = [
 ];
 
 const mistralModels = [
-    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
-    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
-    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
-    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
+    { value: "open-mistral-nemo", label: "LIBRA L1 12b"},
+    { value: "open-mistral-7b", label: "LIBRA L2 7b"},
+    { value: "open-mixtral-8x7b", label: "LIBRA L3 46b"},
+    { value: "open-mixtral-8x22b", label: "LIBRA L4 141b"},
 ];
 
 export function LibraSidebar({ prompt }: { prompt?: string }) {
@@ -187,6 +187,13 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     
     setSessionHistory(prev => [...prev, newSession]);
     
+    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM".`;
+
+    const messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: textToProcess }
+    ];
+
     const streamResponse = async (response: Response) => {
         if (!response.body) {
             throw new Error("Response body is empty.");
@@ -230,7 +237,7 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
             body: JSON.stringify({
-                model: model, messages: [{ role: "user", content: textToProcess }],
+                model: model, messages: messages,
                 temperature: 0.7, max_tokens: 1024, stream: true,
             }),
             signal: abortControllerRef.current.signal
@@ -244,7 +251,7 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
                 body: JSON.stringify({
-                    model: 'llama3-8b-8192', messages: [{ role: "user", content: textToProcess }],
+                    model: 'llama3-8b-8192', messages: messages,
                     temperature: 0.7, max_tokens: 1024, stream: true,
                 }),
                 signal: abortControllerRef.current.signal
