@@ -30,7 +30,7 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
             const formattedDob = format(dob, 'yyyyMMdd');
             const userFirstLetter = (user.displayName || 'X').charAt(0).toUpperCase();
             
-            const riId = `R_${formattedDob}_${userFirstLetter}_T`;
+            const riId = `R${formattedDob}${userFirstLetter}T`;
 
             setDoc(userRef, {
               id: user.uid,
