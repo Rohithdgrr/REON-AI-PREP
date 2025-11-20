@@ -67,19 +67,19 @@ export function AuthPage() {
                       <Input id="ri-id-login" placeholder="your@email.com or RAX..." required />
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center">
-                        <Label htmlFor="password-login">Password</Label>
+                      <Label htmlFor="password-login">Password</Label>
+                      <Input id="password-login" type="password" required />
+                       <div className="text-right">
                         <Link
                           href="#"
-                          className="ml-auto inline-block text-sm underline"
+                          className="inline-block text-sm underline"
                         >
                           Forgot your password?
                         </Link>
                       </div>
-                      <Input id="password-login" type="password" required />
                     </div>
                     <Link href="/dashboard" className="w-full">
-                      <Button type="submit" className="w-full">
+                      <Button type="submit" className="w-full mt-4">
                         Login
                       </Button>
                     </Link>
