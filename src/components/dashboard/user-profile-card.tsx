@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,15 +14,12 @@ export function UserProfileCard() {
     return (
         <Card className="w-full rounded-2xl shadow-lg overflow-hidden">
             <div className="grid md:grid-cols-3 items-center">
-                <div className="md:col-span-1 p-12 bg-gradient-to-br from-primary/10 via-background to-accent/10 dark:from-primary/20 dark:via-background dark:to-accent/20 flex flex-col items-center text-center">
+                <div className="md:col-span-1 p-12 bg-background flex flex-col items-center text-center">
                     <div className="relative">
                         <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
                         <Avatar className="h-56 w-56 relative border-4 border-background rounded-full">
                             {userAvatar ? <AvatarImage src={userAvatar.imageUrl} className="rounded-full" /> : <AvatarFallback className="rounded-full"><Bot className="h-32 w-32" /></AvatarFallback>}
                         </Avatar>
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 px-4 py-2 rounded-full bg-primary/80 text-primary-foreground text-sm backdrop-blur-sm border border-primary-foreground/20">
-                            RI RI-2045
-                        </div>
                     </div>
                 </div>
                 <div className="md:col-span-2 p-12">
