@@ -125,7 +125,8 @@ const mistralModels = [
 export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
   const [model, setModel] = useState(mistralModels[0].value);
-  const [apiKey, setApiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [groqApiKey] = useState("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");
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -186,35 +187,12 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     
     setSessionHistory(prev => [...prev, newSession]);
     
-    try {
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: [{ role: "user", content: textToProcess }],
-                temperature: 0.7,
-                max_tokens: 1024,
-                stream: true,
-            }),
-            signal: abortControllerRef.current.signal
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-
+    const streamResponse = async (response: Response) => {
         if (!response.body) {
             throw new Error("Response body is empty.");
         }
-
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -225,9 +203,7 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const data = line.substring(6);
-                    if (data.trim() === '[DONE]') {
-                        break;
-                    }
+                    if (data.trim() === '[DONE]') break;
                     try {
                         const json = JSON.parse(data);
                         const content = json.choices[0]?.delta?.content || '';
@@ -247,19 +223,46 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
                 }
             }
         }
+    };
 
-
-    } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch aborted by user.');
-        } else {
-             console.error(`API Error:`, error);
-              toast({
-                  variant: "destructive",
-                  title: 'AI Error',
-                  description: error.message || 'The model failed to respond. Please check console.',
-              });
-              setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
+    try {
+        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+            body: JSON.stringify({
+                model: model, messages: [{ role: "user", content: textToProcess }],
+                temperature: 0.7, max_tokens: 1024, stream: true,
+            }),
+            signal: abortControllerRef.current.signal
+        });
+        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
+        await streamResponse(mistralResponse);
+    } catch (mistralError: any) {
+        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
+        try {
+            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
+                body: JSON.stringify({
+                    model: 'llama3-8b-8192', messages: [{ role: "user", content: textToProcess }],
+                    temperature: 0.7, max_tokens: 1024, stream: true,
+                }),
+                signal: abortControllerRef.current.signal
+            });
+            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
+            await streamResponse(groqResponse);
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+              console.log('Fetch aborted by user.');
+            } else {
+                 console.error(`API Error:`, error);
+                  toast({
+                      variant: "destructive",
+                      title: 'AI Error',
+                      description: error.message || 'The model failed to respond. Please check console.',
+                  });
+                  setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
+            }
         }
     } finally {
       setIsLoading(false);
@@ -544,5 +547,7 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     </div>
   );
 }
+
+    
 
     

@@ -148,8 +148,8 @@ Return the result ONLY in a valid JSON format. Do not add any introductory text,
 export function MockTestPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
-  const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
-  const model = "open-mistral-nemo";
+  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [groqApiKey] = useState("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");
 
   const [customTopic, setCustomTopic] = useState("Full Syllabus Mock");
   const [customSubTopic, setCustomSubTopic] = useState<string>('Previous Year Questions');
@@ -161,58 +161,34 @@ export function MockTestPage() {
   const handleGenerateAndStart = async (topic: string, numQuestions: number, isQuickMock: boolean = false) => {
     setIsGenerating(true);
     toast({ title: 'Generating AI Mock Test...', description: 'Please wait, this may take a moment.' });
-    try {
-        let allSubTopics = customSubTopic && !isQuickMock ? [customSubTopic] : [];
-        if (customOtherSubTopic.trim() && !isQuickMock) {
-            allSubTopics.push(customOtherSubTopic.trim());
-        }
+    
+    let allSubTopics = customSubTopic && !isQuickMock ? [customSubTopic] : [];
+    if (customOtherSubTopic.trim() && !isQuickMock) {
+        allSubTopics.push(customOtherSubTopic.trim());
+    }
 
-        const specialization = isQuickMock
-            ? `A full mock test for the ${topic.replace('Full Syllabus Mock: ', '')} section based on previous year papers.`
-            : customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.";
-        
-        const prompt = buildQuizPrompt({ 
-            topic: topic || customTopic, 
-            subTopics: isQuickMock ? ["Previous Year Questions"] : allSubTopics,
-            numQuestions: numQuestions || customNumQuestions,
-            difficultyLevel: customDifficulty,
-            specialization: specialization,
-        });
+    const specialization = isQuickMock
+        ? `A full mock test for the ${topic.replace('Full Syllabus Mock: ', '')} section based on previous year papers.`
+        : customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.";
+    
+    const prompt = buildQuizPrompt({ 
+        topic: topic || customTopic, 
+        subTopics: isQuickMock ? ["Previous Year Questions"] : allSubTopics,
+        numQuestions: numQuestions || customNumQuestions,
+        difficultyLevel: customDifficulty,
+        specialization: specialization,
+    });
 
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: [{ role: "user", content: prompt }],
-                stream: true,
-                response_format: { type: "json_object" }
-            })
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-        
-        if (!response.body) {
-            throw new Error("Response body is empty.");
-        }
-
+    const processStream = async (response: Response) => {
+        if (!response.body) throw new Error("Response body is empty.");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-
-        while(true) {
+        while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const data = line.substring(6);
@@ -220,37 +196,40 @@ export function MockTestPage() {
                     try {
                         const json = JSON.parse(data);
                         const content = json.choices[0]?.delta?.content || '';
-                        if (content) {
-                            fullResponse += content;
-                        }
-                    } catch(e) {
-                        // Ignore parsing errors for partial JSON chunks
-                    }
+                        if (content) fullResponse += content;
+                    } catch (e) { /* Ignore partial JSON */ }
                 }
             }
         }
-        
-        try {
-            const result: GenerateQuizOutput = JSON.parse(fullResponse);
-            toast({
-                title: "Mock Test Generated!",
-                description: `Your custom mock test "${result.title}" is ready. Starting now...`
-            });
-            // Here you would typically navigate to the test interface
-            // For this demo, we'll just show a success message.
-            console.log("Generated Mock Test:", result);
-        } catch(parseError) {
-            console.error("Failed to parse final JSON:", parseError);
-            throw new Error("Failed to parse AI response as valid JSON.");
-        }
-
-    } catch (e: any) {
-        toast({
-            variant: "destructive",
-            title: "AI Test Generation Failed",
-            description: e.message || "There was an error generating the mock test. Please try again."
+        return fullResponse;
+    };
+    
+    try {
+        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+            body: JSON.stringify({ model: "open-mistral-nemo", messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
         });
-        console.error(e);
+        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
+        const mistralResult = await processStream(mistralResponse);
+        const result: GenerateQuizOutput = JSON.parse(mistralResult);
+        toast({ title: "Mock Test Generated!", description: `Your custom mock test "${result.title}" is ready. Starting now...` });
+        console.log("Generated Mock Test:", result);
+    } catch (mistralError: any) {
+        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
+        try {
+            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
+                body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
+            });
+            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
+            const groqResult = await processStream(groqResponse);
+            const result: GenerateQuizOutput = JSON.parse(groqResult);
+            toast({ title: "Mock Test Generated!", description: `Your custom mock test "${result.title}" is ready. Starting now...` });
+            console.log("Generated Mock Test:", result);
+        } catch (error: any) {
+            console.error("AI Test Generation Failed", error);
+            toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the mock test. Please try again." });
+        }
     } finally {
         setIsGenerating(false);
     }
@@ -441,5 +420,7 @@ export function MockTestPage() {
     </div>
   );
 }
+
+    
 
     

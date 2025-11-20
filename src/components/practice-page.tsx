@@ -245,8 +245,8 @@ export function PracticePage() {
   const [perQuestionTime, setPerQuestionTime] = useState(0);
   const [questionTimes, setQuestionTimes] = useState<QuestionTimes>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
-  const model = "open-mistral-nemo";
+  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [groqApiKey] = useState("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");
 
 
   useEffect(() => {
@@ -298,49 +298,25 @@ export function PracticePage() {
 ) => {
     setIsGenerating(true);
     toast({ title: 'Generating AI Test...', description: 'Please wait a moment.' });
-    try {
-        const prompt = buildQuizPrompt({
-            topic,
-            subTopics,
-            numQuestions,
-            difficultyLevel: difficulty,
-            specialization,
-        });
+    
+    const prompt = buildQuizPrompt({
+        topic,
+        subTopics,
+        numQuestions,
+        difficultyLevel: difficulty,
+        specialization,
+    });
 
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: [{ role: "user", content: prompt }],
-                stream: true,
-                response_format: { type: "json_object" }
-            })
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-        
-        if (!response.body) {
-            throw new Error("Response body is empty.");
-        }
-
+    const processStream = async (response: Response) => {
+        if (!response.body) throw new Error("Response body is empty.");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const data = line.substring(6);
@@ -348,37 +324,43 @@ export function PracticePage() {
                     try {
                         const json = JSON.parse(data);
                         const content = json.choices[0]?.delta?.content || '';
-                        if (content) {
-                            fullResponse += content;
-                        }
-                    } catch (e) {
-                         // Ignore parsing errors for partial JSON chunks
-                    }
+                        if (content) fullResponse += content;
+                    } catch (e) { /* Ignore partial JSON */ }
                 }
             }
         }
-        
-        try {
-            const result: GenerateQuizOutput = JSON.parse(fullResponse);
-            const shuffledQuestions = shuffleArray(result.questions);
-            const testData: ActiveTest = {
-                id: `ai-test-${Date.now()}`,
-                title: result.title,
-                questions: shuffledQuestions.map((q, i) => ({...q, id: `q-${i}`})),
-            }
-            handleStartTest(testData);
-        } catch (parseError) {
-             console.error("Failed to parse final JSON:", parseError);
-             throw new Error("Failed to parse AI response as valid JSON.");
-        }
+        return fullResponse;
+    };
 
-    } catch (e: any) {
-        toast({
-            variant: "destructive",
-            title: "AI Test Generation Failed",
-            description: e.message || "There was an error generating the test. Please try again."
+    try {
+        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+            body: JSON.stringify({ model: "open-mistral-nemo", messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
         });
-        console.error(e);
+        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
+        const mistralResult = await processStream(mistralResponse);
+        const result: GenerateQuizOutput = JSON.parse(mistralResult);
+        const shuffledQuestions = shuffleArray(result.questions);
+        const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
+        handleStartTest(testData);
+
+    } catch (mistralError: any) {
+        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
+        try {
+            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
+                body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
+            });
+            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
+            const groqResult = await processStream(groqResponse);
+            const result: GenerateQuizOutput = JSON.parse(groqResult);
+            const shuffledQuestions = shuffleArray(result.questions);
+            const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
+            handleStartTest(testData);
+        } catch (error: any) {
+            console.error("AI Test Generation Failed", error);
+            toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the test. Please try again." });
+        }
     } finally {
         setIsGenerating(false);
     }
@@ -686,5 +668,7 @@ Explanation: ${question.explanation}`;
     </div>
   );
 }
+
+    
 
     

@@ -178,8 +178,8 @@ export function SuggestionsPage() {
     const [examType, setExamType] = useState("Both");
     const [aiSuggestions, setAiSuggestions] = useState<GeneratePrepSuggestionsOutput | null>(null);
     const { toast } = useToast();
-    const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
-    const model = "open-mistral-nemo";
+    const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+    const [groqApiKey] = useState("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");
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -187,79 +187,56 @@ export function SuggestionsPage() {
 
         const prompt = buildPrompt(examType);
 
-        try {
-            const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: "user", content: prompt }],
-                    stream: true,
-                    response_format: { type: "json_object" }
-                })
-            });
-
-            if (!response.ok) {
-                const err = await response.text();
-                throw new Error(`HTTP ${response.status}: ${err}`);
-            }
-
-            if (!response.body) {
-                throw new Error("Response body is empty.");
-            }
-
+        const processStream = async (response: Response) => {
+            if (!response.body) throw new Error("Response body is empty.");
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let fullResponse = "";
-
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
                 const chunk = decoder.decode(value);
                 const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.substring(6);
-                        if (data.trim() === '[DONE]') {
-                            break;
-                        }
+                        if (data.trim() === '[DONE]') break;
                         try {
                             const json = JSON.parse(data);
                             const content = json.choices[0]?.delta?.content || '';
-                            if (content) {
-                                fullResponse += content;
-                            }
-                        } catch (e) {
-                           // Ignore parsing errors for partial JSON chunks
-                        }
+                            if (content) fullResponse += content;
+                        } catch (e) { /* Ignore partial JSON */ }
                     }
                 }
             }
-
-            try {
-                const parsedResult = JSON.parse(fullResponse);
-                setAiSuggestions(parsedResult);
-                 toast({
-                    title: "AI Suggestions Generated!",
-                    description: "Your personalized suggestions are ready below.",
-                });
-            } catch (parseError) {
-                console.error("Failed to parse final JSON:", parseError);
-                throw new Error("Failed to parse AI response as valid JSON.");
-            }
-            
-        } catch (error: any) {
-            console.error("Failed to generate suggestions", error);
-            toast({
-                variant: 'destructive',
-                title: 'Generation Failed',
-                description: error.message || 'Could not generate AI suggestions. Please try again.',
+            return fullResponse;
+        };
+        
+        try {
+            const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
+                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                body: JSON.stringify({ model: "open-mistral-nemo", messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
             });
+            if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
+            const mistralResult = await processStream(mistralResponse);
+            setAiSuggestions(JSON.parse(mistralResult));
+            toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
+
+        } catch (mistralError: any) {
+             console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
+            try {
+                const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
+                    body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
+                });
+                if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
+                const groqResult = await processStream(groqResponse);
+                setAiSuggestions(JSON.parse(groqResult));
+                toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
+            } catch (error: any) {
+                console.error("Failed to generate suggestions", error);
+                toast({ variant: 'destructive', title: 'Generation Failed', description: error.message || 'Could not generate AI suggestions. Please try again.' });
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -406,5 +383,7 @@ export function SuggestionsPage() {
     </div>
   );
 }
+
+    
 
     

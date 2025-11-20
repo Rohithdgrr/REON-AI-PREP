@@ -142,12 +142,7 @@ const studyPlan = [
 ];
 
 const subjectsOptions = ["Quantitative Aptitude", "Reasoning", "English", "General Awareness", "General Science", "Computer Knowledge"];
-const mistralModels = [
-    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
-    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
-    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
-    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
-];
+
 
 
 function buildPlanPrompt(input: {targetExam: string, weakSubjects: string[], availableHours: number, previousPerformance: string}): string {
@@ -245,6 +240,7 @@ export function RoadmapPage() {
   const [previousPerformance, setPreviousPerformance] = useState("");
   const [aiPlan, setAiPlan] = useState<string | null>(null);
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI"); // State without setter, effectively a constant
+  const [groqApiKey] = useState("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");
   const { toast } = useToast();
 
   const handleGeneratePlan = async () => {
@@ -272,48 +268,20 @@ export function RoadmapPage() {
         previousPerformance
     });
 
-    try {
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "open-mistral-7b",
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-                max_tokens: 2048,
-                stream: true,
-            })
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-        
-        if (!response.body) {
-            throw new Error("Response body is empty.");
-        }
-
+    const streamResponse = async (response: Response) => {
+        if (!response.body) throw new Error("Response body is empty.");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-        
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const data = line.substring(6);
-                    if (data.trim() === '[DONE]') {
-                        break;
-                    }
+                    if (data.trim() === '[DONE]') break;
                     try {
                         const json = JSON.parse(data);
                         const content = json.choices[0]?.delta?.content || '';
@@ -327,17 +295,44 @@ export function RoadmapPage() {
                 }
             }
         }
-         toast({
-            title: "AI Plan Generated!",
-            description: "Your personalized study plan is ready below.",
+    };
+
+    try {
+        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+            body: JSON.stringify({
+                model: "open-mistral-7b",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.7, max_tokens: 2048, stream: true,
+            })
         });
-    } catch (error: any) {
-        console.error("Failed to generate plan", error);
-        toast({
-            variant: "destructive",
-            title: "Generation Failed",
-            description: error.message || "Could not generate AI study plan. Please try again.",
-        });
+        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
+        await streamResponse(mistralResponse);
+        toast({ title: "AI Plan Generated!", description: "Your personalized study plan is ready below." });
+
+    } catch (mistralError: any) {
+        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
+        try {
+            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
+                body: JSON.stringify({
+                    model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }],
+                    temperature: 0.7, max_tokens: 2048, stream: true,
+                })
+            });
+            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
+            await streamResponse(groqResponse);
+            toast({ title: "AI Plan Generated!", description: "Your personalized study plan is ready below." });
+        } catch (error: any) {
+            console.error("Failed to generate plan", error);
+            toast({
+                variant: "destructive",
+                title: "Generation Failed",
+                description: error.message || "Could not generate AI study plan. Please try again.",
+            });
+        }
     } finally {
         setIsGenerating(false);
     }
@@ -504,3 +499,4 @@ export function RoadmapPage() {
   );
 }
 
+    
