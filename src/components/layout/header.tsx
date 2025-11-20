@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   PanelLeft,
   Settings,
+  LogOut,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,9 +29,18 @@ import { Input } from '@/components/ui/input';
 import { LeftSidebar } from './left-sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useUser } from '@/firebase';
 
 export function Header() {
+  const auth = useAuth();
+  const { user } = useUser();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+
+  const handleLogout = () => {
+    signOut(auth);
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
@@ -51,8 +61,8 @@ export function Header() {
               className="overflow-hidden rounded-full h-10 w-10 border-2 border-primary/20"
             >
               <Avatar className="h-10 w-10">
-                <AvatarImage src={userAvatar?.imageUrl} alt="Avatar" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} alt="Avatar" />
+                <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -67,10 +77,15 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </header>
   );
 }
+
+    

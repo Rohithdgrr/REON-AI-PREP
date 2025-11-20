@@ -25,8 +25,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { User, Upload } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useUser } from "@/firebase";
 
 export function SettingsPage() {
+  const { user } = useUser();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const { theme, setTheme } = useTheme();
 
@@ -51,23 +53,24 @@ export function SettingsPage() {
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-6">
                         <Avatar className="h-20 w-20">
-                            {userAvatar ? <AvatarImage src={userAvatar.imageUrl} /> : <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>}
+                            <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
+                            <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>
                         </Avatar>
                         <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" defaultValue="Srinivas Reddy" />
+                            <Input id="name" defaultValue={user?.displayName ?? ""} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" defaultValue="srinivas@example.com" />
+                            <Input id="email" type="email" defaultValue={user?.email ?? ""} disabled />
                         </div>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="mobile">Mobile</Label>
-                        <Input id="mobile" defaultValue="+91 9876543210" />
+                        <Input id="mobile" defaultValue={user?.phoneNumber ?? ""} />
                     </div>
                 </CardContent>
                 <CardFooter>
@@ -152,3 +155,5 @@ export function SettingsPage() {
     </div>
   );
 }
+
+    
