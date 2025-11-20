@@ -19,9 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "./ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
@@ -164,6 +162,11 @@ type QuizData = {
     id: string;
     title: string;
     questions: QuizQuestion[];
+};
+
+type GenerateQuizOutput = {
+  title: string;
+  questions: Omit<QuizQuestion, 'id'>[];
 }
 
 const formatTime = (timeInSeconds: number) => {
@@ -171,6 +174,53 @@ const formatTime = (timeInSeconds: number) => {
     const seconds = timeInSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
+
+function buildQuizPrompt(input: { topic: string; subTopics?: string[]; numQuestions: number; difficultyLevel?: 'Easy' | 'Medium' | 'Hard'; specialization?: string; }): string {
+    let prompt = `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
+
+Generate a quiz with ${input.numQuestions} multiple-choice questions on the topic of "${input.topic}".
+`;
+
+    if (input.subTopics && input.subTopics.length > 0) {
+        prompt += `Focus on the following sub-topics: ${input.subTopics.join(', ')}.\n`;
+    }
+
+    if (input.difficultyLevel) {
+        prompt += `The difficulty of the questions should be: ${input.difficultyLevel}.\n`;
+    }
+
+    if (input.specialization) {
+        prompt += `Specialize the quiz with a focus on: ${input.specialization}. For example, if the focus is "time management", include questions that are tricky to solve quickly.\n`;
+    }
+
+    prompt += `
+For each question, you MUST provide:
+1. "question": The question text.
+2. "options": An array of 4 string options.
+3. "correctAnswer": The string of the correct answer from the options.
+4. "explanation": A detailed explanation for the correct answer.
+5. "fastSolveTricks": Optional tips or tricks to solve the question quickly.
+6. "analogies": Optional analogies to help understand the core concept.
+
+The questions should be challenging and relevant to the exam syllabus.
+
+Return the result ONLY in a valid JSON format. Do not add any introductory text, closing remarks, or markdown formatting. The output must be a single, parseable JSON object that strictly follows this schema:
+{
+  "title": "string",
+  "questions": [
+    {
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "correctAnswer": "string",
+      "explanation": "string",
+      "fastSolveTricks": "string",
+      "analogies": "string"
+    }
+  ]
+}
+`;
+    return prompt.trim();
+}
 
 export function QuizPage() {
   const [quizState, setQuizState] = useState<"not-started" | "in-progress" | "finished">("not-started");
@@ -193,6 +243,8 @@ export function QuizPage() {
   const [perQuestionTime, setPerQuestionTime] = useState(0);
   const [questionTimes, setQuestionTimes] = useState<QuestionTimes>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
+  const model = "open-mistral-nemo";
 
   useEffect(() => {
     if (quizState === "in-progress") {
@@ -224,51 +276,61 @@ export function QuizPage() {
     setQuestionTimes({});
   };
 
-  const handleGenerateAndStartQuiz = async () => {
+  const handleGenerateAndStartQuiz = async (
+    topic: string, 
+    numQuestions: number, 
+    subTopics?: string[], 
+    difficulty?: 'Easy' | 'Medium' | 'Hard', 
+    specialization?: string
+) => {
     setIsGenerating(true);
     try {
-        const subTopicsArray = customSubTopics.split(',').map(s => s.trim()).filter(s => s);
+        const prompt = buildQuizPrompt({
+            topic,
+            subTopics,
+            numQuestions,
+            difficultyLevel: difficulty,
+            specialization,
+        });
 
-        const result = await generateQuiz({ 
-            topic: customTopic, 
-            subTopics: subTopicsArray.length > 0 ? subTopicsArray : undefined,
-            numQuestions: customNumQuestions,
-            difficultyLevel: customDifficulty,
-            specialization: customSpecialization || undefined,
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: prompt }],
+                response_format: { type: "json_object" }
+            })
         });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        const jsonString = data.choices[0]?.message?.content;
+        
+        if (!jsonString) {
+            throw new Error("No content received from AI.");
+        }
+
+        const result: GenerateQuizOutput = JSON.parse(jsonString);
+
         const quizData: QuizData = {
             id: `ai-quiz-${Date.now()}`,
             title: result.title,
             questions: result.questions.map((q, i) => ({...q, id: `q-${i}`})),
         }
         handleStartQuiz(quizData);
-    } catch (e) {
+    } catch (e: any) {
         toast({
             variant: "destructive",
             title: "AI Quiz Generation Failed",
-            description: "There was an error generating the quiz. Please try again."
-        });
-        console.error(e);
-    } finally {
-        setIsGenerating(false);
-    }
-  }
-  
-  const handleQuickQuiz = async (topic: string, numQuestions: number) => {
-    setIsGenerating(true);
-    try {
-        const result = await generateQuiz({ topic, numQuestions });
-        const quizData: QuizData = {
-            id: `ai-quiz-${Date.now()}`,
-            title: result.title,
-            questions: result.questions.map((q, i) => ({...q, id: `q-${i}`})),
-        }
-        handleStartQuiz(quizData);
-    } catch (e) {
-        toast({
-            variant: "destructive",
-            title: "AI Quiz Generation Failed",
-            description: "There was an error generating the quiz. Please try again."
+            description: e.message || "There was an error generating the quiz. Please try again."
         });
         console.error(e);
     } finally {
@@ -354,7 +416,7 @@ Explanation: ${question.explanation}`;
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {aiQuickQuizzes.map(quiz => (
-                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleQuickQuiz(quiz.topic, quiz.numQuestions)} disabled={isGenerating}>
+                     <Button key={quiz.topic} variant="secondary" className="h-auto py-4" onClick={() => handleGenerateAndStartQuiz(quiz.topic, quiz.numQuestions)} disabled={isGenerating}>
                         <div className="flex flex-col items-center text-center">
                             <p className="font-semibold">{quiz.topic}</p>
                             <p className="text-xs text-muted-foreground">{quiz.numQuestions} questions</p>
@@ -414,7 +476,7 @@ Explanation: ${question.explanation}`;
                 </div>
             </CardContent>
             <CardFooter>
-                <Button onClick={handleGenerateAndStartQuiz} disabled={isGenerating}>
+                <Button onClick={() => handleGenerateAndStartQuiz(customTopic, customNumQuestions, customSubTopics.split(',').map(s => s.trim()).filter(s => s), customDifficulty, customSpecialization)} disabled={isGenerating}>
                         {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Custom Quiz"}
                 </Button>
             </CardFooter>

@@ -24,12 +24,10 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
-
 
 const upcomingTests = [
   {
@@ -88,9 +86,70 @@ const specializationOptions = [
     { id: "previous_mistakes", label: "Based on Previous Mistakes" },
 ];
 
+type GenerateQuizOutput = {
+  title: string;
+  questions: {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation: string;
+    fastSolveTricks?: string;
+    analogies?: string;
+  }[];
+}
+
+function buildQuizPrompt(input: { topic: string; subTopics?: string[]; numQuestions: number; difficultyLevel?: 'Easy' | 'Medium' | 'Hard'; specialization?: string; }): string {
+    let prompt = `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
+
+Generate a quiz with ${input.numQuestions} multiple-choice questions on the topic of "${input.topic}".
+`;
+
+    if (input.subTopics && input.subTopics.length > 0) {
+        prompt += `Focus on the following sub-topics: ${input.subTopics.join(', ')}.\n`;
+    }
+
+    if (input.difficultyLevel) {
+        prompt += `The difficulty of the questions should be: ${input.difficultyLevel}.\n`;
+    }
+
+    if (input.specialization) {
+        prompt += `Specialize the quiz with a focus on: ${input.specialization}. For example, if the focus is "time management", include questions that are tricky to solve quickly.\n`;
+    }
+
+    prompt += `
+For each question, you MUST provide:
+1. "question": The question text.
+2. "options": An array of 4 string options.
+3. "correctAnswer": The string of the correct answer from the options.
+4. "explanation": A detailed explanation for the correct answer.
+5. "fastSolveTricks": Optional tips or tricks to solve the question quickly.
+6. "analogies": Optional analogies to help understand the core concept.
+
+The questions should be challenging and relevant to the exam syllabus.
+
+Return the result ONLY in a valid JSON format. Do not add any introductory text, closing remarks, or markdown formatting. The output must be a single, parseable JSON object that strictly follows this schema:
+{
+  "title": "string",
+  "questions": [
+    {
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "correctAnswer": "string",
+      "explanation": "string",
+      "fastSolveTricks": "string",
+      "analogies": "string"
+    }
+  ]
+}
+`;
+    return prompt.trim();
+}
+
 export function MockTestPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
+  const model = "open-mistral-nemo";
 
   const [customTopic, setCustomTopic] = useState("Full Syllabus Mock");
   const [customSubTopic, setCustomSubTopic] = useState<string>('Previous Year Questions');
@@ -102,7 +161,7 @@ export function MockTestPage() {
   const handleGenerateAndStart = async (topic: string, numQuestions: number, isQuickMock: boolean = false) => {
     setIsGenerating(true);
     try {
-        let allSubTopics = customSubTopic ? [customSubTopic] : [];
+        let allSubTopics = customSubTopic && !isQuickMock ? [customSubTopic] : [];
         if (customOtherSubTopic.trim() && !isQuickMock) {
             allSubTopics.push(customOtherSubTopic.trim());
         }
@@ -110,14 +169,41 @@ export function MockTestPage() {
         const specialization = isQuickMock
             ? `A full mock test for the ${topic.replace('Full Syllabus Mock: ', '')} section based on previous year papers.`
             : customSpecialization || "A full mock test based on previous year papers and question patterns for competitive exams.";
-
-        const result = await generateQuiz({ 
+        
+        const prompt = buildQuizPrompt({ 
             topic: topic || customTopic, 
             subTopics: isQuickMock ? ["Previous Year Questions"] : allSubTopics,
             numQuestions: numQuestions || customNumQuestions,
             difficultyLevel: customDifficulty,
             specialization: specialization,
         });
+
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: prompt }],
+                response_format: { type: "json_object" }
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+        
+        const data = await response.json();
+        const jsonString = data.choices[0]?.message?.content;
+        
+        if (!jsonString) {
+            throw new Error("No content received from AI.");
+        }
+
+        const result: GenerateQuizOutput = JSON.parse(jsonString);
         
         toast({
             title: "Mock Test Generated!",
@@ -127,11 +213,11 @@ export function MockTestPage() {
         // For this demo, we'll just show a success message.
         console.log("Generated Mock Test:", result);
 
-    } catch (e) {
+    } catch (e: any) {
         toast({
             variant: "destructive",
             title: "AI Test Generation Failed",
-            description: "There was an error generating the mock test. Please try again."
+            description: e.message || "There was an error generating the mock test. Please try again."
         });
         console.error(e);
     } finally {
@@ -324,5 +410,3 @@ export function MockTestPage() {
     </div>
   );
 }
-
-    

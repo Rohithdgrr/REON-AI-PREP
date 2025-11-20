@@ -19,7 +19,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Input } from "./ui/input";
-import { generateQuiz, type GenerateQuizOutput } from "@/ai/flows/generate-quiz-flow";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "./ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
@@ -142,11 +141,24 @@ const pastPracticeResults = [
 
 type UserAnswers = { [key: string]: string };
 type QuestionTimes = { [key: string]: number };
-type QuizQuestion = GenerateQuizOutput['questions'][0] & { id: string };
+type QuizQuestion = Omit<GenerateQuizOutput['questions'][0], 'id'> & { id: string };
+
 type ActiveTest = {
     id: string;
     title: string;
     questions: QuizQuestion[];
+}
+
+type GenerateQuizOutput = {
+  title: string;
+  questions: {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation: string;
+    fastSolveTricks?: string;
+    analogies?: string;
+  }[];
 }
 
 
@@ -162,6 +174,53 @@ const subTopicsOptions = [
     { id: "advanced", label: "Advanced Problems" },
     { id: "previous_years", label: "Previous Year Questions" },
 ];
+
+function buildQuizPrompt(input: { topic: string; subTopics?: string[]; numQuestions: number; difficultyLevel?: 'Easy' | 'Medium' | 'Hard'; specialization?: string; }): string {
+    let prompt = `You are an expert quiz creator for competitive exams like Railway and Bank exams in India.
+
+Generate a quiz with ${input.numQuestions} multiple-choice questions on the topic of "${input.topic}".
+`;
+
+    if (input.subTopics && input.subTopics.length > 0) {
+        prompt += `Focus on the following sub-topics: ${input.subTopics.join(', ')}.\n`;
+    }
+
+    if (input.difficultyLevel) {
+        prompt += `The difficulty of the questions should be: ${input.difficultyLevel}.\n`;
+    }
+
+    if (input.specialization) {
+        prompt += `Specialize the quiz with a focus on: ${input.specialization}. For example, if the focus is "time management", include questions that are tricky to solve quickly.\n`;
+    }
+
+    prompt += `
+For each question, you MUST provide:
+1. "question": The question text.
+2. "options": An array of 4 string options.
+3. "correctAnswer": The string of the correct answer from the options.
+4. "explanation": A detailed explanation for the correct answer.
+5. "fastSolveTricks": Optional tips or tricks to solve the question quickly.
+6. "analogies": Optional analogies to help understand the core concept.
+
+The questions should be challenging and relevant to the exam syllabus.
+
+Return the result ONLY in a valid JSON format. Do not add any introductory text, closing remarks, or markdown formatting. The output must be a single, parseable JSON object that strictly follows this schema:
+{
+  "title": "string",
+  "questions": [
+    {
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "correctAnswer": "string",
+      "explanation": "string",
+      "fastSolveTricks": "string",
+      "analogies": "string"
+    }
+  ]
+}
+`;
+    return prompt.trim();
+}
 
 export function PracticePage() {
   const [testState, setTestState] = useState<"not-started" | "in-progress" | "finished">("not-started");
@@ -186,6 +245,8 @@ export function PracticePage() {
   const [perQuestionTime, setPerQuestionTime] = useState(0);
   const [questionTimes, setQuestionTimes] = useState<QuestionTimes>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
+  const model = "open-mistral-nemo";
 
 
   useEffect(() => {
@@ -228,24 +289,49 @@ export function PracticePage() {
     setQuestionTimes({});
   };
   
-  const handleGenerateAndStart = async (topic: string, numQuestions: number, subTopics?: string[], difficulty?: "Medium" | "Hard", specialization?: string) => {
+ const handleGenerateAndStart = async (
+    topic: string, 
+    numQuestions: number, 
+    subTopics?: string[], 
+    difficulty?: 'Medium' | 'Hard', 
+    specialization?: string
+) => {
     setIsGenerating(true);
     try {
-        const allSubTopics: string[] = subTopics ? [...subTopics] : [];
-        if(customSubTopic && !subTopics) {
-            allSubTopics.push(customSubTopic);
+        const prompt = buildQuizPrompt({
+            topic,
+            subTopics,
+            numQuestions,
+            difficultyLevel: difficulty,
+            specialization,
+        });
+
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: prompt }],
+                response_format: { type: "json_object" }
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
         }
-        if (customOtherSubTopic.trim() && !subTopics) {
-            allSubTopics.push(customOtherSubTopic.trim());
+        
+        const data = await response.json();
+        const jsonString = data.choices[0]?.message?.content;
+        
+        if (!jsonString) {
+            throw new Error("No content received from AI.");
         }
 
-        const result = await generateQuiz({ 
-            topic: topic || customTopic, 
-            subTopics: allSubTopics.length > 0 ? allSubTopics : undefined,
-            numQuestions: numQuestions || customNumQuestions,
-            difficultyLevel: difficulty || customDifficulty,
-            specialization: specialization || customSpecialization || undefined,
-        });
+        const result: GenerateQuizOutput = JSON.parse(jsonString);
 
         const shuffledQuestions = shuffleArray(result.questions);
 
@@ -255,11 +341,11 @@ export function PracticePage() {
             questions: shuffledQuestions.map((q, i) => ({...q, id: `q-${i}`})),
         }
         handleStartTest(testData);
-    } catch (e) {
+    } catch (e: any) {
         toast({
             variant: "destructive",
             title: "AI Test Generation Failed",
-            description: "There was an error generating the test. Please try again."
+            description: e.message || "There was an error generating the test. Please try again."
         });
         console.error(e);
     } finally {
@@ -417,7 +503,13 @@ Explanation: ${question.explanation}`;
                 </div>
             </CardContent>
             <CardFooter>
-                <Button onClick={() => handleGenerateAndStart(customTopic, customNumQuestions)} disabled={isGenerating}>
+                <Button onClick={() => handleGenerateAndStart(
+                    customTopic, 
+                    customNumQuestions, 
+                    [customSubTopic, customOtherSubTopic].filter(Boolean), 
+                    customDifficulty, 
+                    customSpecialization
+                )} disabled={isGenerating}>
                         {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : "Generate & Start Custom Test"}
                 </Button>
             </CardFooter>
