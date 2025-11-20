@@ -11,8 +11,8 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen w-full">
       <LeftSidebar />
-      <div className="flex flex-1 flex-col">
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+      <div className="flex flex-1 flex-col items-center">
+        <main className="flex-1 p-4 sm:p-6 w-full max-w-7xl">{children}</main>
       </div>
       <ToolsSidebar />
       <RightSidebar />

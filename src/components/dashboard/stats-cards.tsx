@@ -10,7 +10,7 @@ import { Badge } from "../ui/badge";
 
 export function StatsCards() {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
         <CardHeader>
           <CardTitle>Level</CardTitle>
