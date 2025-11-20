@@ -28,10 +28,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
-
 
 type AIMode = 'Chat' | 'History';
 
@@ -51,7 +48,7 @@ const FormattedAIResponse = ({ response }: { response: string }) => {
       {parts.map((part, index) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           const content = part.substring(2, part.length - 2);
-          const isHeader = !content.includes(' '); // Simple check if it's a header-like bold text
+          const isHeader = !content.includes(' ');
 
           return (
             <strong
@@ -118,14 +115,17 @@ const suggestionCards = [
   },
 ];
 
-const llamaModels: { value: 'L1' | 'L2', label: string }[] = [
-    { value: "L1", label: "Llama 3 (8B)"},
-    { value: "L2", label: "Llama 3 (70B)"},
+const mistralModels = [
+    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
+    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
+    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
+    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
 ];
 
 export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
-  const [model, setModel] = useState<'L1' | 'L2'>('L1');
+  const [model, setModel] = useState(mistralModels[0].value);
+  const [apiKey, setApiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -142,7 +142,6 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
   }, [prompt]);
 
   useEffect(() => {
-    // Clear history on load
     setSessionHistory([]);
   }, []);
 
@@ -164,6 +163,14 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
       });
       return;
     }
+     if (!apiKey) {
+      toast({
+        variant: 'destructive',
+        title: 'API Key Missing',
+        description: 'Please provide a Mistral API Key.',
+      });
+      return;
+    }
 
     setIsLoading(true);
     setInput('');
@@ -180,7 +187,28 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     setSessionHistory(prev => [...prev, newSession]);
     
     try {
-        const finalResponse = await answerQuestionsWithAI({ prompt: textToProcess, model });
+        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: "user", content: textToProcess }],
+                temperature: 0.7,
+                max_tokens: 1024
+            }),
+            signal: abortControllerRef.current.signal
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`HTTP ${response.status}: ${err}`);
+        }
+
+        const data = await response.json();
+        const finalResponse = data.choices[0]?.message?.content || "No content";
 
         setSessionHistory(prevHistory => {
            const newHistory = [...prevHistory];
@@ -216,7 +244,6 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
         setIsLoading(false);
     }
   }
-
 
   const handleNewChat = () => {
     setSessionHistory([]);
@@ -254,8 +281,6 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     setCurrentMode('Chat');
   };
 
-  const lastSession = sessionHistory[sessionHistory.length-1];
-
   return (
     <div className="flex h-full max-h-screen min-h-0 flex-col bg-card text-card-foreground border-l">
       {/* Header */}
@@ -263,7 +288,6 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
-          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{lastSession.model}</span>}
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>
@@ -350,7 +374,6 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
             )}
           </div>
         ) : sessionHistory.length === 0 ? (
-           // Empty state
           <div className="text-center h-full flex flex-col justify-center items-center">
             <BotMessageSquare className="mx-auto h-16 w-16 opacity-10 mb-4" />
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
@@ -376,14 +399,12 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
           <div className="flex flex-col gap-4">
             {sessionHistory.map(session => (
               <React.Fragment key={session.id}>
-                 {/* User bubble */}
                 <div className="flex items-start gap-3 justify-end">
                   <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
                     <p className="text-sm">{session.input}</p>
                   </div>
                 </div>
 
-                {/* AI bubble */}
                 <div className="flex items-start gap-3">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-5 w-5 text-primary" />
@@ -432,12 +453,12 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
         <div className="flex justify-center mb-2">
-            <Select value={model} onValueChange={(v: 'L1' | 'L2') => setModel(v)}>
-                <SelectTrigger className="w-[180px]">
+            <Select value={model} onValueChange={(v) => setModel(v)}>
+                <SelectTrigger className="w-[280px]">
                     <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                    {llamaModels.map(m => (
+                    {mistralModels.map(m => (
                         <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                     ))}
                 </SelectContent>
@@ -489,6 +510,3 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     </div>
   );
 }
-
-
-    

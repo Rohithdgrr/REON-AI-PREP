@@ -1,8 +1,17 @@
 import type { Metadata } from 'next';
+import { Inter, Lexend } from 'next/font/google';
+import './globals.css';
+import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ToolsSidebarProvider } from '@/hooks/use-tools-sidebar';
+import { Toaster } from '@/components/ui/toaster';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-body' });
+const lexend = Lexend({ subsets: ['latin'], variable: '--font-headline' });
 
 export const metadata: Metadata = {
-  title: 'Mistral AI API Tester',
-  description: 'A simple page to test Mistral AI models',
+  title: 'REON AI - Your Personal AI Exam Prep Partner',
+  description: 'AI-powered learning platform for competitive exams in India.',
 };
 
 export default function RootLayout({
@@ -11,8 +20,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn('min-h-screen bg-background font-body antialiased', inter.variable, lexend.variable)}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ToolsSidebarProvider>
+            {children}
+            <Toaster />
+          </ToolsSidebarProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
