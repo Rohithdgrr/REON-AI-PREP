@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
+import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 type AIMode = 'Chat' | 'History';
 type Language = 'en' | 'hi' | 'te' | 'ta';
@@ -140,11 +141,13 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
   useEffect(() => {
     try {
       const savedHistory = localStorage.getItem('libraSessionHistory');
-      if (savedHistory) setSessionHistory(JSON.parse(savedHistory));
+      if (savedHistory && currentMode === 'History') {
+        setSessionHistory(JSON.parse(savedHistory));
+      }
     } catch (e) {
       console.error('Failed to load LIBRA history from localStorage', e);
     }
-  }, []);
+  }, [currentMode]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -627,3 +630,5 @@ User input: "${textToProcess}"
     </div>
   );
 }
+
+    
