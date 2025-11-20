@@ -155,8 +155,8 @@ export function KnowledgeHubPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            setUploadStatus({ file, status: 'error', progress: 0, error: 'File size cannot exceed 5MB.' });
+        if (file.size > 15 * 1024 * 1024) { // 15MB limit
+            setUploadStatus({ file, status: 'error', progress: 0, error: 'File size cannot exceed 15MB.' });
         } else {
             setUploadStatus({ file, status: 'idle', progress: 0 });
         }
@@ -165,8 +165,7 @@ export function KnowledgeHubPage() {
 
 
   const handleFileUpload = async () => {
-    const { file } = uploadStatus;
-    if (!file || !user || !storage || !firestore) {
+    if (!uploadStatus.file || !user || !storage || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
@@ -174,8 +173,9 @@ export function KnowledgeHubPage() {
       });
       return;
     }
+    const file = uploadStatus.file;
 
-    setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined, progress: 0 }));
+    setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined }));
 
     const storageRef = ref(
       storage,
