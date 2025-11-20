@@ -147,7 +147,6 @@ export function KnowledgeHubPage() {
                                     />
                                     <div className="absolute right-2 top-2 flex flex-col gap-2">
                                         <Button size="icon" className="h-8 w-8" onClick={handlePostSubmit}><Send className="h-4 w-4" /></Button>
-                                        <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => toast({title: "Upload feature coming soon!"})}><Upload className="h-4 w-4" /></Button>
                                     </div>
                                 </div>
                             </CardContent>
