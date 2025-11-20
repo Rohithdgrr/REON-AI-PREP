@@ -36,7 +36,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                     <Collapsible defaultOpen={true}>
                         <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 hover:text-foreground">
                             <ChevronDown className="h-3 w-3 transition-transform duration-200 [&[data-state=closed]>*]:-rotate-90"/>
-                            Text Channels
+                            Route Channels
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                             {channelsByRealm[activeRealm.id].filter(c => c.type === 'text').map((channel) => (
@@ -50,7 +50,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                      <Collapsible defaultOpen={true} className="mt-4">
                         <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 hover:text-foreground">
                             <ChevronDown className="h-3 w-3 transition-transform duration-200 [&[data-state=closed]>*]:-rotate-90"/>
-                            Voice Channels
+                            Resonant Rooms
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                              {channelsByRealm[activeRealm.id].filter(c => c.type === 'voice').map((channel) => (
@@ -65,7 +65,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                     <Collapsible defaultOpen={true} className="mt-4">
                          <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 hover:text-foreground">
                             <ChevronDown className="h-3 w-3 transition-transform duration-200 [&[data-state=closed]>*]:-rotate-90"/>
-                            Direct Messages
+                            Reach DMs
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                             {directMessages.map((contact) => (

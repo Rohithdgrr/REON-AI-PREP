@@ -1,6 +1,6 @@
 
 'use client';
-import { MessageCircle, Plus } from 'lucide-react';
+import { Bot, MessageCircle, Plus, Users } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Tooltip,

@@ -121,18 +121,21 @@ export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: Chat
   return (
     <div className="p-4 border-t bg-card flex-shrink-0">
       <div className="relative bg-muted rounded-lg flex items-center pr-2">
-         <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-12 w-12 flex-shrink-0">
-                    <Paperclip className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>Attach File</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+         <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-12 w-12 flex-shrink-0">
+                    <PlusCircle className="h-5 w-5" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent side="top" className="w-auto p-1">
+                <div className="flex flex-col gap-1">
+                    <Button variant="ghost" className="justify-start"><Paperclip className="mr-2" /> Attach File</Button>
+                    <Button variant="ghost" className="justify-start" onClick={() => setIsPollModalOpen(true)}><Vote className="mr-2" /> Create Poll</Button>
+                    <Button variant="ghost" className="justify-start" onClick={handleIcebreaker}><Lightbulb className="mr-2" /> Icebreaker</Button>
+                </div>
+            </PopoverContent>
+         </Popover>
+
         <Input
           placeholder={`Message #${channelName}`}
           className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-12 text-base flex-1"
@@ -144,22 +147,12 @@ export function ChatInput({ channelName, setMessages, setIsPollModalOpen }: Chat
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={() => setIsPollModalOpen(true)}>
-                  <Vote className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p>Create Poll</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={handleAiEdit}>
                   <Sparkles className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                <p>Improve (AI)</p>
+                <p>Improve with AI</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

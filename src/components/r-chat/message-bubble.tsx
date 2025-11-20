@@ -12,6 +12,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
+  ContextMenuSeparator,
 } from '@/components/ui/context-menu';
 import { cn } from '@/lib/utils';
 import { Bot, CheckCheck, CircleUser, MessageSquare, Pencil, Pin, Play, Share2, Trash2 } from 'lucide-react';
@@ -19,7 +20,6 @@ import Image from 'next/image';
 import { Message, PollData } from '../r-chat-page';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
-import { Separator } from '../ui/separator';
 
 type MessageBubbleProps = {
     message: Message & { edited?: boolean };
@@ -50,20 +50,20 @@ const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
       <div className="space-y-2">
         {pollData.options.map((option, index) => (
           <div key={index} className="space-y-1">
-            <div className="relative h-8 w-full rounded-md bg-black/10 dark:bg-white/10 overflow-hidden group">
-              <div
-                className="absolute top-0 left-0 h-full bg-primary/30 dark:bg-primary/50 transition-all duration-300"
-                style={{
-                  width: `${totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0}%`,
-                }}
-              />
-              <div className="absolute inset-0 flex items-center justify-between px-3 text-sm">
-                <span className="font-medium">{option.text}</span>
-                <span className="font-mono text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                    {totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%
-                </span>
-              </div>
-            </div>
+             <Button variant="outline" className="w-full justify-start relative h-auto p-0 border-primary/20 bg-primary/5 hover:bg-primary/10">
+                <div
+                    className="absolute top-0 left-0 h-full bg-primary/20 dark:bg-primary/30 transition-all duration-300 rounded-md"
+                    style={{
+                    width: `${totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0}%`,
+                    }}
+                />
+                <div className="relative z-10 flex items-center justify-between w-full p-2 text-sm">
+                    <span className="font-medium">{option.text}</span>
+                    <span className="font-mono text-xs">
+                        {totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(0) : 0}%
+                    </span>
+                </div>
+            </Button>
           </div>
         ))}
       </div>
@@ -140,6 +140,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                           alt="media content"
                           width={300}
                           height={200}
+                          unoptimized
                           className="object-cover"
                         />
                       )}
@@ -192,7 +193,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                   <Pin className="mr-2 h-4 w-4" />
                   Pin Message
                 </ContextMenuItem>
-                <Separator />
+                <ContextMenuSeparator />
                 {message.sender === 'me' && message.type === 'text' && (
                   <ContextMenuItem onClick={() => {
                     const newContent = prompt("Edit message:", message.content);

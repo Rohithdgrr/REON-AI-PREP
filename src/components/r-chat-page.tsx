@@ -24,9 +24,9 @@ import { PollCreator } from './r-chat/poll-creator';
 import { MembersPanel } from './r-chat/members-panel';
 
 export const realms = [
-  { id: 'r1', name: 'R&T Community Hub', icon: <Flame /> },
-  { id: 'r2', name: 'Railway Aspirants', icon: <Train /> },
-  { id: 'r3', name: 'Bank PO Masters', icon: <ShipWheel /> },
+  { id: 'r1', name: 'R&T Community Hub', icon: <Users /> },
+  { id: 'r2', name: 'AI Assistants & Bots', icon: <Bot /> },
+  { id: 'r3', name: 'Study Groups', icon: <Flame /> },
 ];
 
 export const channelsByRealm: Record<
@@ -34,19 +34,23 @@ export const channelsByRealm: Record<
   { name: string; type: 'text' | 'voice'; description: string; }[]
 > = {
   r1: [
-    { name: 'rapid-relay', type: 'text', description: 'The main channel for R&T Community Hub' },
+    { name: 'general-chat', type: 'text', description: 'The main channel for R&T Community Hub' },
     { name: 'announcements', type: 'text', description: 'Official announcements and updates' },
-    { name: 'resources', type: 'text', description: 'Share and find study materials' },
-    { name: 'Resonant Room 1', type: 'voice', description: 'Voice chat for general discussion' },
+    { name: 'study-resources', type: 'text', description: 'Share and find study materials' },
+    { name: 'General Voice', type: 'voice', description: 'Voice chat for general discussion' },
     { name: 'Study Session', type: 'voice', description: 'Focused group study sessions' },
   ],
   r2: [
-    { name: 'railway-general', type: 'text', description: 'General chat for railway aspirants' },
-    { name: 'Railway Voice', type: 'voice', description: 'Voice chat for railway exam prep' },
+    { name: 'libra-ai-chat', type: 'text', description: 'Chat with the main AI assistant' },
+    { name: 'bot-commands', type: 'text', description: 'Use bot commands here' },
+    { name: 'AI Voice Support', type: 'voice', description: 'Voice chat with AI support' },
   ],
   r3: [
-    { name: 'bank-general', type: 'text', description: 'General chat for banking aspirants' },
-    { name: 'Bank Voice', type: 'voice', description: 'Voice chat for banking exam prep' },
+    { name: 'railway-aspirants', type: 'text', description: 'General chat for banking aspirants' },
+    { name: 'bank-po-masters', type: 'text', description: 'General chat for banking aspirants' },
+    { name: 'SSC CGL Crew', type: 'text', description: 'For Staff Selection Commission exam preppers' },
+    { name: 'Railway Voice', type: 'voice', description: 'Voice chat for railway exam prep' },
+    { name: 'Banking Voice', type: 'voice', description: 'Voice chat for banking exam prep' },
   ],
 };
 

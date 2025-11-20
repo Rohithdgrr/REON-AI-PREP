@@ -49,7 +49,7 @@ export function MembersPanel({ members }: MembersPanelProps) {
                          return (
                             <div key={role}>
                                 <h4 className="px-2 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                                    {role} - {roleMembers.length}
+                                    {role} — {roleMembers.length}
                                 </h4>
                                 <div className="space-y-1">
                                     {roleMembers.map(member => (
@@ -59,7 +59,7 @@ export function MembersPanel({ members }: MembersPanelProps) {
                                                     <AvatarImage src={member.avatarUrl} />
                                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                                 </Avatar>
-                                                <span className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-muted", statusColors[member.status])} />
+                                                <span className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-background", statusColors[member.status])} />
                                              </div>
                                             <span className={cn("font-medium text-sm", member.status === 'Offline' && 'opacity-60')}>{member.name}</span>
                                              {member.name.includes('YYYY') && <Crown className="h-4 w-4 text-yellow-500 ml-auto"/>}
