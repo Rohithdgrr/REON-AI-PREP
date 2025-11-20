@@ -15,6 +15,7 @@ import {
   Lightbulb,
   LogOut,
   Map,
+  Menu,
   MessageCircle,
   Mic,
   PanelLeft,
@@ -113,7 +114,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, 
           </Button>
         )}
       </div>
-      <div className="flex-1 py-2">
+      <div className="flex-1 py-2 overflow-y-auto">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
           {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
           {secondaryNavItems.length > 0 && <Separator className="my-4 bg-sidebar-border" />}
@@ -160,24 +161,6 @@ function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, 
 export function LeftSidebar() {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) { // lg breakpoint
-        setIsDesktopCollapsed(true);
-      } else {
-        setIsDesktopCollapsed(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-
-  const toggleDesktopSidebar = () => {
-    setIsDesktopCollapsed(!isDesktopCollapsed);
-  };
   
   return (
     <>
@@ -187,21 +170,12 @@ export function LeftSidebar() {
           isDesktopCollapsed ? "w-20" : "w-64"
         )}
       >
-        <SidebarContent isCollapsed={isDesktopCollapsed} toggleSidebar={toggleDesktopSidebar} />
+        <SidebarContent isCollapsed={isDesktopCollapsed} toggleSidebar={() => setIsDesktopCollapsed(!isDesktopCollapsed)} />
       </div>
 
-      <div className="sm:hidden fixed top-14 left-0 z-20 h-16">
-          <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-            <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="m-2 bg-background/50 backdrop-blur-sm">
-                    <Menu />
-                </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 bg-sidebar text-sidebar-foreground border-r-0">
-                 <SidebarContent isCollapsed={false} toggleSidebar={() => setIsMobileOpen(false)} />
-            </SheetContent>
-          </Sheet>
-      </div>
+       <div className="sm:hidden fixed top-0 left-0 z-20 flex flex-col h-full border-r bg-sidebar text-sidebar-foreground w-20">
+          <SidebarContent isCollapsed={true} />
+       </div>
     </>
   );
 }
