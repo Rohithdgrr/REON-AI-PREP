@@ -13,9 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CalendarIcon, Eye, EyeOff } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -39,6 +38,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [dob, setDob] = useState<Date>();
+  const [showPassword, setShowPassword] = useState(false);
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
@@ -170,9 +170,12 @@ export default function LoginPage() {
                                 <Label htmlFor="login-email">Email</Label>
                                 <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
                              </div>
-                              <div className="space-y-2">
+                              <div className="space-y-2 relative">
                                 <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                                <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} />
+                                <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </Button>
                              </div>
                             <Button type="submit" className="w-full" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -190,9 +193,12 @@ export default function LoginPage() {
                                 <Label htmlFor="register-email">Email</Label>
                                 <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
                              </div>
-                              <div className="space-y-2">
+                              <div className="space-y-2 relative">
                                 <Label htmlFor="register-password">Password</Label>
-                                <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                                <Input id="register-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} />
+                                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </Button>
                              </div>
                              <div className="space-y-2">
                                 <Label htmlFor="register-dob">Date of Birth</Label>
@@ -265,3 +271,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+    
