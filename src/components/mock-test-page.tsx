@@ -160,6 +160,7 @@ export function MockTestPage() {
   
   const handleGenerateAndStart = async (topic: string, numQuestions: number, isQuickMock: boolean = false) => {
     setIsGenerating(true);
+    toast({ title: 'Generating AI Mock Test...', description: 'Please wait, this may take a moment.' });
     try {
         let allSubTopics = customSubTopic && !isQuickMock ? [customSubTopic] : [];
         if (customOtherSubTopic.trim() && !isQuickMock) {
@@ -187,6 +188,7 @@ export function MockTestPage() {
             body: JSON.stringify({
                 model: model,
                 messages: [{ role: "user", content: prompt }],
+                stream: true,
                 response_format: { type: "json_object" }
             })
         });
@@ -196,22 +198,51 @@ export function MockTestPage() {
             throw new Error(`HTTP ${response.status}: ${err}`);
         }
         
-        const data = await response.json();
-        const jsonString = data.choices[0]?.message?.content;
-        
-        if (!jsonString) {
-            throw new Error("No content received from AI.");
+        if (!response.body) {
+            throw new Error("Response body is empty.");
         }
 
-        const result: GenerateQuizOutput = JSON.parse(jsonString);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = "";
+
+        while(true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.substring(6);
+                    if (data.trim() === '[DONE]') break;
+                    try {
+                        const json = JSON.parse(data);
+                        const content = json.choices[0]?.delta?.content || '';
+                        if (content) {
+                            fullResponse += content;
+                        }
+                    } catch(e) {
+                        // Ignore parsing errors for partial JSON chunks
+                    }
+                }
+            }
+        }
         
-        toast({
-            title: "Mock Test Generated!",
-            description: `Your custom mock test "${result.title}" is ready. Starting now...`
-        });
-        // Here you would typically navigate to the test interface
-        // For this demo, we'll just show a success message.
-        console.log("Generated Mock Test:", result);
+        try {
+            const result: GenerateQuizOutput = JSON.parse(fullResponse);
+            toast({
+                title: "Mock Test Generated!",
+                description: `Your custom mock test "${result.title}" is ready. Starting now...`
+            });
+            // Here you would typically navigate to the test interface
+            // For this demo, we'll just show a success message.
+            console.log("Generated Mock Test:", result);
+        } catch(parseError) {
+            console.error("Failed to parse final JSON:", parseError);
+            throw new Error("Failed to parse AI response as valid JSON.");
+        }
 
     } catch (e: any) {
         toast({
@@ -410,3 +441,5 @@ export function MockTestPage() {
     </div>
   );
 }
+
+    

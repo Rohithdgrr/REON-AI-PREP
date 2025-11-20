@@ -297,6 +297,7 @@ export function PracticePage() {
     specialization?: string
 ) => {
     setIsGenerating(true);
+    toast({ title: 'Generating AI Test...', description: 'Please wait a moment.' });
     try {
         const prompt = buildQuizPrompt({
             topic,
@@ -315,6 +316,7 @@ export function PracticePage() {
             body: JSON.stringify({
                 model: model,
                 messages: [{ role: "user", content: prompt }],
+                stream: true,
                 response_format: { type: "json_object" }
             })
         });
@@ -324,23 +326,52 @@ export function PracticePage() {
             throw new Error(`HTTP ${response.status}: ${err}`);
         }
         
-        const data = await response.json();
-        const jsonString = data.choices[0]?.message?.content;
+        if (!response.body) {
+            throw new Error("Response body is empty.");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.substring(6);
+                    if (data.trim() === '[DONE]') break;
+                    try {
+                        const json = JSON.parse(data);
+                        const content = json.choices[0]?.delta?.content || '';
+                        if (content) {
+                            fullResponse += content;
+                        }
+                    } catch (e) {
+                         // Ignore parsing errors for partial JSON chunks
+                    }
+                }
+            }
+        }
         
-        if (!jsonString) {
-            throw new Error("No content received from AI.");
+        try {
+            const result: GenerateQuizOutput = JSON.parse(fullResponse);
+            const shuffledQuestions = shuffleArray(result.questions);
+            const testData: ActiveTest = {
+                id: `ai-test-${Date.now()}`,
+                title: result.title,
+                questions: shuffledQuestions.map((q, i) => ({...q, id: `q-${i}`})),
+            }
+            handleStartTest(testData);
+        } catch (parseError) {
+             console.error("Failed to parse final JSON:", parseError);
+             throw new Error("Failed to parse AI response as valid JSON.");
         }
 
-        const result: GenerateQuizOutput = JSON.parse(jsonString);
-
-        const shuffledQuestions = shuffleArray(result.questions);
-
-        const testData: ActiveTest = {
-            id: `ai-test-${Date.now()}`,
-            title: result.title,
-            questions: shuffledQuestions.map((q, i) => ({...q, id: `q-${i}`})),
-        }
-        handleStartTest(testData);
     } catch (e: any) {
         toast({
             variant: "destructive",
@@ -655,3 +686,5 @@ Explanation: ${question.explanation}`;
     </div>
   );
 }
+
+    

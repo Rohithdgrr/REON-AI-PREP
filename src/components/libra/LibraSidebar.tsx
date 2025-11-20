@@ -197,7 +197,8 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
                 model: model,
                 messages: [{ role: "user", content: textToProcess }],
                 temperature: 0.7,
-                max_tokens: 1024
+                max_tokens: 1024,
+                stream: true,
             }),
             signal: abortControllerRef.current.signal
         });
@@ -207,17 +208,45 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
             throw new Error(`HTTP ${response.status}: ${err}`);
         }
 
-        const data = await response.json();
-        const finalResponse = data.choices[0]?.message?.content || "No content";
+        if (!response.body) {
+            throw new Error("Response body is empty.");
+        }
 
-        setSessionHistory(prevHistory => {
-           const newHistory = [...prevHistory];
-           const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-           if (sessionIndex > -1) {
-               newHistory[sessionIndex].response = finalResponse;
-           }
-           return newHistory;
-        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.substring(6);
+                    if (data.trim() === '[DONE]') {
+                        break;
+                    }
+                    try {
+                        const json = JSON.parse(data);
+                        const content = json.choices[0]?.delta?.content || '';
+                        if (content) {
+                            setSessionHistory(prevHistory => {
+                                const newHistory = [...prevHistory];
+                                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+                                if (sessionIndex > -1) {
+                                    newHistory[sessionIndex].response += content;
+                                }
+                                return newHistory;
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error parsing streaming JSON:', e);
+                    }
+                }
+            }
+        }
 
 
     } catch (error: any) {
@@ -410,32 +439,37 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
                     <Bot className="h-5 w-5 text-primary" />
                   </div>
                   <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                    {session.response ? (
+                    {(session.response || isLoading) ? (
                       <>
                         <FormattedAIResponse response={session.response} />
-                        <div className="flex items-center gap-1 mt-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => copyToClipboard(session.response)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() =>
-                              downloadResponse(
-                                session.response,
-                                `libra-response.txt`
-                              )
-                            }
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        {isLoading && session.id === sessionHistory[sessionHistory.length-1].id && (
+                          <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
+                        )}
+                        {session.response && !isLoading && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => copyToClipboard(session.response)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() =>
+                                downloadResponse(
+                                  session.response,
+                                  `libra-response.txt`
+                                )
+                              }
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </>
                     ) : (
                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -510,3 +544,5 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
     </div>
   );
 }
+
+    

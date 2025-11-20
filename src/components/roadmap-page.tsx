@@ -258,7 +258,7 @@ export function RoadmapPage() {
     }
 
     setIsGenerating(true);
-    setAiPlan(null);
+    setAiPlan("");
 
     const prompt = buildPlanPrompt({
         targetExam,
@@ -279,6 +279,7 @@ export function RoadmapPage() {
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.7,
                 max_tokens: 2048,
+                stream: true,
             })
         });
 
@@ -286,11 +287,41 @@ export function RoadmapPage() {
             const err = await response.text();
             throw new Error(`HTTP ${response.status}: ${err}`);
         }
+        
+        if (!response.body) {
+            throw new Error("Response body is empty.");
+        }
 
-        const data = await response.json();
-        const finalResponse = data.choices[0]?.message?.content || "Could not generate a plan. Please try again.";
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = "";
+        
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        setAiPlan(markdownToHtml(finalResponse));
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.substring(6);
+                    if (data.trim() === '[DONE]') {
+                        break;
+                    }
+                    try {
+                        const json = JSON.parse(data);
+                        const content = json.choices[0]?.delta?.content || '';
+                        if (content) {
+                            fullResponse += content;
+                            setAiPlan(markdownToHtml(fullResponse));
+                        }
+                    } catch (e) {
+                        console.error('Error parsing streaming JSON:', e);
+                    }
+                }
+            }
+        }
          toast({
             title: "AI Plan Generated!",
             description: "Your personalized study plan is ready below.",
@@ -443,7 +474,7 @@ export function RoadmapPage() {
                         {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isGenerating ? "Generating Plan..." : "Generate AI Plan"}
                     </Button>
-                    {isGenerating && (
+                    {isGenerating && !aiPlan && (
                         <Card className="w-full">
                             <CardContent className="flex flex-col items-center justify-center p-16">
                                 <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
@@ -466,3 +497,4 @@ export function RoadmapPage() {
   );
 }
 
+    
