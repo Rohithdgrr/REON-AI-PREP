@@ -4,11 +4,10 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bot, FileQuestion, Lightbulb, Map, ArrowRight, Star, BarChart, BrainCircuit, Users } from 'lucide-react';
+import { Bot, FileQuestion, Lightbulb, Map, ArrowRight, Star, BarChart, BrainCircuit, Users, BookOpen, MessageCircle, Target, TestTube2 } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import { Badge } from './ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const features = [
     {
@@ -56,6 +55,52 @@ const howItWorks = [
     },
 ];
 
+const dashboardFeatures = [
+    {
+        icon: Map,
+        title: "Personalized Roadmap",
+        description: "A dynamic, week-by-week study plan that adapts to your progress and focuses on your weak areas. Never wonder what to study next.",
+        bgColor: "bg-blue-500/10",
+        iconColor: "text-blue-500"
+    },
+    {
+        icon: BookOpen,
+        title: "Prep Hub",
+        description: "Your central library for all study materials, including video lectures, notes, PYQs, and cheatsheets, all organized by topic.",
+        bgColor: "bg-green-500/10",
+        iconColor: "text-green-500"
+    },
+    {
+        icon: TestTube2,
+        title: "AI Practice & Quizzes",
+        description: "Generate unlimited topic-wise or mixed-subject quizzes. Practice what you've learned and get immediate feedback with detailed explanations.",
+        bgColor: "bg-yellow-500/10",
+        iconColor: "text-yellow-500"
+    },
+    {
+        icon: Target,
+        title: "Mock Test Arena",
+        description: "Experience real exam pressure with full-length mock tests, complete with AI proctoring and in-depth performance analysis.",
+        bgColor: "bg-red-500/10",
+        iconColor: "text-red-500"
+    },
+    {
+        icon: MessageCircle,
+        title: "R-Chat",
+        description: "Collaborate with fellow aspirants in study groups, get instant doubt clarification from LIBRA AI, and stay connected on your journey.",
+        bgColor: "bg-purple-500/10",
+        iconColor: "text-purple-500"
+    },
+    {
+        icon: Lightbulb,
+        title: "AI Suggestions",
+        description: "Receive tailored advice and strategies from our AI based on your specific exam goals and performance data.",
+        bgColor: "bg-indigo-500/10",
+        iconColor: "text-indigo-500"
+    }
+];
+
+
 const carouselSlides = [
     {
         id: 'slide-1',
@@ -94,27 +139,6 @@ const carouselSlides = [
     }
 ]
 
-const testimonials = [
-    {
-        name: 'Priya S.',
-        role: 'Cleared RRB NTPC',
-        quote: "The AI study plan was a game-changer. It kept me focused and made sure I covered all my weak topics before the exam. I couldn't have done it without REON.",
-        avatar: "https://i.pravatar.cc/150?img=1"
-    },
-    {
-        name: 'Anil Kumar',
-        role: 'Selected as SBI PO',
-        quote: "LIBRA AI is like having a personal tutor 24/7. I could get my doubts cleared instantly, which saved me so much time. The mock test analysis is also incredibly detailed.",
-        avatar: "https://i.pravatar.cc/150?img=3"
-    },
-    {
-        name: 'Sunita M.',
-        role: 'Railway Aspirant',
-        quote: "The gamified features like the leaderboard and daily XP tasks made studying fun and competitive. It's the first platform that actually kept me motivated every day.",
-        avatar: "https://i.pravatar.cc/150?img=5"
-    }
-]
-
 export function HomePage() {
   const heroBg = PlaceHolderImages.find((img) => img.id === 'hero-background');
   
@@ -141,7 +165,7 @@ export function HomePage() {
       </header>
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full pt-20 md:pt-32 lg:pt-40 pb-12 md:pb-24 lg:pb-32 relative">
+        <section className="w-full pt-20 md:pt-32 lg:pt-40 pb-12 md:pb-24 lg:pb-32 relative overflow-hidden">
             <div className="absolute inset-0">
             {heroBg && (
                 <Image
@@ -158,15 +182,15 @@ export function HomePage() {
             <div className="container px-4 md:px-6 relative text-white">
                 <div className="flex flex-col items-center space-y-6 text-center">
                     <div className="space-y-4 max-w-3xl">
-                         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-headline">
+                         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-headline animate-fade-in-down">
                             Your Personal AI Coach for Competitive Exams
                         </h1>
-                        <p className="mx-auto text-gray-200 md:text-xl">
+                        <p className="mx-auto text-gray-200 md:text-xl animate-fade-in-up animation-delay-300">
                             REON AI provides personalized study plans, unlimited practice questions, and instant doubt-solving to help you crack Railway and Bank exams.
                         </p>
                     </div>
-                    <div className="space-x-4">
-                        <Button size="lg" asChild>
+                    <div className="space-x-4 animate-fade-in-up animation-delay-600">
+                        <Button size="lg" asChild className="transform transition-transform duration-300 hover:scale-105">
                             <Link href="/login" prefetch={false}>Start Your Free Prep <ArrowRight className="ml-2"/></Link>
                         </Button>
                     </div>
@@ -210,11 +234,11 @@ export function HomePage() {
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Your Path to Success in 4 Simple Steps</h2>
                 </div>
                 <div className="relative grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 hidden lg:block" />
-                     {howItWorks.map((item) => (
+                     <div className="absolute top-8 left-0 w-full h-0.5 bg-border hidden lg:block" />
+                     {howItWorks.map((item, index) => (
                          <div key={item.step} className="relative flex flex-col items-center text-center p-4">
                               <div className="absolute top-1/2 -left-2 w-0.5 h-full bg-border -translate-y-1/2 hidden md:block lg:hidden" />
-                             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground font-bold text-xl mb-4 border-4 border-background z-10">{item.step}</div>
+                             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground font-bold text-2xl mb-4 border-4 border-background z-10 transform transition-transform duration-300 hover:scale-110">{item.step}</div>
                              <h3 className="text-lg font-bold mb-2">{item.title}</h3>
                              <p className="text-sm text-muted-foreground">{item.description}</p>
                          </div>
@@ -268,29 +292,23 @@ export function HomePage() {
             </div>
         </section>
 
-         {/* Testimonials */}
+        {/* Explore Dashboard Section */}
         <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                    <Badge variant="outline">Success Stories</Badge>
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">What Our Users Say</h2>
+                    <Badge variant="outline">A Powerful Toolkit</Badge>
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Explore Your Dashboard</h2>
                 </div>
-                <div className="grid gap-8 lg:grid-cols-3">
-                    {testimonials.map(t => (
-                        <Card key={t.name} className="flex flex-col justify-between">
-                            <CardContent className="p-6">
-                                <p className="italic text-muted-foreground">"{t.quote}"</p>
-                            </CardContent>
-                            <div className="flex items-center gap-4 p-6 pt-0">
-                                <Avatar>
-                                    <AvatarImage src={t.avatar} />
-                                    <AvatarFallback>{t.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-semibold">{t.name}</p>
-                                    <p className="text-sm text-muted-foreground">{t.role}</p>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {dashboardFeatures.map(feature => (
+                        <Card key={feature.title} className="flex flex-col p-6 group hover:shadow-lg transition-shadow duration-300">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className={`p-3 rounded-lg ${feature.bgColor}`}>
+                                    <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
                                 </div>
+                                <h3 className="text-xl font-bold">{feature.title}</h3>
                             </div>
+                            <p className="text-muted-foreground">{feature.description}</p>
                         </Card>
                     ))}
                 </div>
@@ -305,7 +323,7 @@ export function HomePage() {
                     <p className="max-w-2xl">
                         Join thousands of aspirants who are preparing smarter with REON AI. Sign up for free and get your personalized study plan today.
                     </p>
-                    <Button size="lg" variant="secondary" asChild>
+                    <Button size="lg" variant="secondary" asChild className="transform transition-transform duration-300 hover:scale-105">
                          <Link href="/login" prefetch={false}>Start For Free <ArrowRight className="ml-2"/></Link>
                     </Button>
                 </div>
