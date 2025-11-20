@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -76,7 +75,7 @@ export function RightSidebar() {
   };
   
   return (
-    <div className="hidden sm:flex flex-col items-center border-l bg-background">
+    <div className="hidden lg:flex flex-col items-center border-l bg-background">
       <div className="flex flex-col items-center gap-2 p-4">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';

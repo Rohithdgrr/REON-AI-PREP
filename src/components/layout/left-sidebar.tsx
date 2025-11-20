@@ -69,15 +69,13 @@ const bottomNavItems = [
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
     return (
       <div className={cn("flex items-center justify-center p-2", isCollapsed ? "h-14" : "")}>
-        <svg
-          role="img"
-          viewBox="0 0 256 256"
-          className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-10 w-10")}
-          fill="currentColor"
-        >
-         <path d="M128 0C97.58 0 69.24 10.22 47.38 27.67L35.7 13.01A2.5 2.5 0 0031.57 12c-1.38 0-2.5 1.12-2.5 2.5v28a2.5 2.5 0 002.5 2.5h28a2.5 2.5 0 002.13-4.17l-12.75-14.88C68.91 38.08 97.43 32 128 32c52.94 0 96 43.06 96 96s-43.06 96-96 96c-30.57 0-58.1-14.28-76.62-36.99L38.63 172.4a2.5 2.5 0 00-4.29-2.17c-1.38 1.15-1.59 3.12-.53 4.53l12.75 16.88C66.76 215.92 95.4 224 128 224c70.69 0 128-57.31 128-128S198.69 0 128 0z"/>
-         <path d="M88.16 83.84a2.5 2.5 0 00-2.17 4.29c-3.13 0-5.91-2.07-6.8-5.04a2.5 2.5 0 004.8-1.5c.34 1.11 1.34 1.91 2.51 1.91.56 0 1.07-.29 1.35-.76.43-.72-.05-1.74-.83-2.28-1.46-.99-3.23-1.63-5.07-1.89a2.5 2.5 0 00-2.4-2.85c1.07-3.93 4.87-6.84 9.14-6.84a2.5 2.5 0 002.17 4.29c-1.39.77-2.45 2.05-2.88 3.52-.4.99-.2 2.1.48 2.95zM168.16 83.84a2.5 2.5 0 00.48-2.95c.43-1.47-1.49-2.75-2.88-3.52a2.5 2.5 0 002.17-4.29c4.27 0 8.07 2.91 9.14 6.84a2.5 2.5 0 00-2.4 2.85c-1.84.26-3.61.9-5.07 1.89-.78.54-1.26 1.56-.83 2.28.28.47.79.76 1.35.76 1.17 0 2.17-.8 2.51-1.91a2.5 2.5 0 004.8 1.5c-.89 2.97-3.67 5.04-6.8 5.04a2.5 2.5 0 00-2.17-4.29zM128 106c-12.15 0-22 9.85-22 22s9.85 22 22 22 22-9.85 22-22-9.85-22-22-22zm-8 16h16c1.1 0 2 .9 2 2s-.9 2-2 2h-16c-1.1 0-2-.9-2-2s.9-2 2-2z"/>
-        </svg>
+        <Link href="/dashboard" className="flex items-center gap-2">
+         <img
+            src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
+            alt="REON Logo"
+            className={cn("transition-all duration-300", isCollapsed ? "h-8 w-8" : "h-10 w-10")}
+          />
+        </Link>
       </div>
     );
   }
@@ -104,7 +102,8 @@ export function LeftSidebar() {
             )}
           >
             <item.icon className="h-5 w-5" />
-            {!isCollapsed && <span>{item.label}</span>}
+            {!isCollapsed && <span className="hidden lg:inline">{item.label}</span>}
+            <span className="lg:hidden">{item.label}</span>
           </Link>
         </TooltipTrigger>
         {isCollapsed && (
@@ -127,7 +126,7 @@ export function LeftSidebar() {
          <div className={cn("flex items-center border-b h-14", isCollapsed ? 'justify-center' : 'justify-between p-2')}>
             <div className="flex items-center gap-2">
                 <Logo isCollapsed={isCollapsed} />
-                {!isCollapsed && <span className="font-bold font-headline text-primary">REON™</span>}
+                {!isCollapsed && <span className="font-bold font-headline text-primary hidden lg:inline">REON™</span>}
             </div>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
@@ -142,7 +141,7 @@ export function LeftSidebar() {
             <DropdownMenuTrigger asChild>
                <Button variant="ghost" className={cn("w-full justify-start items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary", isCollapsed && "justify-center")}>
                   <Settings className="h-5 w-5" />
-                  {!isCollapsed && <div className="text-left"><p className="font-semibold text-foreground">Settings</p></div>}
+                  {!isCollapsed && <div className="text-left hidden lg:block"><p className="font-semibold text-foreground">Settings</p></div>}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
