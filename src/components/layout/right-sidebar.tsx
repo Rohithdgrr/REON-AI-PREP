@@ -38,8 +38,10 @@ const tools = [
   { id: 'timer', icon: Timer, label: 'Timer', component: MultiTimer, title: 'Timers' },
   { id: 'stopwatch', icon: Clock, label: 'Stopwatch', component: SimpleStopwatch, title: 'Stopwatch' },
   { id: 'notifications', icon: Bell, label: 'Notifications', component: NotificationsPanel, title: 'Notifications' },
-  { id: 'libra', icon: Sparkles, label: 'LIBRA AI', component: LibraSidebar, title: 'LIBRA AI' },
 ];
+
+const aiTool = { id: 'libra', icon: Sparkles, label: 'LIBRA AI', component: LibraSidebar, title: 'LIBRA AI' };
+
 
 function TooltipButton({
   icon: Icon,
@@ -83,28 +85,37 @@ export function RightSidebar() {
   };
   
   return (
-    <aside className="fixed inset-y-0 right-0 z-10 hidden w-16 flex-col border-l bg-background lg:flex">
-      <div className="flex flex-col items-center gap-6 px-2 py-6">
-        {tools.map((tool) => {
-           const isLibra = tool.id === 'libra';
-           return (
-            <div key={tool.id} className={cn(isLibra && "relative mt-auto")}>
-              <TooltipButton
-                icon={tool.icon}
-                label={tool.label}
-                onClick={() => handleToolClick(tool.id)}
-                onDoubleClick={() => handleDoubleClick(tool.id)}
+    <aside className="fixed inset-y-0 right-0 z-10 hidden w-20 flex-col border-l bg-background lg:flex">
+      <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+        {tools.map((tool) => (
+          <TooltipButton
+            key={tool.id}
+            icon={tool.icon}
+            label={tool.label}
+            onClick={() => handleToolClick(tool.id)}
+            onDoubleClick={() => handleDoubleClick(tool.id)}
+            className={cn(
+              "h-12 w-12",
+              activeTool?.id === tool.id && 'bg-accent text-accent-foreground'
+            )}
+          />
+        ))}
+      </nav>
+      <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+        <div className="relative">
+             <TooltipButton
+                icon={aiTool.icon}
+                label={aiTool.label}
+                onClick={() => handleToolClick(aiTool.id)}
+                onDoubleClick={() => handleDoubleClick(aiTool.id)}
                 className={cn(
-                    "h-10 w-10",
-                    activeTool?.id === tool.id && 'bg-accent text-accent-foreground',
-                    isLibra && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200"
+                    "h-12 w-12 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200",
+                    activeTool?.id === aiTool.id && 'bg-accent text-accent-foreground'
                 )}
               />
-              {isLibra && <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />}
-            </div>
-           )
-        })}
-      </div>
+            <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />
+        </div>
+      </nav>
     </aside>
   );
 }

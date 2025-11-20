@@ -108,12 +108,12 @@ function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, 
       <div className={cn("flex h-16 items-center border-b p-2", isCollapsed ? 'justify-center' : 'justify-between')}>
         <Logo isCollapsed={isCollapsed} />
         {!isCollapsed && toggleSidebar && (
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden lg:flex">
             <ChevronLeft className="h-5 w-5" />
           </Button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
+      <div className="flex-1 py-2">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
           {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
           {secondaryNavItems.length > 0 && <Separator className="my-4 bg-sidebar-border" />}
@@ -147,7 +147,7 @@ function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, 
           </DropdownMenu>
       </div>
        {isCollapsed && toggleSidebar && (
-          <div className="p-2 border-t border-sidebar-border">
+          <div className="p-2 border-t border-sidebar-border hidden lg:block">
             <Button variant="ghost" size="icon" onClick={toggleSidebar} className="w-full">
               <PanelRight className="h-5 w-5" />
             </Button>
@@ -159,11 +159,14 @@ function SidebarContent({ isCollapsed, toggleSidebar }: { isCollapsed: boolean, 
 
 export function LeftSidebar() {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) { // lg breakpoint
         setIsDesktopCollapsed(true);
+      } else {
+        setIsDesktopCollapsed(false);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -178,19 +181,26 @@ export function LeftSidebar() {
   
   return (
     <>
-      {/* Mobile Sidebar */}
-      <div className="sm:hidden flex flex-col w-20 border-r bg-sidebar text-sidebar-foreground">
-        <SidebarContent isCollapsed={true} />
-      </div>
-
-      {/* Desktop Sidebar */}
       <div
         className={cn(
-          "hidden sm:flex flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300",
+          "fixed inset-y-0 left-0 z-20 flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300 hidden sm:flex",
           isDesktopCollapsed ? "w-20" : "w-64"
         )}
       >
         <SidebarContent isCollapsed={isDesktopCollapsed} toggleSidebar={toggleDesktopSidebar} />
+      </div>
+
+      <div className="sm:hidden fixed top-14 left-0 z-20 h-16">
+          <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="m-2 bg-background/50 backdrop-blur-sm">
+                    <Menu />
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-64 bg-sidebar text-sidebar-foreground border-r-0">
+                 <SidebarContent isCollapsed={false} toggleSidebar={() => setIsMobileOpen(false)} />
+            </SheetContent>
+          </Sheet>
       </div>
     </>
   );

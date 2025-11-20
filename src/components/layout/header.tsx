@@ -33,13 +33,13 @@ export function Header() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
-          className="w-full rounded-lg bg-muted pl-10 text-base h-12 md:w-[280px] lg:w-[380px]"
+          className="w-full rounded-lg bg-muted pl-10 text-base h-12 md:w-[320px] lg:w-[420px]"
         />
       </div>
       <div className="flex items-center gap-4 ml-auto">
