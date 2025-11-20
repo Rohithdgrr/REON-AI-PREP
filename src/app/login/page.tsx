@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -14,6 +14,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -33,6 +38,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [dob, setDob] = useState<Date>();
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
@@ -111,15 +117,29 @@ export default function LoginPage() {
       });
   }
 
-  const handleEmailRegister = (e: React.FormEvent) => {
+  const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
+    if (!name || !dob) {
+        toast({ variant: 'destructive', title: "Missing Information", description: "Please provide your name and date of birth." });
+        return;
+    }
     setIsLoading(true);
-    createUserWithEmailAndPassword(auth, email, password)
-      .catch(handleAuthError)
-      .finally(() => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { 
+            displayName: name,
+            // We'll store DOB in a custom claim or Firestore, not directly on the auth profile
+        });
+        
+        // Manually setting a temporary item in localStorage to pass DOB to the next page
+        localStorage.setItem('temp_user_dob', format(dob, 'yyyy-MM-dd'));
+
+    } catch (error) {
+        handleAuthError(error);
+    } finally {
         setIsLoading(false);
-      });
+    }
   }
   
   if (isUserLoading || user) {
@@ -176,6 +196,34 @@ export default function LoginPage() {
                                 <Label htmlFor="register-password">Password</Label>
                                 <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
                              </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="register-dob">Date of Birth</Label>
+                                 <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !dob && "text-muted-foreground"
+                                        )}
+                                        >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {dob ? format(dob, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                        mode="single"
+                                        selected={dob}
+                                        onSelect={setDob}
+                                        initialFocus
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1950}
+                                        toYear={new Date().getFullYear() - 10}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                             </div>
                             <Button type="submit" className="w-full" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Create Account
@@ -219,5 +267,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    

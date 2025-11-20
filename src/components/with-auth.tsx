@@ -5,6 +5,7 @@ import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType } from 'react';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 export default function withAuth<P extends object>(Component: ComponentType<P>) {
   return function WithAuth(props: P) {
@@ -22,11 +23,21 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
         getDoc(userRef).then((docSnap) => {
           if (!docSnap.exists()) {
             // User is new, create a document for them.
+            const dobString = localStorage.getItem('temp_user_dob');
+            const dob = dobString ? new Date(dobString) : new Date(); // Fallback
+            localStorage.removeItem('temp_user_dob');
+
+            const formattedDob = format(dob, 'yyyyMMdd');
+            const userFirstLetter = (user.displayName || 'X').charAt(0).toUpperCase();
+            
+            const riId = `R_${formattedDob}_${userFirstLetter}_T`;
+
             setDoc(userRef, {
               id: user.uid,
-              riId: `RI-${user.uid.slice(0, 4).toUpperCase()}`,
+              riId: riId,
               fullName: user.displayName || 'New User',
               email: user.email,
+              dateOfBirth: dob.toISOString(),
               targetExam: 'Both', // Default value
               profilePhoto: user.photoURL,
               createdAt: new Date().toISOString(),
