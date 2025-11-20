@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bot, FileQuestion, Lightbulb, Map, ArrowRight, Star, BarChart, BrainCircuit, Users, BookOpen, MessageCircle, Target, TestTube2 } from 'lucide-react';
+import { Bot, FileQuestion, Lightbulb, Map, ArrowRight, Star, BarChart, BrainCircuit, Users, BookOpen, MessageCircle, Target, TestTube2, Youtube, Twitter, Instagram } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import { Badge } from './ui/badge';
+import { Input } from './ui/input';
 
 const features = [
     {
@@ -331,24 +332,50 @@ export function HomePage() {
         </section>
       </main>
       <footer className="bg-muted border-t">
-        <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
-            <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-                <h1 className="text-lg font-bold font-headline">REON AI Prep</h1>
-                 <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                    © {new Date().getFullYear()} REON AI Prep. All rights reserved.
-                </p>
+        <div className="container py-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                <div className="lg:col-span-2">
+                    <h3 className="text-lg font-bold font-headline mb-4">REON AI Prep</h3>
+                    <p className="text-sm text-muted-foreground mb-4 max-w-sm">Your personal AI coach for cracking competitive exams like Railway and Bank PO. Personalized plans, unlimited practice, and smart analytics.</p>
+                    <div className="flex space-x-4">
+                        <Link href="#" className="text-muted-foreground hover:text-primary"><Twitter className="h-5 w-5"/></Link>
+                        <Link href="#" className="text-muted-foreground hover:text-primary"><Youtube className="h-5 w-5"/></Link>
+                        <Link href="#" className="text-muted-foreground hover:text-primary"><Instagram className="h-5 w-5"/></Link>
+                    </div>
+                </div>
+                <div>
+                    <h4 className="font-semibold mb-4">Platform</h4>
+                    <nav className="flex flex-col space-y-2 text-sm text-muted-foreground">
+                        <Link href="#" className="hover:text-primary">Roadmap</Link>
+                        <Link href="#" className="hover:text-primary">Prep Hub</Link>
+                        <Link href="#" className="hover:text-primary">AI Quizzes</Link>
+                        <Link href="#" className="hover:text-primary">Mock Tests</Link>
+                        <Link href="#" className="hover:text-primary">R-Chat</Link>
+                    </nav>
+                </div>
+                 <div>
+                    <h4 className="font-semibold mb-4">Company</h4>
+                    <nav className="flex flex-col space-y-2 text-sm text-muted-foreground">
+                        <Link href="#" className="hover:text-primary">About Us</Link>
+                        <Link href="#" className="hover:text-primary">Careers</Link>
+                        <Link href="#" className="hover:text-primary">Contact</Link>
+                    </nav>
+                </div>
+                <div>
+                    <h4 className="font-semibold mb-4">Legal</h4>
+                    <nav className="flex flex-col space-y-2 text-sm text-muted-foreground">
+                        <Link href="#" className="hover:text-primary">Terms of Service</Link>
+                        <Link href="#" className="hover:text-primary">Privacy Policy</Link>
+                    </nav>
+                </div>
             </div>
-            <nav className="flex gap-4">
-                <Link href="#" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-                    Terms
-                </Link>
-                 <Link href="#" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-                    Privacy
-                </Link>
-                 <Link href="#" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-                    Contact
-                </Link>
-            </nav>
+            <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} REON AI Prep. All rights reserved.</p>
+                <form className="flex w-full max-w-sm items-center space-x-2 mt-4 md:mt-0">
+                    <Input type="email" placeholder="Email for updates" className="bg-background" />
+                    <Button type="submit">Subscribe</Button>
+                </form>
+            </div>
         </div>
       </footer>
     </div>
