@@ -13,7 +13,7 @@
         },
         "riId": {
           "type": "string",
-          "description": "REON ID, the master key for tracking user data."
+          "description": "REON ID, the master key for tracking user data. Format: R<dateofbirth><userfirstletter>T"
         },
         "fullName": {
           "type": "string",
@@ -27,7 +27,7 @@
         "dateOfBirth": {
             "type": "string",
             "description": "User's date of birth.",
-            "format": "date-time"
+            "format": "date"
         },
         "mobile": {
           "type": "string",
@@ -836,3 +836,5 @@
     "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, DBAC (Database-Based Access Control), and support secure list operations (QAPs). It uses path-based ownership for user-specific data and denormalization to avoid `get()` calls in security rules. Every document contains the necessary authorization information within itself, eliminating the need to fetch parent document data during security rule evaluation. This approach ensures that all operations, including atomic transactions and batches, can be performed securely and efficiently.\n\n*   **Users Collection (`/users/{userId}`):** Stores user profile information. Access is restricted to the authenticated user.\n*   **Materials Collection (`/users/{userId}/materials/{materialId}`):** Stores metadata for user-uploaded files, ensuring only the owner can access them.\n*   **User Profile Collection (`/users/{userId}/profiles/{profileId}`):** Stores additional user profile data, and only accessible to that user.\n*   **Quizzes Collection (`/users/{userId}/quizzes/{quizId}`):** Stores quiz data, ensuring users can only access their own quizzes.\n*   **Practice Tests Collection (`/users/{userId}/practiceTests/{practiceTestId}`):** Stores practice test results, ensuring users can only access their own practice tests.\n*   **Mock Tests Collection (`/users/{userId}/mockTests/{mockTestId}`):** Stores mock test results, ensuring users can only access their own mock tests.\n*   **Course Progress Collection (`/users/{userId}/courseProgress/{courseProgressId}`):** Stores course progress data, ensuring users can only access their own progress.\n*   **Podcast Listening Collection (`/users/{userId}/podcastListening/{podcastListeningId}`):** Stores podcast listening history, ensuring users can only access their own listening history.\n*   **Notifications Collection (`/users/{userId}/notifications/{notificationId}`):** Stores user-specific notifications, ensuring users can only access their own notifications.\n*   **File Conversions Collection (`/fileConversions/{fileConversionId}`):** File conversions are global, and access should be public, but userId can be checked and restrict access to only users for whom userId matches request.auth.uid and can be created if auth is null.\n*   **RChannel Collection (`/rChannels/{rChannelId}`):** Stores chat channel metadata. Access to channels could be public, with read access granted to all, or restricted based on a `members` map in each channel document.\n*   **RMessage Collection (`/rChannels/{rChannelId}/rMessages/{rMessageId}`):**  Messages inherit the security posture of their parent `rChannel`.  If channels are public, messages are public.  If channels have a `members` map, that is denormalized into each message document, granting access only to channel members.\n*   **Leaderboard Entries Collection (`/leaderboardEntries/{leaderboardEntryId}`):** Global leaderboard data. Access should be open for reading but restricted for modifications to prevent abuse.  Consider a Cloud Function triggered on write to validate data or limit write access to a service account.\n\nThis structure supports the QAPs by:\n\n1.  **Segregation:**  Each user's data is stored under their unique `userId`, preventing unauthorized access.\n2.  **Authorization Independence:** Access control information (e.g., ownership) is denormalized, avoiding costly and insecure `get()` calls in rules.\n3.  **DBAC:**  Authorization is based solely on `request.auth.uid`, simplifying role management and security rule logic.\n4.  **Rules are not Filters:** Secure `list` operations are possible because rules only need to check `request.auth.uid` against the document's `userId` or `members` map (which, again, is denormalized)."
   }
 }
+
+    
