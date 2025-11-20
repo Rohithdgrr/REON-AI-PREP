@@ -24,7 +24,7 @@ const answerQuestionsFlow = ai.defineFlow(
   async (prompt) => {
     const { text } = await ai.generate({
         prompt: prompt,
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'x-ai/grok-4.1-fast',
     });
     return text;
   }
