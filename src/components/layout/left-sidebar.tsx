@@ -192,47 +192,26 @@ function SidebarContent({
                 isCollapsed && 'justify-center'
               )}
             >
-              <Settings className="h-5 w-5" />
+              <HelpCircle className="h-5 w-5" />
               <span
                 className={cn(
                   'text-left transition-opacity',
                   isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
                 )}
               >
-                Settings
+                Help
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/settings">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/dashboard/help">
                 <HelpCircle className="mr-2 h-4 w-4" />
-                Support
+                Help & FAQ
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Globe className="mr-2 h-4 w-4" />
-                Language
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem>English</DropdownMenuItem>
-                <DropdownMenuItem>Telugu</DropdownMenuItem>
-                <DropdownMenuItem>Hindi</DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
+            <DropdownMenuItem>
+              Support
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

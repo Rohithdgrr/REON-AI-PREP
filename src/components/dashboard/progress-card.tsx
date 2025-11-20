@@ -8,21 +8,51 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query } from "firebase/firestore";
 import { Zap } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
 export function ProgressCard() {
-  const progress = 78;
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const courseProgressQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'users', user.uid, 'courseProgress'));
+  }, [firestore, user]);
+
+  const { data: progressData, isLoading } = useCollection(courseProgressQuery);
+
+  const totalCompletionRate = progressData?.length
+    ? progressData.reduce((acc, curr) => acc + (curr.completionRate || 0), 0) / progressData.length
+    : 0;
+  
+  const progress = Math.round(totalCompletionRate);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-full mt-1" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-4 w-full" />
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="text-yellow-500" />
-          Power Level: {progress}%
+          Syllabus Power: {progress}%
         </CardTitle>
         <CardDescription>
-          Your syllabus completion. Keep it up to unlock new features!
+          Your average course completion. Keep it up!
         </CardDescription>
       </CardHeader>
       <CardContent>
