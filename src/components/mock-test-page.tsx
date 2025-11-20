@@ -59,10 +59,7 @@ const manualMockTests = [
 ];
 
 
-const pastResults = [
-    { id: "mock-sbi-po-04", title: "SBI PO Prelims Full Mock Test #4", score: "78/100", rank: "2,451", accuracy: "89%" },
-    { id: "mock-rrb-ntpc-11", title: "RRB NTPC CBT-1 Full Mock Test #11", score: "85/120", rank: "#5,102", accuracy: "81%" },
-];
+const pastResults: any[] = [];
 
 
 const aiQuickMocks = [
@@ -423,4 +420,3 @@ export function MockTestPage() {
     
 
     
-

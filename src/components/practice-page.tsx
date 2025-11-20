@@ -132,11 +132,7 @@ const aiQuickQuizzes = [
     { topic: "Important Dates & Days", numQuestions: 30, subTopics: ["National Days", "International Days", "Theme-based Days", "Historical Dates", "Anniversaries"] },
 ];
 
-const pastPracticeResults = [
-    { id: "past-practice-1", title: "AI Test: Advanced Puzzles", score: "7/10", accuracy: "70%" },
-    { id: "past-practice-2", title: "Reasoning: Syllogism", score: "24/30", accuracy: "80%" },
-    { id: "past-practice-3", title: "AI Test: Time, Speed & Distance", score: "9/10", accuracy: "90%" },
-];
+const pastPracticeResults: any[] = [];
 
 
 type UserAnswers = { [key: string]: string };

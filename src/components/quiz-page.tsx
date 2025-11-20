@@ -138,11 +138,7 @@ const aiQuickQuizzes = [
     { topic: "Important Dates & Days", numQuestions: 30 },
 ];
 
-const pastQuizResults = [
-    { id: "past-quiz-1", title: "Quantitative Aptitude: Time & Work", score: "25/30", accuracy: "83%" },
-    { id: "past-quiz-2", title: "Reasoning: Blood Relations", score: "28/30", accuracy: "93%" },
-    { id: "past-quiz-3", title: "AI Quiz: Indian History", score: "22/30", accuracy: "73%" },
-];
+const pastQuizResults: any[] = [];
 
 
 type UserAnswers = { [key: string]: string };
