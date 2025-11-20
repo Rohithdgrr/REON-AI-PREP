@@ -5,7 +5,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Circle, BookOpen, BrainCircuit, MessageSquare, Newspaper, Flag, Wand2, Loader2 } from "lucide-react";
+import { CheckCircle, Circle, BookOpen, BrainCircuit, MessageSquare, Newspaper, Flag, Wand2, Loader2, Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
@@ -169,8 +169,8 @@ Generate a detailed, actionable, and encouraging study plan based on the followi
 
 1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, bullet points, and horizontal rules (\`---\`) for separation.
 2.  **Structure**:
-    *   Start with a main heading, like \`# Your Personalized Study Plan for ${input.targetExam}\`.
-    *   Create sections for different timeframes (e.g., \`## Daily Schedule\`, \`## Weekly Breakdown\`, \`## Subject-wise Focus\`). Use horizontal rules (\`---\`) to separate these major sections.
+    *   Start with a main heading, like \`# 🚀 Your Personalized Study Plan for ${input.targetExam}\`.
+    *   Create sections for different timeframes (e.g., \`## ⏰ Daily Schedule\`, \`## 🗓️ Weekly Breakdown\`, \`## 📚 Subject-wise Focus\`). Use horizontal rules (\`---\`) to separate these major sections.
     *   Use bullet points (\`-\`) or numbered lists (\`1.\`) for tasks and topics.
     *   Use bold (\`**\`) to highlight key subjects, topics, or actions for emphasis.
 3.  **Content**:
@@ -240,6 +240,7 @@ export function RoadmapPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [targetExam, setTargetExam] = useState("Railway NTPC");
   const [weakSubjects, setWeakSubjects] = useState<string[]>(["Reasoning"]);
+  const [customWeakSubject, setCustomWeakSubject] = useState("");
   const [availableHours, setAvailableHours] = useState(4);
   const [previousPerformance, setPreviousPerformance] = useState("");
   const [aiPlan, setAiPlan] = useState<string | null>(null);
@@ -345,6 +346,15 @@ export function RoadmapPage() {
             : [...prev, subject]
     );
   }
+  
+  const handleAddCustomSubject = () => {
+    const subject = customWeakSubject.trim();
+    if (subject && !weakSubjects.includes(subject)) {
+        setWeakSubjects(prev => [...prev, subject]);
+    }
+    setCustomWeakSubject("");
+  }
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -446,6 +456,15 @@ export function RoadmapPage() {
                                     {subject}
                                 </Button>
                             ))}
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                            <Input 
+                                value={customWeakSubject}
+                                onChange={(e) => setCustomWeakSubject(e.target.value)}
+                                placeholder="Add another weak subject..."
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleAddCustomSubject()}}
+                            />
+                            <Button onClick={handleAddCustomSubject}><Plus className="mr-2 h-4 w-4" /> Add</Button>
                         </div>
                     </div>
                      <div className="space-y-2">
