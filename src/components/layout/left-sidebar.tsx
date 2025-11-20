@@ -123,16 +123,15 @@ export function LeftSidebar() {
         "hidden border-r bg-background transition-all duration-300 md:block",
         isCollapsed ? "w-20" : "w-64"
       )}
-      onDoubleClick={toggleSidebar}
     >
-      <div className="flex h-full max-h-screen flex-col gap-2">
+      <div className="flex h-full max-h-screen flex-col">
          <div className={cn("flex items-center border-b h-14", isCollapsed ? 'justify-center' : 'justify-between p-2')}>
             <div className="flex items-center gap-2">
                 <Logo isCollapsed={isCollapsed} />
                 {!isCollapsed && <span className="font-bold font-headline text-primary">REON™</span>}
             </div>
         </div>
-        <div className="flex-1 py-2">
+        <div className="flex-1 overflow-y-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
             {navItems.map((item) => <NavLink key={item.label} item={item} isCollapsed={isCollapsed}/>)}
             <Separator className="my-4" />

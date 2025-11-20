@@ -76,8 +76,8 @@ export function RightSidebar() {
   };
   
   return (
-    <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-4">
-      <div className="flex flex-col items-center gap-2 pt-2">
+    <div className="hidden sm:flex flex-col items-center border-l bg-background">
+      <div className="flex flex-col items-center gap-2 p-4">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';
            return (
