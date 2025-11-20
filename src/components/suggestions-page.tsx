@@ -27,7 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "./ui/button";
 import { Loader2, Wand2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { generatePrepSuggestions, type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-suggestions";
+import { type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-suggestions";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -143,24 +143,92 @@ const quickRecap = [
     { area: "Motivation", suggestion: "Stay disciplined and positive" },
 ]
 
+function buildPrompt(targetExam: string): string {
+    return `You are an expert career counselor for government job aspirants in India. 
+  
+  Generate a list of 5-7 high-level, actionable preparation suggestions for an aspirant targeting the "${targetExam}" exam category. 
+  
+  For each suggestion, provide a clear title and a few bullet points explaining the suggestion. The advice should be practical and encouraging.
+
+  Focus on topics like:
+  - Understanding the exam pattern and syllabus
+  - Creating a study schedule
+  - Choosing the right resources
+  - The importance of mock tests
+  - Subject-specific strategies (if applicable for the category)
+  - Staying motivated
+  
+  Do not just provide a generic list. Tailor the points based on the specifics of the "${targetExam}" category. For example, if the target is 'Bank', mention sectional timings and the importance of speed. If it's 'Railway', mention the importance of General Science. If it's 'Both', provide advice on how to balance the preparation for both.
+  
+  Return the result ONLY in a valid JSON format. Do not add any introductory text, closing remarks, or markdown formatting. The output must be a single, parseable JSON object that strictly follows this schema:
+  {
+    "suggestions": [
+      {
+        "title": "string",
+        "points": ["string", "string", ...]
+      }
+    ]
+  }
+  `.trim();
+}
+
 export function SuggestionsPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [examType, setExamType] = useState("Both");
     const [aiSuggestions, setAiSuggestions] = useState<GeneratePrepSuggestionsOutput | null>(null);
     const { toast } = useToast();
+    const apiKey = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
+    const model = "open-mistral-nemo";
 
     const handleGenerate = async () => {
         setIsGenerating(true);
         setAiSuggestions(null);
+
+        const prompt = buildPrompt(examType);
+
         try {
-            const result = await generatePrepSuggestions({ targetExam: examType });
-            setAiSuggestions(result);
-        } catch (error) {
+            const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [{ role: "user", content: prompt }],
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(`HTTP ${response.status}: ${err}`);
+            }
+
+            const data = await response.json();
+            const jsonString = data.choices[0]?.message?.content;
+
+            if (jsonString) {
+                try {
+                    const parsedResult = JSON.parse(jsonString);
+                    setAiSuggestions(parsedResult);
+                } catch (parseError) {
+                    throw new Error("Failed to parse AI response as JSON.");
+                }
+            } else {
+                 throw new Error("No content received from AI.");
+            }
+            
+            toast({
+                title: "AI Suggestions Generated!",
+                description: "Your personalized suggestions are ready below.",
+            });
+        } catch (error: any) {
             console.error("Failed to generate suggestions", error);
             toast({
                 variant: 'destructive',
                 title: 'Generation Failed',
-                description: 'Could not generate AI suggestions. Please try again.',
+                description: error.message || 'Could not generate AI suggestions. Please try again.',
             });
         } finally {
             setIsGenerating(false);
