@@ -82,11 +82,21 @@ export function SettingsPage() {
       // The withAuth component will handle the redirection to /login
     } catch (error: any) {
       console.error("Account Deletion Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Deletion Failed",
-        description: error.message || "An unexpected error occurred.",
-      });
+
+      if (error.code === 'auth/requires-recent-login') {
+         toast({
+            variant: "destructive",
+            title: "Re-authentication Required",
+            description: "This is a sensitive operation. Please log out and log back in again before deleting your account.",
+            duration: 8000,
+        });
+      } else {
+         toast({
+            variant: "destructive",
+            title: "Deletion Failed",
+            description: error.message || "An unexpected error occurred.",
+        });
+      }
     } finally {
       setIsDeleting(false);
     }
