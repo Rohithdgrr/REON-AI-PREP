@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -25,8 +26,7 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const auth = useAuth();
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
+  const { isUserLoading } = useUser();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -46,7 +46,7 @@ export default function LoginPage() {
       case 'auth/popup-closed-by-user':
       case 'auth/cancelled-popup-request':
         title = "Sign-in Cancelled";
-        description = "The sign-in window was closed. If this happened automatically, please ensure your domain is authorized in the Firebase Console.";
+        description = "The sign-in window was closed. Please ensure your domain is authorized in the Firebase Console.";
         break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -115,7 +115,7 @@ export default function LoginPage() {
       });
   }
   
-  if (isUserLoading || user) {
+  if (isUserLoading) {
      return (
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
@@ -212,3 +212,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+    
