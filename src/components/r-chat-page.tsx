@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog } from '@/components/ui/dialog';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { ChatHeader } from './r-chat/chat-header';
 import { ChatMessages } from './r-chat/chat-messages';
 import { ChatInput } from './r-chat/chat-input';
