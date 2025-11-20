@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -178,24 +179,26 @@ Generate a detailed, actionable, and encouraging study plan based on the followi
     *   Include a mix of learning new concepts, practice sessions, and revision.
     *   Suggest specific, actionable tasks (e.g., "Solve 20 PYQs of Profit & Loss," "Take a sectional mock test for Reasoning").
     *   Add a concluding motivational sentence.
+4.  **Tone**: Make the plan encouraging and motivational. Use relevant emojis to make it more engaging (e.g., 🚀, 📚, 💪).
+
 
 Example Snippet:
 \`\`\`markdown
-# Your Personalized Study Plan for SBI PO
+# 🚀 Your Personalized Study Plan for SBI PO
 
-Here is a plan tailored to your needs.
-
----
-
-## Daily Schedule (${input.availableHours} hours)
-- **Reasoning (Weak Subject)**: 1.5 hours
-- **Quantitative Aptitude**: 1 hour
-- **English**: 1 hour
-- **Revision & Current Affairs**: 0.5 hours
+Here is a plan tailored to your needs. Let's get started! 💪
 
 ---
 
-## Weekly Breakdown
+## ⏰ Daily Schedule (${input.availableHours} hours)
+- **🧠 Reasoning (Weak Subject)**: 1.5 hours
+- **📊 Quantitative Aptitude**: 1 hour
+- **📖 English**: 1 hour
+- **🔁 Revision & Current Affairs**: 0.5 hours
+
+---
+
+## 🗓️ Weekly Breakdown
 - **Monday**: Focus on Puzzles (Reasoning) & Percentages (Quant).
 - **Tuesday**: English Grammar rules & Reading Comprehension practice.
 ...
@@ -224,7 +227,9 @@ function markdownToHtml(markdown: string) {
         return `<ol class="list-decimal list-inside space-y-2 mb-4">${items}</ol>`;
     });
 
-    // Replace any remaining newlines with <br> for spacing
+    // Replace any remaining newlines with <br> for spacing, but not inside list items
+    // A bit of a hacky way to prevent double line breaks in lists
+    html = html.replace(/<\/li><br \/>/g, '</li>');
     html = html.replace(/\n/g, '<br />');
 
     return html;
@@ -250,14 +255,6 @@ export function RoadmapPage() {
             description: "Please enter your target exam.",
         });
         return;
-    }
-     if (!apiKey) {
-      toast({
-        variant: 'destructive',
-        title: 'API Key Missing',
-        description: 'An API key is required to generate the plan.',
-      });
-      return;
     }
 
     setIsGenerating(true);
@@ -456,11 +453,8 @@ export function RoadmapPage() {
                     )}
                     {aiPlan && (
                         <Card className="w-full bg-muted/50">
-                            <CardHeader>
-                                <CardTitle>Your Personalized Plan</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: aiPlan }} />
+                            <CardContent className="pt-6">
+                                <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-headline prose-h1:text-primary" dangerouslySetInnerHTML={{ __html: aiPlan }} />
                             </CardContent>
                         </Card>
                     )}
@@ -472,4 +466,3 @@ export function RoadmapPage() {
   );
 }
 
-    
