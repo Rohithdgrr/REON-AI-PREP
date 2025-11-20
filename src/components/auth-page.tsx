@@ -48,8 +48,8 @@ export function AuthPage() {
                     <CardTitle>Login to your account</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <Button variant="outline">
+                    <div className="grid gap-4">
+                      <Button variant="outline" className="w-full">
                         <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
                           <path
                             fill="currentColor"
@@ -58,7 +58,6 @@ export function AuthPage() {
                         </svg>
                         Gmail
                       </Button>
-                      <Button variant="outline">Mobile OTP</Button>
                     </div>
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center">
@@ -71,8 +70,8 @@ export function AuthPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="ri-id-login">RI ID</Label>
-                      <Input id="ri-id-login" placeholder="RAX202514789" required />
+                      <Label htmlFor="ri-id-login">Email or RI ID</Label>
+                      <Input id="ri-id-login" placeholder="your@email.com or RAX..." required />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center">
@@ -115,27 +114,6 @@ export function AuthPage() {
                         placeholder="srinivas@example.com"
                         required
                       />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="mobile">Mobile</Label>
-                      <Input id="mobile" placeholder="+91 9876543210" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="exam-type">Exam Type</Label>
-                      <Select>
-                        <SelectTrigger id="exam-type">
-                          <SelectValue placeholder="Select exam type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="railway">Railway</SelectItem>
-                          <SelectItem value="bank">Bank</SelectItem>
-                          <SelectItem value="both">Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ri-id-register">Create RI ID</Label>
-                      <Input id="ri-id-register" placeholder="Auto-suggested: RAX..." required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="password-register">Password</Label>
