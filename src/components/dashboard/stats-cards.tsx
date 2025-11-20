@@ -11,7 +11,7 @@ import { Badge } from "../ui/badge";
 export function StatsCards() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
         <CardHeader>
           <CardTitle>Level</CardTitle>
           <CardDescription>Your current level</CardDescription>
@@ -21,7 +21,7 @@ export function StatsCards() {
           <p className="text-xs text-muted-foreground">+2 levels from last week</p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
         <CardHeader>
           <CardTitle>Rank</CardTitle>
           <CardDescription>Your overall rank</CardDescription>
@@ -31,7 +31,7 @@ export function StatsCards() {
            <p className="text-xs text-muted-foreground">↑150 ranks from last month</p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
         <CardHeader>
           <CardTitle>RAX-Score</CardTitle>
           <CardDescription>Your readiness score</CardDescription>
