@@ -245,7 +245,6 @@ export function RoadmapPage() {
   const [previousPerformance, setPreviousPerformance] = useState("");
   const [aiPlan, setAiPlan] = useState<string | null>(null);
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI"); // State without setter, effectively a constant
-  const [model, setModel] = useState(mistralModels[0].value);
   const { toast } = useToast();
 
   const handleGeneratePlan = async () => {
@@ -261,9 +260,14 @@ export function RoadmapPage() {
     setIsGenerating(true);
     setAiPlan("");
 
+    const allWeakSubjects = [...weakSubjects];
+    if(customWeakSubject.trim()){
+      allWeakSubjects.push(customWeakSubject.trim());
+    }
+
     const prompt = buildPlanPrompt({
         targetExam,
-        weakSubjects,
+        weakSubjects: allWeakSubjects,
         availableHours,
         previousPerformance
     });
@@ -276,7 +280,7 @@ export function RoadmapPage() {
                 "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: model,
+                model: "open-mistral-7b",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.7,
                 max_tokens: 2048,
@@ -367,7 +371,7 @@ export function RoadmapPage() {
         </p>
       </div>
       
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs defaultValue="ai-powered" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="general">General Roadmap</TabsTrigger>
             <TabsTrigger value="ai-powered"><Wand2 className="mr-2 h-4 w-4" /> AI-Powered Roadmap</TabsTrigger>
@@ -471,22 +475,6 @@ export function RoadmapPage() {
                         <Label htmlFor="prev-performance">Previous Mock Test Performance (Optional)</Label>
                         <Textarea id="prev-performance" value={previousPerformance} onChange={e => setPreviousPerformance(e.target.value)} placeholder="e.g. Scored 65/100 in last mock. Low score in DI and Puzzles." />
                     </div>
-                    <Separator />
-                     <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                             <Label htmlFor="model">AI Model</Label>
-                             <Select value={model} onValueChange={setModel}>
-                                <SelectTrigger id="model">
-                                    <SelectValue placeholder="Select a model" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {mistralModels.map(m => (
-                                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
                 </CardContent>
                 <CardFooter className="flex-col items-start gap-4">
                     <Button onClick={handleGeneratePlan} disabled={isGenerating}>
@@ -516,4 +504,3 @@ export function RoadmapPage() {
   );
 }
 
-    
