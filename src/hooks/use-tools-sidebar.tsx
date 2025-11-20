@@ -35,14 +35,14 @@ export function ToolsSidebarProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const setActiveTool = useCallback((tool: ActiveTool | null) => {
+    setActiveToolState(tool);
     if (tool === null) {
-        setIsOpen(false);
-        setActiveToolState(null);
+      setIsOpen(false);
     } else {
-        setIsOpen(true);
-        setActiveToolState(tool);
+      setIsOpen(true);
     }
   }, []);
+
 
   const value = {
     isOpen,

@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { cn } from '@/lib/utils';
+import { UserProfileCard } from '../dashboard/user-profile-card';
 
 const tools = [
   { id: 'notes', icon: Notebook, label: 'Notes' },
@@ -62,18 +63,21 @@ function TooltipButton({
 }
 
 export function RightSidebar() {
-  const { setActiveTool, toggleSidebar } = useToolsSidebar();
+  const { activeTool, setActiveTool, toggleSidebar } = useToolsSidebar();
 
   const handleToolClick = (toolId: string) => {
     setActiveTool({ id: toolId });
   };
-
-  const handleDoubleClick = () => {
-    toggleSidebar(false);
-  }
+  
+  const handleDoubleClick = (toolId: string) => {
+    if (activeTool?.id === toolId) {
+        setActiveTool(null);
+    }
+  };
   
   return (
-    <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-2">
+    <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-4">
+      <UserProfileCard />
       <div className="flex flex-col items-center gap-2 pt-2">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';
@@ -83,7 +87,7 @@ export function RightSidebar() {
                 icon={tool.icon}
                 label={tool.label}
                 onClick={() => handleToolClick(tool.id)}
-                onDoubleClick={handleDoubleClick}
+                onDoubleClick={() => handleDoubleClick(tool.id)}
                 className={cn(isLibra && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200")}
               />
               {isLibra && <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />}
