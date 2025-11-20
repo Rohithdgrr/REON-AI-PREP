@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
@@ -35,12 +35,6 @@ export default function LoginPage() {
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
-  useEffect(() => {
-    if (!isUserLoading && user) {
-      router.replace('/dashboard');
-    }
-  }, [user, isUserLoading, router]);
-
   const handleAuthError = (error: any) => {
     setIsLoading(false);
     console.error("Authentication Error:", error.code, error.message);
@@ -74,7 +68,7 @@ export default function LoginPage() {
         break;
       case 'auth/operation-not-allowed':
         title = "Sign-in Method Disabled";
-        description = 'This sign-in method is not enabled in the Firebase Console. Please contact support.';
+        description = 'This sign-in method is not enabled. Please enable it in your Firebase Console under Authentication > Sign-in method.';
         break;
       default:
         description = error.message || `An unknown error occurred. (Code: ${error.code})`;
