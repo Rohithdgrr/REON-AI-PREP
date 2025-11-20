@@ -15,7 +15,6 @@ import {
   Lightbulb,
   LogOut,
   Map,
-  Menu,
   MessageCircle,
   Mic,
   PanelLeft,
@@ -27,6 +26,7 @@ import {
   User,
   Users,
   Wrench,
+  Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -57,6 +57,7 @@ import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 
 const navItems = [
+  { href: '/', icon: Home, label: 'Home' },
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/notifications', icon: Bell, label: 'Job Notifications' },
   { href: '/dashboard/roadmap', icon: Map, label: 'Roadmap' },
@@ -68,6 +69,7 @@ const navItems = [
   { href: '/dashboard/courses', icon: PlayCircle, label: 'Courses' },
   { href: '/dashboard/knowledge-hub', icon: Users, label: 'Knowledge Hub' },
   { href: '/dashboard/r-chat', icon: MessageCircle, label: 'R-Chat' },
+  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
 const secondaryNavItems: any[] = [];
@@ -106,6 +108,8 @@ function NavLink({
   isCollapsed: boolean;
 }) {
   const pathname = usePathname();
+  const isActive = (item.href === '/' && pathname === '/') || (item.href !== '/' && pathname.startsWith(item.href));
+
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
@@ -114,8 +118,7 @@ function NavLink({
             href={item.href}
             className={cn(
               'flex h-12 w-full items-center gap-3 rounded-lg px-3 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              pathname === item.href &&
-                'bg-sidebar-accent text-sidebar-primary',
+              isActive && 'bg-sidebar-primary text-sidebar-primary-foreground',
               isCollapsed && 'justify-center'
             )}
           >
@@ -260,32 +263,45 @@ export function LeftSidebar() {
       </div>
 
       {/* Mobile Sidebar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t bg-sidebar text-sidebar-foreground h-16">
+       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t bg-sidebar text-sidebar-foreground h-16">
         <nav className="flex items-center justify-around h-full">
           {navItems.slice(0, 4).map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
-                usePathname() === item.href
-                  ? 'text-sidebar-primary bg-sidebar-accent'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-            </Link>
+             <TooltipProvider key={item.label} delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
+                        usePathname() === item.href
+                          ? 'text-sidebar-primary bg-sidebar-accent'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="top">{item.label}</TooltipContent>
+              </Tooltip>
+             </TooltipProvider>
           ))}
           <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
             <SheetTrigger asChild>
-              <button
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
-                  'text-sidebar-foreground hover:bg-sidebar-accent'
-                )}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
+                 <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                           <button
+                              className={cn(
+                                'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
+                                'text-sidebar-foreground hover:bg-sidebar-accent'
+                              )}
+                            >
+                              <Menu className="h-5 w-5" />
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">More</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </SheetTrigger>
             <SheetContent
               side="left"
@@ -299,5 +315,3 @@ export function LeftSidebar() {
     </>
   );
 }
-
-    

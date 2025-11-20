@@ -1,14 +1,19 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
-import { GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -23,6 +28,11 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
@@ -33,9 +43,42 @@ export default function LoginPage() {
   }, [user, isUserLoading, router]);
 
   const handleGoogleSignIn = () => {
+    setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider);
+    signInWithRedirect(auth, provider).catch(handleAuthError);
   };
+  
+  const handleAuthError = (error: any) => {
+    setIsLoading(false);
+    console.error("Authentication Error:", error);
+    toast({
+        variant: "destructive",
+        title: "Authentication Failed",
+        description: error.message || "An unexpected error occurred. Please try again.",
+    });
+  }
+
+  const handleEmailLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        setIsLoading(false);
+        router.push('/dashboard');
+      })
+      .catch(handleAuthError);
+  }
+
+  const handleEmailRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    createUserWithEmailAndPassword(auth, email, password)
+     .then(() => {
+        setIsLoading(false);
+        router.push('/dashboard');
+      })
+      .catch(handleAuthError);
+  }
   
   if (isUserLoading || user) {
      return (
@@ -48,17 +91,73 @@ export default function LoginPage() {
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
       <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
-          <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold font-headline">Welcome to REON AI</h1>
-            <p className="text-balance text-muted-foreground">
-              Sign in to access your personalized exam prep dashboard.
-            </p>
-          </div>
-          <Button onClick={handleGoogleSignIn} variant="outline" className="w-full text-lg h-12">
-            <GoogleIcon /> Sign in with Google
-          </Button>
-        </div>
+        <Card className="mx-auto w-[380px] p-6 shadow-xl">
+            <CardHeader className="p-0 mb-6 text-center">
+              <h1 className="text-3xl font-bold font-headline">Welcome to REON AI</h1>
+              <p className="text-balance text-muted-foreground">
+                Sign in or create an account to continue
+              </p>
+            </CardHeader>
+            <CardContent className="p-0">
+                 <Tabs defaultValue="login">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="login">Login</TabsTrigger>
+                        <TabsTrigger value="register">Register</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="login">
+                        <form onSubmit={handleEmailLogin} className="space-y-4 pt-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="login-email">Email</Label>
+                                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                             </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="login-password">Password</Label>
+                                <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                             </div>
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Login
+                            </Button>
+                        </form>
+                    </TabsContent>
+                     <TabsContent value="register">
+                        <form onSubmit={handleEmailRegister} className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="register-name">Full Name</Label>
+                                <Input id="register-name" placeholder="John Doe" required value={name} onChange={e => setName(e.target.value)} />
+                             </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="register-email">Email</Label>
+                                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                             </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="register-password">Password</Label>
+                                <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                             </div>
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Create Account
+                            </Button>
+                        </form>
+                    </TabsContent>
+                 </Tabs>
+
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                </div>
+
+                 <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
+                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                   <GoogleIcon /> Sign in with Google
+                 </Button>
+
+            </CardContent>
+        </Card>
       </div>
       <div className="hidden bg-muted lg:block relative">
         {heroImage && (
@@ -79,5 +178,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    

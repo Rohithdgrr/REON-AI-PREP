@@ -1,4 +1,5 @@
 
+'use client';
 import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { MissionsCard } from "@/components/dashboard/missions-card";
 import { ProgressCard } from "@/components/dashboard/progress-card";

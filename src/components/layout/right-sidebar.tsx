@@ -31,16 +31,15 @@ import { LibraSidebar } from '../libra/LibraSidebar';
 import { SimpleNotes } from '../simple-notes';
 
 const tools = [
+  { id: 'notifications', icon: Bell, label: 'Notifications', component: NotificationsPanel, title: 'Notifications' },
+  { id: 'libra', icon: Sparkles, label: 'LIBRA AI', component: LibraSidebar, title: 'LIBRA AI', isAi: true },
   { id: 'notes', icon: Notebook, label: 'Notes', component: SimpleNotes, title: 'Notes' },
   { id: 'todo', icon: ListTodo, label: 'To-Do List', component: TodoList, title: 'To-Do List' },
   { id: 'calendar', icon: CalendarIcon, label: 'Calendar', component: AdvancedCalendar, title: 'Calendar' },
   { id: 'calculator', icon: Calculator, label: 'Calculator', component: SimpleCalculator, title: 'Calculator' },
   { id: 'timer', icon: Timer, label: 'Timer', component: MultiTimer, title: 'Timers' },
   { id: 'stopwatch', icon: Clock, label: 'Stopwatch', component: SimpleStopwatch, title: 'Stopwatch' },
-  { id: 'notifications', icon: Bell, label: 'Notifications', component: NotificationsPanel, title: 'Notifications' },
 ];
-
-const aiTool = { id: 'libra', icon: Sparkles, label: 'LIBRA AI', component: LibraSidebar, title: 'LIBRA AI' };
 
 
 function TooltipButton({
@@ -49,21 +48,26 @@ function TooltipButton({
   onClick,
   onDoubleClick,
   className,
+  isAi = false,
 }: {
   icon: React.ElementType;
   label: string;
   onClick: () => void;
   onDoubleClick?: () => void;
   className?: string;
+  isAi?: boolean;
 }) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={onClick} onDoubleClick={onDoubleClick} className={className}>
-            <Icon className="h-5 w-5" />
-            <span className="sr-only">{label}</span>
-          </Button>
+          <div className="relative">
+             <Button variant="ghost" size="icon" onClick={onClick} onDoubleClick={onDoubleClick} className={className}>
+              <Icon className="h-5 w-5" />
+              <span className="sr-only">{label}</span>
+            </Button>
+            {isAi && <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />}
+          </div>
         </TooltipTrigger>
         <TooltipContent side="left">{label}</TooltipContent>
       </Tooltip>
@@ -94,27 +98,14 @@ export function RightSidebar() {
             label={tool.label}
             onClick={() => handleToolClick(tool.id)}
             onDoubleClick={() => handleDoubleClick(tool.id)}
+            isAi={tool.isAi}
             className={cn(
               "h-12 w-12",
-              activeTool?.id === tool.id && 'bg-accent text-accent-foreground'
+              activeTool?.id === tool.id && 'bg-accent text-accent-foreground',
+              tool.isAi && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200"
             )}
           />
         ))}
-      </nav>
-      <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-        <div className="relative">
-             <TooltipButton
-                icon={aiTool.icon}
-                label={aiTool.label}
-                onClick={() => handleToolClick(aiTool.id)}
-                onDoubleClick={() => handleDoubleClick(aiTool.id)}
-                className={cn(
-                    "h-12 w-12 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary hover:scale-110 transition-all duration-200",
-                    activeTool?.id === aiTool.id && 'bg-accent text-accent-foreground'
-                )}
-              />
-            <div className="absolute inset-0 rounded-full bg-primary/20 -z-10 animate-pulse" />
-        </div>
       </nav>
     </aside>
   );
