@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Bot, Rocket, Target } from 'lucide-react';
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 
 export function UserProfileCard() {
@@ -16,7 +15,7 @@ export function UserProfileCard() {
     const firestore = useFirestore();
     const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
-    const userProfileRef = useMemo(() => {
+    const userProfileRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         return doc(firestore, 'users', user.uid);
     }, [firestore, user]);
@@ -31,10 +30,10 @@ export function UserProfileCard() {
                          <Skeleton className="h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48 rounded-full" />
                     </div>
                     <div className="md:col-span-2 p-6 md:p-8 text-center md:text-left space-y-3">
-                         <Skeleton className="h-6 w-48" />
-                         <Skeleton className="h-10 w-64 mx-auto md:mx-0" />
-                         <Skeleton className="h-6 w-56 mx-auto md:mx-0" />
-                         <Skeleton className="h-6 w-full max-w-sm mx-auto md:mx-0" />
+                         <Skeleton className="h-6 w-3/4" />
+                         <Skeleton className="h-10 w-1/2" />
+                         <Skeleton className="h-6 w-2/3" />
+                         <Skeleton className="h-6 w-full max-w-sm" />
                         <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
                              <Skeleton className="h-12 w-48" />
                              <Skeleton className="h-12 w-48" />
@@ -79,3 +78,5 @@ export function UserProfileCard() {
         </Card>
     );
 }
+
+    

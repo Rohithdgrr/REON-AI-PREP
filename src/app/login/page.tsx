@@ -46,47 +46,41 @@ export default function LoginPage() {
     setIsLoading(false);
     console.error("Authentication Error:", error);
     
-    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        console.log("Sign-in popup was closed before completion. This can happen if the application's domain (e.g., localhost) is not an authorized domain in the Firebase Console.");
-        toast({
-            variant: "destructive",
-            title: "Sign-in Cancelled",
-            description: "The sign-in window was closed. If this happened automatically, please ensure your domain is authorized in the Firebase Console.",
-        });
-        return;
-    }
-
+    let title = "Authentication Failed";
     let description = 'An unexpected error occurred. Please try again.';
-    if (error.code) {
-        switch (error.code) {
-            case 'auth/user-not-found':
-            case 'auth/wrong-password':
-            case 'auth/invalid-credential':
-                description = 'Invalid email or password. Please check your credentials.';
-                break;
-            case 'auth/email-already-in-use':
-                description = 'This email is already registered. Please try logging in.';
-                break;
-            case 'auth/weak-password':
-                description = 'The password is too weak. Please use at least 6 characters.';
-                break;
-            case 'auth/account-exists-with-different-credential':
-                description = 'An account already exists with this email. Please sign in using the method you originally used.';
-                break;
-            case 'auth/operation-not-allowed':
-                description = 'This sign-in method is not enabled in the Firebase Console.';
-                break;
-            default:
-                description = `An error occurred. (Code: ${error.code})`;
-                break;
-        }
-    } else if (error.message) {
-        description = error.message;
+
+    switch (error.code) {
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+        title = "Sign-in Cancelled";
+        description = "The sign-in window was closed before completion. If this persists, please check if your browser is blocking pop-ups.";
+        break;
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        description = 'Invalid email or password. Please check your credentials and try again.';
+        break;
+      case 'auth/email-already-in-use':
+        description = 'This email is already registered. Please try logging in instead.';
+        break;
+      case 'auth/weak-password':
+        description = 'The password is too weak. Please use at least 6 characters.';
+        break;
+      case 'auth/account-exists-with-different-credential':
+        description = 'An account already exists with this email. Please sign in using the method you originally used.';
+        break;
+      case 'auth/operation-not-allowed':
+        title = "Sign-in Method Disabled";
+        description = 'This sign-in method is not enabled. Please contact support if you believe this is an error.';
+        break;
+      default:
+        description = error.message || `An error occurred. (Code: ${error.code})`;
+        break;
     }
     
     toast({
         variant: "destructive",
-        title: "Authentication Failed",
+        title: title,
         description: description,
     });
   }
@@ -124,7 +118,7 @@ export default function LoginPage() {
   if (isUserLoading || user) {
      return (
         <div className="flex h-screen items-center justify-center bg-background">
-          <p className="text-muted-foreground animate-pulse">Loading...</p>
+          <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
         </div>
       );
   }
