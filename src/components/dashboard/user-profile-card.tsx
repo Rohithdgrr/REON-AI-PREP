@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,6 +22,9 @@ export function UserProfileCard() {
     }, [firestore, user]);
 
     const { data: userProfile, isLoading } = useDoc(userProfileRef);
+    
+    // Reformat the RI-ID for display if it contains underscores
+    const displayRiId = userProfile?.riId?.replace(/_/g, '');
 
     if (isLoading) {
         return (
@@ -60,7 +64,7 @@ export function UserProfileCard() {
                 </div>
                 <div className="md:col-span-2 p-6 md:p-8 text-center md:text-left">
                     <p className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">Registered Identifier</p>
-                    {userProfile?.riId && <p className="text-lg font-mono text-primary">{userProfile.riId}</p>}
+                    {displayRiId && <p className="text-lg font-mono text-primary">{displayRiId}</p>}
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-headline mt-1">{userProfile?.fullName ?? 'Welcome!'}</h2>
                     <p className="text-muted-foreground mt-1 text-md">{userProfile?.email}</p>
                     <p className="text-muted-foreground mt-4 text-sm md:text-base">Welcome back! Use this RI for quick logins and progress sync.</p>
