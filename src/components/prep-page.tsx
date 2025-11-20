@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import {
@@ -13,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Book, FileText, Film, Layers, ListChecks, Expand, X, Bot } from "lucide-react";
+import { Book, FileText, Film, Layers, ListChecks, Expand, X, Bot, Upload, Loader2, File, Link as LinkIcon, Download } from "lucide-react";
 import { videoData } from "@/lib/video-data";
 import { otherMaterialsData } from "@/lib/other-materials-data";
 import Image from "next/image";
@@ -21,6 +20,12 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
 import { InAppBrowser } from "./in-app-browser";
 import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
+import { uploadMaterial } from "@/services/materials-service";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 const prepMaterials = [
     ...otherMaterialsData.map(d => ({...d, icon: d.category === 'Notes' ? FileText : d.category === 'PYQs & MCQs' ? ListChecks : Layers})), 
@@ -35,6 +40,7 @@ const prepMaterials = [
 
 const categories = [
   { name: "All", icon: Book },
+  { name: "My Uploads", icon: Upload},
   { name: "Notes", icon: FileText },
   { name: "PYQs & MCQs", icon: ListChecks },
   { name: "Cheatsheets", icon: Layers },
@@ -58,7 +64,7 @@ function VideoPlayer({ videoId, title }: { videoId: string, title: string }) {
 
 const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, onOpenUrl: (url: string, title: string) => void, onAskLibra: (materialTitle: string) => void }) => (
   <Card className="flex flex-col">
-    {material.category === 'Videos' && (
+    {material.category === 'Videos' && material.videoId && (
        <div className="aspect-video relative w-full overflow-hidden rounded-t-lg bg-black">
         <VideoPlayer videoId={material.videoId} title={material.title} />
        </div>
@@ -66,7 +72,7 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
     <CardHeader>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          {material.category !== 'Videos' && <material.icon className="h-6 w-6 text-primary" />}
+          {material.icon && material.category !== 'Videos' && <material.icon className="h-6 w-6 text-primary" />}
           <CardTitle className="text-lg">{material.title}</CardTitle>
         </div>
         <Badge variant="secondary">{material.type}</Badge>
@@ -85,8 +91,9 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
     <CardFooter className="flex-col sm:flex-row items-stretch sm:items-center gap-2">
       {material.category !== 'Videos' ? (
         <div className="flex w-full gap-2">
-          <Button className="flex-1" onClick={() => onOpenUrl(material.url, material.title)}>
-            Start Studying
+           <Button className="flex-1" onClick={() => onOpenUrl(material.url, material.title)}>
+            <LinkIcon className="mr-2 h-4 w-4" />
+            {material.category === 'My Uploads' ? 'Download' : 'Study'}
           </Button>
           <Button
             variant="outline"
@@ -98,20 +105,86 @@ const PrepMaterialCard = ({ material, onOpenUrl, onAskLibra }: { material: any, 
           </Button>
         </div>
       ) : (
-        <Button
+         <Button
           variant="outline"
-          size="icon"
           className="w-full"
           onClick={() => onAskLibra(material.title)}
         >
-          <Bot className="h-4 w-4" />
+          <Bot className="mr-2 h-4 w-4" />
+          Ask LIBRA about this video
         </Button>
       )}
     </CardFooter>
   </Card>
 );
 
+function UploadCard() {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file || !user || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: "Please select a file to upload and make sure you are logged in.",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    toast({ title: "Uploading file...", description: "Please wait a moment." });
+
+    try {
+      await uploadMaterial(user.uid, file);
+      toast({ title: "Success!", description: `${file.name} has been uploaded.` });
+      setFile(null);
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: error.message || "An unknown error occurred.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <Card className="col-span-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Upload /> Upload Your Materials</CardTitle>
+        <CardDescription>Add your own notes, cheatsheets, or documents to your personal library.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="w-full flex-1">
+          <Label htmlFor="file-upload" className="sr-only">Choose file</Label>
+          <Input id="file-upload" type="file" onChange={handleFileChange} />
+        </div>
+        <Button onClick={handleUpload} disabled={!file || isUploading} className="w-full sm:w-auto">
+          {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+          {isUploading ? "Uploading..." : "Upload File"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export function PrepPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
   const [activeTab, setActiveTab] = useState("All");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({ All: 'All' });
   const [browserState, setBrowserState] = useState<{open: boolean, url: string, title: string}>({open: false, url: '', title: ''});
@@ -122,6 +195,13 @@ export function PrepPage() {
     prepMaterials.forEach(m => m.tags.forEach(t => tags.add(t)));
     return ["All", ...Array.from(tags)];
   }, []);
+
+  const materialsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, `users/${user.uid}/materials`);
+  }, [user, firestore]);
+
+  const { data: userMaterials, isLoading: isLoadingMaterials } = useCollection(materialsQuery);
 
   const handleOpenUrl = (url: string, title: string) => {
     setBrowserState({ open: true, url, title });
@@ -134,42 +214,69 @@ export function PrepPage() {
   const handleCloseBrowser = () => {
     setBrowserState({ open: false, url: '', title: '' });
   };
-
-  const renderMaterials = (category: string) => {
-    const currentFilter = activeFilters[category] || 'All';
-    const filteredMaterials = prepMaterials.filter(material => {
-      const categoryMatch = category === 'All' || material.category === category;
-      const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
-      return categoryMatch && filterMatch;
-    });
-
-    if (filteredMaterials.length === 0) {
-      const categoryIcon = categories.find(c => c.name === category)?.icon || Book;
-      return (
-          <Card className="col-span-full">
-              <CardContent className="flex flex-col items-center justify-center p-16 text-center">
-                  <categoryIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold">No Materials Found</h3>
-                  <p className="text-muted-foreground mt-2">There are currently no materials matching your filter in this category.</p>
-              </CardContent>
-          </Card>
-      );
-    }
-
-    return filteredMaterials.map(material => (
-      <PrepMaterialCard key={material.id} material={material} onOpenUrl={handleOpenUrl} onAskLibra={handleAskLibra} />
-    ));
-  };
   
   const handleFilterChange = (category: string, filter: string) => {
     setActiveFilters(prev => ({ ...prev, [category]: filter }));
   };
 
   const currentCategoryTags = useMemo(() => {
+    let materialsToFilter = prepMaterials;
+    if (activeTab === 'My Uploads' && userMaterials) {
+        materialsToFilter = userMaterials.map(m => ({ ...m, tags: [m.type] }));
+    }
+
     const tags = new Set<string>();
-    prepMaterials.filter(m => activeTab === 'All' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
+    materialsToFilter.filter(m => activeTab === 'All' || activeTab === 'My Uploads' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
     return ['All', ...Array.from(tags)];
-  }, [activeTab]);
+  }, [activeTab, userMaterials]);
+  
+  const renderMaterials = (category: string) => {
+    const currentFilter = activeFilters[category] || 'All';
+    let materialsToShow: any[] = [];
+    
+    if (category === 'My Uploads') {
+        if (isLoadingMaterials) {
+            return Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i}>
+                    <CardHeader><Loader2 className="h-6 w-6 animate-spin" /></CardHeader>
+                    <CardContent><p>Loading material...</p></CardContent>
+                </Card>
+            ));
+        }
+        materialsToShow = (userMaterials || []).map(m => ({
+            ...m,
+            icon: FileText,
+            category: 'My Uploads',
+            tags: [m.type],
+            description: `Uploaded on: ${new Date(m.createdAt).toLocaleDateString()}`
+        }));
+    } else {
+       materialsToShow = prepMaterials.filter(material => {
+          const categoryMatch = category === 'All' || material.category === category;
+          const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
+          return categoryMatch && filterMatch;
+        });
+    }
+
+    if (materialsToShow.length === 0) {
+      const categoryIcon = categories.find(c => c.name === category)?.icon || Book;
+      return (
+          <Card className="col-span-full">
+              <CardContent className="flex flex-col items-center justify-center p-16 text-center">
+                  <categoryIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold">No Materials Found</h3>
+                  <p className="text-muted-foreground mt-2">
+                    {category === 'My Uploads' ? 'You haven\'t uploaded any materials yet.' : 'There are no materials matching your filter.'}
+                  </p>
+              </CardContent>
+          </Card>
+      );
+    }
+
+    return materialsToShow.map(material => (
+      <PrepMaterialCard key={material.id} material={material} onOpenUrl={handleOpenUrl} onAskLibra={handleAskLibra} />
+    ));
+  };
 
 
   return (
@@ -195,10 +302,12 @@ export function PrepPage() {
           Find all your study materials in one place.
         </p>
       </div>
+      
+      <UploadCard />
 
       <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
-          <TabsList className="grid w-full grid-cols-5 min-w-[500px]">
+          <TabsList className="grid w-full grid-cols-6 min-w-[600px]">
             {categories.map((cat) => (
               <TabsTrigger key={cat.name} value={cat.name}>
                 <cat.icon className="mr-2 h-4 w-4" />

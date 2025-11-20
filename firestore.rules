@@ -1,3 +1,4 @@
+
 /**
  * @file firestore.rules
  * @description Firestore Security Rules for the REON AI Prep application.
@@ -128,6 +129,16 @@ service cloud.firestore {
       allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
       allow update: if isExistingOwner(userId) && hasImmutableUserData();
       allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages user-uploaded study materials.
+     * @path /users/{userId}/materials/{materialId}
+     * @allow (read, write) The owner of the materials.
+     * @principle Enforces strict ownership for user-specific subcollections.
+     */
+    match /users/{userId}/materials/{materialId} {
+        allow read, write: if isOwner(userId);
     }
     
     /**
