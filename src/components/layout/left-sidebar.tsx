@@ -26,7 +26,7 @@ import {
   User,
   Users,
   Wrench,
-  Menu
+  Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -57,7 +57,6 @@ import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Home' },
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/notifications', icon: Bell, label: 'Job Notifications' },
   { href: '/dashboard/roadmap', icon: Map, label: 'Roadmap' },
