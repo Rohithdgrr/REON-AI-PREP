@@ -34,6 +34,7 @@ export async function uploadMaterial(userId: string, file: File) {
 
     return {
         message: "File uploaded successfully",
-        url: downloadURL
+        url: downloadURL,
+        title: file.name,
     };
 }

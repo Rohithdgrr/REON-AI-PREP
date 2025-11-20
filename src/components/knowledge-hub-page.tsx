@@ -52,6 +52,7 @@ const initialCommunityPosts = [
         time: "1h ago",
         post: "Uploaded my handwritten notes for the Quantitative Aptitude percentage chapter. Hope it helps someone! #Quant #Notes",
         hasAttachment: true,
+        attachmentTitle: "Quant-Percentages-Notes.pdf"
     }
 ];
 
@@ -83,7 +84,7 @@ const competitions = [
     }
 ]
 
-function UploadCard() {
+function UploadCard({ onUploadSuccess }: { onUploadSuccess: (fileTitle: string) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useUser();
@@ -109,8 +110,9 @@ function UploadCard() {
     toast({ title: "Uploading file...", description: "Please wait a moment." });
 
     try {
-      await uploadMaterial(user.uid, file);
+      const result = await uploadMaterial(user.uid, file);
       toast({ title: "Success!", description: `${file.name} has been uploaded.` });
+      onUploadSuccess(result.title);
       setFile(null);
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -154,19 +156,27 @@ export function KnowledgeHubPage() {
   const [newPost, setNewPost] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handlePostSubmit = () => {
-    if (newPost.trim() === "") return;
+  const handlePostSubmit = (postContent?: string) => {
+    const content = postContent || newPost;
+    if (content.trim() === "") return;
     const post = {
       id: Date.now(),
       user: "RI-XXXX",
-      avatar: userAvatar?.imageUrl || "/avatars/03.png", // Assuming current user avatar
+      avatar: userAvatar?.imageUrl || "https://i.ibb.co/ckT3S1g/wolf-gears.png", 
       time: "Just now",
-      post: newPost,
+      post: content,
     };
     setCommunityPosts([post, ...communityPosts]);
-    setNewPost("");
+    if (!postContent) {
+      setNewPost("");
+    }
     toast({ title: "Post shared successfully!" });
   };
+  
+  const handleUploadSuccess = (fileTitle: string) => {
+    const uploadPostContent = `Shared a new file: ${fileTitle}`;
+    handlePostSubmit(uploadPostContent);
+  }
 
   const handleStartChallenge = (title: string) => {
     toast({ title: `Starting: ${title}`, description: "Redirecting to the quiz arena..."});
@@ -193,8 +203,6 @@ export function KnowledgeHubPage() {
         </p>
       </div>
       
-      <UploadCard />
-
        <Tabs defaultValue="community">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="community"><Users className="mr-2 h-4 w-4" />Community</TabsTrigger>
@@ -204,6 +212,7 @@ export function KnowledgeHubPage() {
             <TabsContent value="community" className="m-0 pt-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     <div className="lg:col-span-2 space-y-4">
+                        <UploadCard onUploadSuccess={handleUploadSuccess} />
                        <Card>
                             <CardHeader className="p-4">
                                 <CardTitle className="text-base">Share your thoughts</CardTitle>
@@ -217,7 +226,7 @@ export function KnowledgeHubPage() {
                                         onChange={(e) => setNewPost(e.target.value)}
                                     />
                                     <div className="absolute right-2 top-2 flex flex-col gap-2">
-                                        <Button size="icon" className="h-8 w-8" onClick={handlePostSubmit}><Send className="h-4 w-4" /></Button>
+                                        <Button size="icon" className="h-8 w-8" onClick={() => handlePostSubmit()}><Send className="h-4 w-4" /></Button>
                                     </div>
                                 </div>
                             </CardContent>
