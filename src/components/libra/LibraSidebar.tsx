@@ -30,6 +30,7 @@ import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 
 type AIMode = 'Chat' | 'History';
@@ -117,17 +118,14 @@ const suggestionCards = [
   },
 ];
 
-const mistralModels = [
-    { value: "open-mistral-nemo", label: "open-mistral-nemo (12B – best free)"},
-    { value: "open-mistral-7b", label: "open-mistral-7b (7B – fast)"},
-    { value: "open-mixtral-8x7b", label: "open-mixtral-8x7b (46B – very good)"},
-    { value: "open-mixtral-8x22b", label: "open-mixtral-8x22b (141B – strongest free)"},
+const llamaModels: { value: 'L1' | 'L2', label: string }[] = [
+    { value: "L1", label: "Llama 3 (8B)"},
+    { value: "L2", label: "Llama 3 (70B)"},
 ];
 
 export function LibraSidebar({ prompt }: { prompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
-  const [model, setModel] = useState<string>('open-mistral-nemo');
-  const [apiKey, setApiKey] = useState('nJCcmgS1lSo13OVE79Q64QndL3nCDjQI');
+  const [model, setModel] = useState<'L1' | 'L2'>('L1');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -158,11 +156,11 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
 
   const handleAiRequest = async (promptOverride?: string) => {
     const textToProcess = promptOverride || input;
-    if (!textToProcess || !apiKey) {
+    if (!textToProcess) {
       toast({
         variant: 'destructive',
         title: 'Input required',
-        description: 'Please type a message and provide an API key.',
+        description: 'Please type a message.',
       });
       return;
     }
@@ -176,34 +174,13 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
       mode: 'Chat',
       input: textToProcess,
       response: '',
-      model,
+      model: model,
     };
     
     setSessionHistory(prev => [...prev, newSession]);
     
     try {
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: [{ role: "user", content: textToProcess }],
-                temperature: 0.7,
-                max_tokens: 1024
-            }),
-            signal: abortControllerRef.current.signal,
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`HTTP ${response.status}: ${err}`);
-        }
-
-        const data = await response.json();
-        const finalResponse = data.choices[0]?.message?.content || "No content";
+        const finalResponse = await answerQuestionsWithAI({ prompt: textToProcess, model });
 
         setSessionHistory(prevHistory => {
            const newHistory = [...prevHistory];
@@ -455,12 +432,12 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
         <div className="flex justify-center mb-2">
-            <Select value={model} onValueChange={setModel}>
-                <SelectTrigger className="w-[280px]">
+            <Select value={model} onValueChange={(v: 'L1' | 'L2') => setModel(v)}>
+                <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                    {mistralModels.map(m => (
+                    {llamaModels.map(m => (
                         <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                     ))}
                 </SelectContent>
