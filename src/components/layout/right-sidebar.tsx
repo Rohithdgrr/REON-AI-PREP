@@ -63,7 +63,7 @@ function TooltipButton({
 }
 
 export function RightSidebar() {
-  const { activeTool, setActiveTool, toggleSidebar } = useToolsSidebar();
+  const { activeTool, setActiveTool } = useToolsSidebar();
 
   const handleToolClick = (toolId: string) => {
     setActiveTool({ id: toolId });
@@ -77,7 +77,6 @@ export function RightSidebar() {
   
   return (
     <div className="hidden sm:flex flex-col items-center gap-4 border-l bg-background p-4">
-      <UserProfileCard />
       <div className="flex flex-col items-center gap-2 pt-2">
         {tools.map((tool) => {
            const isLibra = tool.id === 'libra';
