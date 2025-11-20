@@ -139,15 +139,9 @@ export function LibraSidebar({ prompt }: { prompt?: string }) {
   }, [prompt]);
 
   useEffect(() => {
-    try {
-      const savedHistory = localStorage.getItem('libraSessionHistory');
-      if (savedHistory && currentMode === 'History') {
-        setSessionHistory(JSON.parse(savedHistory));
-      }
-    } catch (e) {
-      console.error('Failed to load LIBRA history from localStorage', e);
-    }
-  }, [currentMode]);
+    // Clear history on load
+    setSessionHistory([]);
+  }, []);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -222,56 +216,6 @@ ${baseFormatInstruction}
 User input: "${textToProcess}"
 `;
 
-    const processStream = async (response: Response, currentSession: Session) => {
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-        }
-        if (!response.body) {
-            throw new Error('Response body is null');
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
-        let finalResponse = '';
-      
-        while (!done) {
-            const { value, done: readerDone } = await reader.read();
-            done = readerDone;
-            const chunk = decoder.decode(value, { stream: true });
-            
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const dataString = line.substring(6);
-                    if (dataString === '[DONE]') {
-                        done = true;
-                        break;
-                    }
-                    try {
-                        const data = JSON.parse(dataString);
-                        if (data.choices && data.choices[0].delta.content) {
-                            const token = data.choices[0].delta.content;
-                            finalResponse += token;
-
-                            setSessionHistory(prevHistory => {
-                               const newHistory = [...prevHistory];
-                               const sessionIndex = newHistory.findIndex(s => s.id === currentSession.id);
-                               if (sessionIndex > -1) {
-                                   newHistory[sessionIndex].responses[0] = finalResponse;
-                               }
-                               return newHistory;
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Error parsing stream data:', e, 'line:', line);
-                    }
-                }
-            }
-        }
-    }
-
-
     const newSession: Session = {
       id: Date.now(),
       mode: 'Chat',
@@ -279,18 +223,14 @@ User input: "${textToProcess}"
       responses: [''],
       currentResponseIndex: 0,
       language,
-      model: 'L1', // Start with L1
+      model,
     };
     
     const updatedHistory = [...sessionHistory, newSession];
-    saveHistory(updatedHistory);
+    setSessionHistory(updatedHistory);
     
     try {
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('L1 model timeout')), 20000)
-        );
-
-        const l1FetchPromise = fetch(
+        const response = await fetch(
             'https://openrouter.ai/api/v1/chat/completions',
             {
                 method: 'POST',
@@ -299,63 +239,40 @@ User input: "${textToProcess}"
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model: 'meta-llama/llama-3.1-70b-instruct',
+                    model: 'x-ai/grok-4.1-fast',
                     messages: [{ role: 'user', content: fullPrompt }],
-                    stream: true,
                 }),
                 signal: abortControllerRef.current.signal,
             }
         );
 
-        const responseL1 = await Promise.race([l1FetchPromise, timeoutPromise]) as Response;
-        await processStream(responseL1, newSession);
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const finalResponse = data.choices[0].message.content;
+
+        setSessionHistory(prevHistory => {
+           const newHistory = [...prevHistory];
+           const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+           if (sessionIndex > -1) {
+               newHistory[sessionIndex].responses[0] = finalResponse;
+           }
+           return newHistory;
+        });
+
 
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
-          setIsLoading(false);
-          return;
-        }
-
-        console.error(`L1 API Error or Timeout:`, error);
-        toast({
-            variant: "destructive",
-            title: 'L1 Model Failed or Timed Out',
-            description: 'Switching to backup model (L2)...',
-        });
-        
-        newSession.model = 'L2';
-        setSessionHistory(prev => prev.map(s => s.id === newSession.id ? newSession : s));
-
-        try {
-            const responseL2 = await fetch(
-                'https://openrouter.ai/api/v1/chat/completions',
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY_L2}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'anthropic/claude-3-haiku', 
-                        messages: [{ role: 'user', content: fullPrompt }],
-                        stream: true,
-                    }),
-                    signal: abortControllerRef.current.signal,
-                }
-            );
-            await processStream(responseL2, newSession);
-        } catch (errorL2: any) {
-            if (errorL2.name === 'AbortError') {
-              console.log('L2 Fetch aborted by user.');
-            } else {
-              console.error(`L2 API Error:`, errorL2);
+        } else {
+             console.error(`API Error:`, error);
               toast({
                   variant: "destructive",
                   title: 'AI Error',
-                  description: 'Both primary and backup models failed to respond. Please check console.',
+                  description: error.message || 'The model failed to respond. Please check console.',
               });
-            }
         }
     } finally {
       setIsLoading(false);
@@ -416,7 +333,7 @@ User input: "${textToProcess}"
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
-          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">{lastSession.model}</span>}
+          {lastSession && <span className="text-xs bg-muted px-2 py-0.5 rounded-md">grok-4.1-fast</span>}
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>
@@ -630,5 +547,3 @@ User input: "${textToProcess}"
     </div>
   );
 }
-
-    

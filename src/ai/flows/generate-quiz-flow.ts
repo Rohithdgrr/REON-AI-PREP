@@ -69,7 +69,7 @@ const generateQuizFlow = ai.defineFlow(
     outputSchema: GenerateQuizOutputSchema,
   },
   async input => {
-    const { output } = await prompt(input);
+    const {output} = await prompt(input, {model: 'x-ai/grok-4.1-fast'});
     return output!;
   }
 );

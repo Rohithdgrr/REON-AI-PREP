@@ -87,7 +87,7 @@ const generatePersonalizedStudyPlanFlow = ai.defineFlow(
     outputSchema: GeneratePersonalizedStudyPlanOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output} = await prompt(input, {model: 'x-ai/grok-4.1-fast'});
     return output!;
   }
 );
