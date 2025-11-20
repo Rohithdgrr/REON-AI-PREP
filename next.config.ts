@@ -34,6 +34,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'e7.pngegg.com',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
   env: {
