@@ -41,46 +41,43 @@ export default function LoginPage() {
     }
   }, [user, isUserLoading, router]);
 
+  const handleAuthError = (error: any) => {
+    setIsLoading(false);
+    console.error("Authentication Error:", error);
+    let description = 'An unexpected error occurred. Please try again.';
+    // Provide more specific feedback for common errors
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      description = 'Invalid email or password. Please check your credentials.';
+    } else if (error.code === 'auth/email-already-in-use') {
+      description = 'This email is already registered. Please try logging in.';
+    } else if (error.code === 'auth/weak-password') {
+      description = 'The password is too weak. Please use at least 6 characters.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      description = 'The sign-in window was closed before completion.';
+    }
+    
+    toast({
+        variant: "destructive",
+        title: "Authentication Failed",
+        description: description,
+    });
+  }
+
   const handleGoogleSignIn = () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        setIsLoading(false);
+      .then(() => {
         router.push('/dashboard');
       })
-      .catch((error) => {
-        setIsLoading(false);
-        // The auth/popup-closed-by-user error is common and can be ignored if the user intentionally closes it.
-        if (error.code === 'auth/popup-closed-by-user') {
-            console.log("Sign-in popup closed by user.");
-            return;
-        }
-        console.error("Authentication Error:", error);
-        toast({
-            variant: "destructive",
-            title: "Authentication Failed",
-            description: `Error: ${error.message}`,
-        });
-      });
+      .catch(handleAuthError);
   };
-  
-  const handleAuthError = (error: any) => {
-    setIsLoading(false);
-    console.error("Authentication Error:", error);
-    toast({
-        variant: "destructive",
-        title: "Authentication Failed",
-        description: `Error: ${error.code} - ${error.message}`,
-    });
-  }
 
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        setIsLoading(false);
         router.push('/dashboard');
       })
       .catch(handleAuthError);
@@ -91,7 +88,6 @@ export default function LoginPage() {
     setIsLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
      .then(() => {
-        setIsLoading(false);
         router.push('/dashboard');
       })
       .catch(handleAuthError);
@@ -195,5 +191,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    
