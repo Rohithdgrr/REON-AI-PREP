@@ -51,9 +51,9 @@ export function UserProfileCard() {
             <div className="flex flex-col md:flex-row items-center gap-6 p-6 md:p-8">
                 <div className="relative flex-shrink-0">
                     <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
-                    <Avatar className="relative h-32 w-32 sm:h-36 sm:w-36 border-4 border-background">
+                    <Avatar className="relative h-32 w-32 sm:h-36 sm:w-36 border-4 border-background rounded-full">
                        <AvatarImage src={userProfile?.profilePhoto ?? userAvatar?.imageUrl} alt={userProfile?.fullName ?? 'User avatar'} />
-                       <AvatarFallback className="text-5xl">
+                       <AvatarFallback className="text-5xl rounded-full">
                          {userProfile?.fullName?.charAt(0) ?? <Bot className="h-20 w-20" />}
                        </AvatarFallback>
                     </Avatar>

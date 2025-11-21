@@ -172,14 +172,31 @@ export function SettingsPage() {
                     <CardDescription>Update your personal information and manage account security.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex flex-col items-center gap-6">
-                            <Avatar className="h-40 w-40">
-                                <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
-                                <AvatarFallback><User className="h-20 w-20" /></AvatarFallback>
-                            </Avatar>
+                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                            <div className="relative">
+                               <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
+                                <Avatar className="relative h-32 w-32 border-4 border-background rounded-full">
+                                    <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
+                                    <AvatarFallback className="rounded-full"><User className="h-16 w-16" /></AvatarFallback>
+                                </Avatar>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">Registered Identifier</p>
+                                <p className="text-lg font-mono text-primary">R20041209RT</p>
+                                <h2 className="text-3xl sm:text-4xl font-bold font-headline mt-1">{user?.displayName ?? 'Rohith'}</h2>
+                                <p className="text-muted-foreground mt-1 text-md">{user?.email ?? 'rohit93dgrr@gmail.com'}</p>
+                                <p className="text-muted-foreground mt-4 text-sm md:text-base">Welcome back! Use this RI for quick logins and progress sync.</p>
+                            </div>
+                        </div>
+
+                         <div className="flex justify-center md:justify-start pt-4">
                             <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
                         </div>
-                        <div className="grid grid-cols-1 gap-4">
+
+                        <Separator/>
+
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Personal Information</h3>
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
                                 <Input id="name" defaultValue={user?.displayName ?? ""} />
@@ -195,7 +212,7 @@ export function SettingsPage() {
                         </div>
                          <Separator/>
                         <div className="space-y-4">
-                            <Label className="text-base">Change Password</Label>
+                            <h3 className="text-lg font-semibold">Change Password</h3>
                                 <div className="space-y-2">
                                 <Label htmlFor="current-password">Current Password</Label>
                                 <Input id="current-password" type="password" />
@@ -208,19 +225,19 @@ export function SettingsPage() {
                         </div>
                         <Separator/>
                          <div className="space-y-4">
-                            <Label className="text-base">Account Actions</Label>
-                                <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
+                            <h3 className="text-lg font-semibold">Account Actions</h3>
+                                <Button variant="outline" onClick={handleLogout} className="w-full sm:w-auto justify-start">
                                 <LogOut className="mr-2 h-4 w-4" />
                                 Logout from this device
                             </Button>
                         </div>
                         <Separator/>
                         <div className="space-y-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-                            <Label className="text-base text-destructive">Danger Zone</Label>
+                            <h3 className="text-lg font-semibold text-destructive">Danger Zone</h3>
                             <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data.</p>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
+                                    <Button variant="destructive" className="w-full sm:w-auto justify-start" disabled={isDeleting}>
                                         {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                                         Delete My Account
                                     </Button>
@@ -361,19 +378,19 @@ export function SettingsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Info className="h-6 w-6" />
-                            About REON AI
+                            About REON AI PREP
                         </CardTitle>
                         <CardDescription>Important information regarding this application.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-muted-foreground">
                         <p>
-                            This application, REON AI, has been developed as an experimental project for demonstration and educational purposes. The features, data, and functionalities presented are illustrative and may not represent a complete or commercially available product.
+                            This application, REON AI PREP, has been developed as an experimental project for demonstration and educational purposes. The features, data, and functionalities presented are illustrative and may not represent a complete or commercially available product.
                         </p>
                         <p>
                             We earnestly request that all users and reviewers respect the intellectual effort that has gone into this project. Our development process operates with the utmost respect for intellectual property rights, and we have made every effort to avoid any infringement of copyright or patent laws.
                         </p>
                         <p>
-                            In accordance with Indian law, including but not limited to <span className="font-semibold text-foreground">The Copyright Act, 1957</span>, and <span className="font-semibold text-foreground">The Patents Act, 1970</span>, we affirm that we do not intend to violate any protected rights. The concepts and technologies used are either our own original work, based on open-source technologies, or are implementations of publicly documented features.
+                           In accordance with Indian law, including but not limited to <span className="font-semibold text-foreground">The Copyright Act, 1957</span>, and <span className="font-semibold text-foreground">The Patents Act, 1970</span>, we affirm that we do not intend to violate any protected rights. The concepts and technologies used are either our own original work, based on open-source technologies, or are implementations of publicly documented features.
                         </p>
                         <p>
                            If you have any concerns regarding potential copyright or patent infringements, we kindly ask you to contact us directly at <a href="mailto:support@reon.ai" className="text-primary hover:underline">support@reon.ai</a> so that we may address the matter promptly.
