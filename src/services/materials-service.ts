@@ -6,22 +6,22 @@ import {
   ref,
   uploadBytesResumable,
   UploadTaskSnapshot,
-  getStorage,
+  FirebaseStorage,
 } from 'firebase/storage';
 import {
   addDoc,
   collection,
   serverTimestamp,
-  getFirestore,
+  Firestore,
 } from 'firebase/firestore';
 
 export const uploadMaterial = (
+  firestore: Firestore,
+  storage: FirebaseStorage,
   userId: string,
   file: File,
   onProgress: (progress: number) => void
 ): Promise<void> => {
-  const storage = getStorage();
-  const firestore = getFirestore();
 
   return new Promise((resolve, reject) => {
     const storageRef = ref(
@@ -64,5 +64,3 @@ export const uploadMaterial = (
     );
   });
 };
-
-    

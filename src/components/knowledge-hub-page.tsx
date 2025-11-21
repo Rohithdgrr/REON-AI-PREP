@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState } from 'react';
@@ -32,7 +33,7 @@ import { Input } from './ui/input';
 import { useRouter } from 'next/navigation';
 import { Badge } from './ui/badge';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useStorage } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Progress } from './ui/progress';
 import { uploadMaterial } from '@/services/materials-service';
@@ -117,6 +118,9 @@ export function KnowledgeHubPage() {
   const router = useRouter();
   const { setActiveTool } = useToolsSidebar();
   const { user } = useUser();
+  const firestore = useFirestore();
+  const storage = useStorage();
+
 
   const [communityPosts, setCommunityPosts] = useState(initialCommunityPosts);
   const [newPost, setNewPost] = useState('');
@@ -163,7 +167,7 @@ export function KnowledgeHubPage() {
 
 
   const handleFileUpload = async () => {
-    if (!uploadStatus.file || !user) {
+    if (!uploadStatus.file || !user || !firestore || !storage) {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
@@ -177,6 +181,8 @@ export function KnowledgeHubPage() {
 
     try {
         await uploadMaterial(
+            firestore,
+            storage,
             user.uid,
             file,
             (progress) => {
@@ -429,6 +435,3 @@ export function KnowledgeHubPage() {
     </div>
   );
 }
-
-
-    
