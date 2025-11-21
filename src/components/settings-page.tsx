@@ -172,24 +172,24 @@ export function SettingsPage() {
                     <CardDescription>Update your personal information and manage account security.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                        <div className="flex flex-col items-center gap-6 text-center">
                             <div className="relative">
                                <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
-                                <Avatar className="relative h-32 w-32 border-4 border-background rounded-full">
+                                <Avatar className="relative h-40 w-40 border-4 border-background rounded-full">
                                     <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
-                                    <AvatarFallback className="rounded-full"><User className="h-16 w-16" /></AvatarFallback>
+                                    <AvatarFallback className="rounded-full"><User className="h-24 w-24" /></AvatarFallback>
                                 </Avatar>
                             </div>
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">Registered Identifier</p>
                                 <p className="text-lg font-mono text-primary">R20041209RT</p>
-                                <h2 className="text-3xl sm:text-4xl font-bold font-headline mt-1">{user?.displayName ?? 'Rohith'}</h2>
-                                <p className="text-muted-foreground mt-1 text-md">{user?.email ?? 'rohit93dgrr@gmail.com'}</p>
-                                <p className="text-muted-foreground mt-4 text-sm md:text-base">Welcome back! Use this RI for quick logins and progress sync.</p>
+                                <h2 className="text-4xl sm:text-5xl font-bold font-headline mt-1">{user?.displayName ?? 'Rohith'}</h2>
+                                <p className="text-muted-foreground mt-1 text-lg">{user?.email ?? 'rohit93dgrr@gmail.com'}</p>
+                                <p className="text-muted-foreground mt-4 text-sm md:text-base max-w-md mx-auto">Use this RI for quick logins and progress sync across devices.</p>
                             </div>
                         </div>
 
-                         <div className="flex justify-center md:justify-start pt-4">
+                         <div className="flex justify-center pt-4">
                             <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
                         </div>
 
