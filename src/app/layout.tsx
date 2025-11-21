@@ -26,7 +26,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body 
         className={cn('min-h-screen bg-background font-body antialiased', inter.variable, lexend.variable)} 
-        suppressHydrationWarning
       >
         <ClientWrapper>
           <FirebaseClientProvider>
@@ -35,6 +34,7 @@ export default function RootLayout({
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange
+              themes={['theme-default-light', 'theme-default-dark', 'theme-sapphire-light', 'theme-sapphire-dark']}
             >
               <ToolsSidebarProvider>
                 {children}
