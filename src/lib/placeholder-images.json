@@ -3,20 +3,20 @@
     {
       "id": "user-avatar",
       "description": "User avatar for dashboard",
-      "imageUrl": "https://i.ibb.co/ckT3S1g/wolf-gears.png",
-      "imageHint": "profile person"
+      "imageUrl": "https://logopond.com/logos/e35d00520f8db085f6e0f3c5f70fd9e6.png",
+      "imageHint": "wolf logo"
     },
     {
       "id": "user-avatar-2",
       "description": "Wolf avatar with gears",
-      "imageUrl": "https://i.ibb.co/ckT3S1g/wolf-gears.png",
-      "imageHint": "wolf gears"
+      "imageUrl": "https://logopond.com/logos/e35d00520f8db085f6e0f3c5f70fd9e6.png",
+      "imageHint": "wolf logo"
     },
     {
       "id": "app-logo",
       "description": "Application logo",
-      "imageUrl": "https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png",
-      "imageHint": "tribal wolf logo"
+      "imageUrl": "https://logopond.com/logos/e35d00520f8db085f6e0f3c5f70fd9e6.png",
+      "imageHint": "wolf logo"
     },
     {
       "id": "hero-background",
@@ -87,19 +87,19 @@
     {
       "id": "job-railway",
       "description": "Image representing a railway job",
-      "imageUrl": "https://images.unsplash.com/photo-1527839321757-ad3a2f2be351?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cmFpbiUyMHN0YXRpb258ZW58MHx8fHwxNzYzNjUwMzUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1521075821520-ae40128c1ea0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0cmFpbiUyMHN0YXRpb258ZW58MHx8fHwxNzYzNjUwMzUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "train station"
     },
     {
       "id": "job-bank",
       "description": "Image representing a banking job",
-      "imageUrl": "https://images.unsplash.com/photo-1674544336371-8ea2ca522121?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiYW5rJTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzAxNTU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiYW5rJTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzAxNTU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bank building"
     },
     {
       "id": "job-ssc",
       "description": "Image representing a government building for SSC jobs",
-      "imageUrl": "https://images.unsplash.com/photo-1494476105528-620b211f568d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxnb3Zlcm5tZW50JTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzMwOTA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1667849921481-9e13c239ee3d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxnb3Zlcm5tZW50JTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzMwOTA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "government building"
     },
     {

@@ -36,15 +36,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'e7.pngegg.com',
-      },
-      {
-        protocol: 'https',
         hostname: 'i.ibb.co',
       },
       {
         protocol: 'https',
         hostname: 'cdn.discordapp.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'logopond.com',
       },
     ],
   },
