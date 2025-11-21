@@ -23,9 +23,9 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
         getDoc(userRef).then((docSnap) => {
           if (!docSnap.exists()) {
             // User is new, create a document for them.
-            const dobString = localStorage.getItem('temp_user_dob');
+            const dobString = localStorage.getItem(`temp_user_dob_${user.uid}`);
             const dob = dobString ? new Date(dobString) : new Date(); // Fallback
-            localStorage.removeItem('temp_user_dob');
+            localStorage.removeItem(`temp_user_dob_${user.uid}`);
 
             const formattedDob = format(dob, 'yyyyMMdd');
             const userFirstLetter = (user.displayName || 'X').charAt(0).toUpperCase();

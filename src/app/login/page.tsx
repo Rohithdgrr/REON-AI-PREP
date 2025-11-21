@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -69,7 +69,7 @@ export default function LoginPage() {
         break;
       case 'auth/email-already-in-use':
         title = "Email Already Registered";
-        description = 'This email is already registered. Please try logging in instead.';
+        description = 'This email is already registered with a password. Please log in or use "Forgot Password".';
         break;
       case 'auth/weak-password':
         title = "Weak Password";
@@ -77,7 +77,7 @@ export default function LoginPage() {
         break;
       case 'auth/account-exists-with-different-credential':
         title = "Account Exists";
-        description = 'An account already exists with this email address. Please sign in using the method you originally used (e.g., Google or Email).';
+        description = 'An account already exists with this email. Please sign in using the original method (e.g., Google).';
         break;
       case 'auth/operation-not-allowed':
         title = "Sign-in Method Disabled";
@@ -120,18 +120,28 @@ export default function LoginPage() {
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
-    if (!name || !dob) {
-        toast({ variant: 'destructive', title: "Missing Information", description: "Please provide your name and date of birth." });
+    if (!name || !dob || !email || !password) {
+        toast({ variant: 'destructive', title: "Missing Information", description: "Please fill out all fields to register." });
         return;
     }
     setIsLoading(true);
+
     try {
+        // Check if an account already exists with this email
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (methods.length > 0) {
+            handleAuthError({ code: 'auth/account-exists-with-different-credential' });
+            return;
+        }
+
+        // If no account exists, create one
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { 
             displayName: name,
         });
         
-        localStorage.setItem('temp_user_dob', format(dob, 'yyyy-MM-dd'));
+        // Store DOB temporarily for the `withAuth` HOC to pick up
+        localStorage.setItem(`temp_user_dob_${userCredential.user.uid}`, format(dob, 'yyyy-MM-dd'));
 
     } catch (error) {
         handleAuthError(error);
@@ -271,5 +281,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    
