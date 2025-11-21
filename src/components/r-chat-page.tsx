@@ -24,6 +24,7 @@ import { PollCreator } from './r-chat/poll-creator';
 import { MembersPanel } from './r-chat/members-panel';
 import { FriendsPanel } from './r-chat/friends-panel';
 import { Separator } from './ui/separator';
+import { cn } from '@/lib/utils';
 
 export const realms = [
   { id: 'me', name: 'Home', icon: <MessageCircle /> },
@@ -205,7 +206,7 @@ export function RChatPage() {
 
   return (
     <Dialog open={isPollModalOpen} onOpenChange={setIsPollModalOpen}>
-      <div className="flex h-[calc(100vh-100px)] gap-0 bg-background text-card-foreground rounded-xl overflow-hidden border">
+      <div className="flex h-[calc(100vh-100px)] lg:h-[calc(100vh-140px)] gap-0 bg-background text-card-foreground rounded-xl overflow-hidden border">
         <RealmsSidebar
           realms={realms}
           activeRealm={activeRealm}
@@ -257,11 +258,9 @@ export function RChatPage() {
                           setIsPollModalOpen={setIsPollModalOpen}
                       />
                   </div>
-                  {membersPanelOpen && (
-                      <div className="hidden lg:block w-[240px] border-l bg-muted/40">
-                          <MembersPanel members={members} />
-                      </div>
-                  )}
+                  <div className={cn("hidden lg:block w-[240px] border-l bg-muted/40 transition-all duration-300", membersPanelOpen ? "w-[240px]" : "w-0")}>
+                      {membersPanelOpen && <MembersPanel members={members} />}
+                  </div>
               </div>
           </div>
         )}

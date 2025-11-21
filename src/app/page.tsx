@@ -118,20 +118,20 @@ export default function HomePage() {
                       <h2 className="text-3xl lg:text-4xl font-bold font-headline">How It Works</h2>
                       <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">A simple, effective path to exam readiness.</p>
                     </div>
-                    <div className="relative grid md:grid-cols-3 gap-8">
-                       <div className="absolute left-1/3 top-1/2 h-0.5 w-1/3 bg-border -translate-y-1/2 hidden md:block"></div>
-                       <div className="flex flex-col items-center text-center">
-                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">1</div>
+                    <div className="relative grid md:grid-cols-3 gap-8 md:gap-0">
+                       <div className="absolute left-1/2 top-0 md:top-8 w-0.5 h-full md:h-0.5 md:w-2/3 bg-border -translate-x-1/2 -translate-y-0 md:-translate-y-1/2" />
+                       <div className="flex flex-col items-center text-center relative bg-muted/50 p-4">
+                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4 z-10">1</div>
                           <h3 className="text-xl font-semibold mb-2">Set Your Goal</h3>
                           <p className="text-muted-foreground">Tell us your target exam (Railway, Bank, etc.) and your weak subjects.</p>
                        </div>
-                       <div className="flex flex-col items-center text-center">
-                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">2</div>
+                       <div className="flex flex-col items-center text-center relative bg-muted/50 p-4">
+                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4 z-10">2</div>
                           <h3 className="text-xl font-semibold mb-2">Follow Your AI Plan</h3>
                           <p className="text-muted-foreground">Our AI generates a daily and weekly study roadmap tailored to you.</p>
                        </div>
-                       <div className="flex flex-col items-center text-center">
-                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">3</div>
+                       <div className="flex flex-col items-center text-center relative bg-muted/50 p-4">
+                          <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4 z-10">3</div>
                           <h3 className="text-xl font-semibold mb-2">Practice & Analyze</h3>
                           <p className="text-muted-foreground">Take mock tests, practice with AI quizzes, and track your progress with our analytics.</p>
                        </div>
