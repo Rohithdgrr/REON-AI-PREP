@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -48,6 +49,7 @@ const navItems = [
 ];
 
 function Logo({ isCollapsed }: { isCollapsed: boolean }) {
+  const appLogo = PlaceHolderImages.find(img => img.id === 'app-logo');
   return (
     <Link
       href="/dashboard"
@@ -56,11 +58,20 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
         isCollapsed ? 'justify-center' : 'px-2'
       )}
     >
-      <img
-        src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
-        alt="REON Logo"
-        className={cn('h-8 w-8 transition-all')}
-      />
+      {appLogo ? (
+         <img
+            src={appLogo.imageUrl}
+            alt="REON Logo"
+            className={cn('h-8 w-8 transition-all')}
+        />
+      ) : (
+        <img
+            src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
+            alt="REON Logo"
+            className={cn('h-8 w-8 transition-all')}
+        />
+      )}
+     
       <span
         className={cn(
           'transition-opacity',
