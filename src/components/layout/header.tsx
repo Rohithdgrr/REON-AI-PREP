@@ -48,11 +48,6 @@ export function Header() {
         />
       </div>
       <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setActiveTool({ id: 'notifications'})}>
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -76,7 +71,7 @@ export function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-               <Link href="/dashboard/help" className="flex items-center cursor-pointer">
+               <Link href="/dashboard/settings" className="flex items-center cursor-pointer">
                  <Settings className="mr-2 h-4 w-4" />
                  Support
               </Link>
