@@ -14,7 +14,6 @@ import {
 import { SimpleCalculator } from '../simple-calculator';
 import { MultiTimer } from '../multi-timer';
 import { AdvancedCalendar } from '../advanced-calendar';
-import { SimpleStopwatch } from '../simple-stopwatch';
 import { NotificationsPanel } from '../notifications-panel';
 import { TodoList } from '../todo-list';
 import { LibraSidebar } from '../libra/LibraSidebar';
@@ -45,11 +44,6 @@ const toolComponents: Record<string, { component: React.ComponentType<any>, titl
     component: MultiTimer,
     title: "Timers",
     description: "Set multiple countdowns for your study sessions.",
-  },
-  stopwatch: {
-    component: SimpleStopwatch,
-    title: "Stopwatch",
-    description: "Track your time for practice questions.",
   },
   notifications: {
     component: NotificationsPanel,

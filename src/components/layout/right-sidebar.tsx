@@ -4,7 +4,6 @@
 import {
   Calculator,
   Calendar as CalendarIcon,
-  Clock,
   Notebook,
   Sparkles,
   Timer,
@@ -24,7 +23,6 @@ import { Sheet, SheetContent } from '../ui/sheet';
 import { SimpleCalculator } from '../simple-calculator';
 import { AdvancedCalendar } from '../advanced-calendar';
 import { MultiTimer } from '../multi-timer';
-import { SimpleStopwatch } from '../simple-stopwatch';
 import { NotificationsPanel } from '../notifications-panel';
 import { TodoList } from '../todo-list';
 import { LibraSidebar } from '../libra/LibraSidebar';
@@ -38,7 +36,6 @@ const tools = [
   { id: 'calendar', icon: CalendarIcon, label: 'Calendar', component: AdvancedCalendar, title: 'Calendar' },
   { id: 'calculator', icon: Calculator, label: 'Calculator', component: SimpleCalculator, title: 'Calculator' },
   { id: 'timer', icon: Timer, label: 'Timer', component: MultiTimer, title: 'Timers' },
-  { id: 'stopwatch', icon: Clock, label: 'Stopwatch', component: SimpleStopwatch, title: 'Stopwatch' },
 ];
 
 
