@@ -153,9 +153,9 @@ export function SettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="flex items-center gap-6">
-                            <Avatar className="h-20 w-20">
+                            <Avatar className="h-32 w-32">
                                 <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
-                                <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>
+                                <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
                             </Avatar>
                             <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
                         </div>
