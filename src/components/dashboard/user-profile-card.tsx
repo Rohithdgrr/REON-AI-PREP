@@ -18,6 +18,7 @@ export function UserProfileCard() {
 
     const userProfileRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
+        // Correctly use the authenticated user's UID to fetch their document.
         return doc(firestore, 'users', user.uid);
     }, [firestore, user]);
 

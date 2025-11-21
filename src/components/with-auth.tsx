@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType } from 'react';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 
 export default function withAuth<P extends object>(Component: ComponentType<P>) {
   return function WithAuth(props: P) {
@@ -14,11 +15,19 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
     const firestore = useFirestore();
 
     useEffect(() => {
-      if (!isUserLoading && !user) {
-        router.replace('/login');
+      // Wait until the loading is definitively complete.
+      if (isUserLoading) {
+        return; // Do nothing while Firebase is checking auth state.
       }
 
-      if (!isUserLoading && user && firestore) {
+      // If loading is done and there's no user, redirect to login.
+      if (!user) {
+        router.replace('/login');
+        return;
+      }
+      
+      // If we have a user and firestore instance, proceed with DB operations.
+      if (user && firestore) {
         const userRef = doc(firestore, 'users', user.uid);
         getDoc(userRef).then((docSnap) => {
           if (!docSnap.exists()) {
@@ -53,8 +62,8 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
 
     if (isUserLoading || !user) {
       return (
-        <div className="flex h-screen items-center justify-center bg-background">
-          <p className="text-muted-foreground animate-pulse">Authenticating...</p>
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
         </div>
       );
     }
