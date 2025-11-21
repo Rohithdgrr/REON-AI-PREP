@@ -33,8 +33,7 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true); // Start loading to handle redirect result
-  const [isRedirectProcessing, setIsRedirectProcessing] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Default to true to handle initial auth check
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -66,10 +65,6 @@ export default function LoginPage() {
         title = "Email Already Registered";
         description = 'This email is already registered with a password. Please log in or use "Forgot Password".';
         break;
-      case 'auth/weak-password':
-        title = "Weak Password";
-        description = 'The password is too weak. Please use at least 6 characters.';
-        break;
       case 'auth/account-exists-with-different-credential':
         title = "Account Exists";
         description = 'An account already exists with this email. Please sign in using the method you originally used (e.g., Google).';
@@ -92,42 +87,43 @@ export default function LoginPage() {
 
   useEffect(() => {
     // This effect runs on page load to handle the redirect from Google Sign-In
-    if (auth && isRedirectProcessing) {
+    if (auth) {
       getRedirectResult(auth)
         .then((result) => {
           if (result) {
             // User has successfully signed in via redirect.
-            // The onAuthStateChanged listener in withAuth will handle the rest.
+            // The onAuthStateChanged listener will handle the user state update and redirect.
             toast({ title: "Signed In Successfully!", description: `Welcome, ${result.user.displayName}!`});
+            setIsLoading(true); // Keep loading state until redirect happens
+          } else {
+            // No redirect result, so we can stop the initial load if user isn't loading
+             if (!isUserLoading) {
+                setIsLoading(false);
+            }
           }
         })
         .catch((error) => {
           handleAuthError(error);
-        })
-        .finally(() => {
-          setIsRedirectProcessing(false);
           setIsLoading(false);
         });
-    } else if (!auth) {
-        setIsRedirectProcessing(false);
-        setIsLoading(false);
     }
-  }, [auth, isRedirectProcessing]);
+  }, [auth, isUserLoading]);
 
   useEffect(() => {
+    // This effect handles redirection after user state is confirmed.
     if (!isUserLoading && user) {
         router.replace('/dashboard');
-    } else if (!isUserLoading && !user && !isRedirectProcessing) {
-        // Only stop loading if we are not processing a redirect and there's no user.
+    }
+    // If there's no user and we're not still waiting for Firebase to check, stop loading.
+    if (!isUserLoading && !user) {
         setIsLoading(false);
     }
-  }, [user, isUserLoading, router, isRedirectProcessing]);
+  }, [user, isUserLoading, router]);
 
   const handleGoogleSignIn = () => {
     if (!auth) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    // Use signInWithRedirect for better mobile and new-window experience
     signInWithRedirect(auth, provider).catch(handleAuthError);
   };
 
@@ -136,9 +132,9 @@ export default function LoginPage() {
     if (!auth) return;
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .catch(handleAuthError)
-      .finally(() => {
-        // isLoading is handled by the useEffect that watches the user state
+      .catch((error) => {
+        handleAuthError(error);
+        setIsLoading(false); // Explicitly stop loading on error
       });
   }
 
@@ -164,21 +160,31 @@ export default function LoginPage() {
             displayName: name,
         });
         
+        // This will be picked up by the on-create logic in withAuth
         localStorage.setItem(`temp_user_dob_${userCredential.user.uid}`, format(dob, 'yyyy-MM-dd'));
 
     } catch (error) {
         handleAuthError(error as AuthError);
-    } finally {
-        // isLoading will be handled by the user state change effect
+        setIsLoading(false); // Explicitly stop loading on error
     }
   }
   
-  if (isUserLoading || user || isLoading) {
+  if (isUserLoading || isLoading) {
      return (
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
         </div>
       );
+  }
+  
+  if (user) {
+    // This is a fallback in case the useEffect redirect hasn't fired yet.
+    return (
+        <div className="flex h-screen items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+          <p className="ml-4">Redirecting to your dashboard...</p>
+        </div>
+    );
   }
 
   return (
@@ -210,8 +216,7 @@ export default function LoginPage() {
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                              </div>
-                            <Button type="submit" className="w-full" disabled={isLoading}>
-                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <Button type="submit" className="w-full">
                                 Login
                             </Button>
                         </form>
@@ -261,8 +266,7 @@ export default function LoginPage() {
                                     </PopoverContent>
                                 </Popover>
                              </div>
-                            <Button type="submit" className="w-full" disabled={isLoading}>
-                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <Button type="submit" className="w-full">
                                 Create Account
                             </Button>
                         </form>
@@ -278,7 +282,7 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                 <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
+                 <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
                    <GoogleIcon /> Sign in with Google
                  </Button>
 
