@@ -54,7 +54,7 @@ export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
         <Input
           type="search"
           placeholder="Search..."
-          className="w-full rounded-lg bg-muted pl-11 h-10 shadow-inner md:w-[300px] lg:w-[450px]"
+          className="w-full rounded-lg bg-muted pl-11 h-10 shadow-inner md:w-[400px] lg:w-[600px]"
         />
       </div>
       <div className="flex items-center gap-2 sm:gap-4 ml-auto">
