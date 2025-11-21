@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { User, Upload, LogOut, Loader2, Mail, Phone, Moon, Sun, Monitor, Lock, Trash2 } from "lucide-react";
+import { User, Upload, LogOut, Loader2, Mail, Phone, Moon, Sun, Monitor, Lock, Trash2, Info } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useUser, useAuth, useFirestore } from "@/firebase";
 import { signOut, deleteUser } from "firebase/auth";
@@ -159,9 +159,10 @@ export function SettingsPage() {
       </div>
 
        <Tabs defaultValue="account">
-        <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
+        <TabsList className="grid w-full grid-cols-3 md:w-[600px]">
           <TabsTrigger value="account">Account Settings</TabsTrigger>
           <TabsTrigger value="help">Help & Support</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
             <div className="flex flex-col gap-8 mt-6">
@@ -350,6 +351,33 @@ export function SettingsPage() {
                                 <p className="text-muted-foreground">+91-80-XXXX-XXXX</p>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </TabsContent>
+        <TabsContent value="about">
+            <div className="flex flex-col gap-8 max-w-4xl mx-auto mt-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Info className="h-6 w-6" />
+                            About REON AI
+                        </CardTitle>
+                        <CardDescription>Important information regarding this application.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4 text-sm text-muted-foreground">
+                        <p>
+                            This application, REON AI, has been developed as an experimental project for demonstration and educational purposes. The features, data, and functionalities presented are illustrative and may not represent a complete or commercially available product.
+                        </p>
+                        <p>
+                            We earnestly request that all users and reviewers respect the intellectual effort that has gone into this project. Our development process operates with the utmost respect for intellectual property rights, and we have made every effort to avoid any infringement of copyright or patent laws.
+                        </p>
+                        <p>
+                            In accordance with Indian law, including but not limited to <span className="font-semibold text-foreground">The Copyright Act, 1957</span>, and <span className="font-semibold text-foreground">The Patents Act, 1970</span>, we affirm that we do not intend to violate any protected rights. The concepts and technologies used are either our own original work, based on open-source technologies, or are implementations of publicly documented features.
+                        </p>
+                        <p>
+                           If you have any concerns regarding potential copyright or patent infringements, we kindly ask you to contact us directly at <a href="mailto:support@reon.ai" className="text-primary hover:underline">support@reon.ai</a> so that we may address the matter promptly.
+                        </p>
                     </CardContent>
                 </Card>
             </div>
