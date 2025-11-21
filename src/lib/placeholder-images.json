@@ -87,19 +87,19 @@
     {
       "id": "job-railway",
       "description": "Image representing a railway job",
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Indian_Railways_logo.svg/1200px-Indian_Railways_logo.svg.png",
+      "imageUrl": "https://images.unsplash.com/photo-1527839321757-ad3a2f2be351?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cmFpbiUyMHN0YXRpb258ZW58MHx8fHwxNzYzNjUwMzUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "train station"
     },
     {
       "id": "job-bank",
       "description": "Image representing a banking job",
-      "imageUrl": "https://e7.pngegg.com/pngimages/519/462/png-clipart-reserve-bank-of-india-logo-bank-india-bank-text-logo.png",
+      "imageUrl": "https://images.unsplash.com/photo-1674544336371-8ea2ca522121?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxiYW5rJTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzAxNTU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bank building"
     },
     {
       "id": "job-ssc",
       "description": "Image representing a government building for SSC jobs",
-      "imageUrl": "https://images.unsplash.com/photo-1543286386-2e6593068625?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
+      "imageUrl": "https://images.unsplash.com/photo-1494476105528-620b211f568d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxnb3Zlcm5tZW50JTIwYnVpbGRpbmd8ZW58MHx8fHwxNzYzNzMwOTA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "government building"
     },
     {
