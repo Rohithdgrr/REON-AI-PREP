@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { channelsByRealm, directMessages, realms } from "../r-chat-page";
+import { channelsByRealm, directMessages as allDirectMessages, realms } from "../r-chat-page";
 import { CircleUser, Headphones, Mic, Settings, X } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useState } from "react";
@@ -16,15 +15,16 @@ import { Input } from "../ui/input";
 type ChannelsPanelProps = {
     activeRealm: typeof realms[0];
     activeChannel: typeof channelsByRealm.r1[0] | null;
-    activeDM: typeof directMessages[0] | null;
+    activeDM: typeof allDirectMessages[0] | null;
     onSelectChannel: (channel: typeof channelsByRealm.r1[0]) => void;
-    onSelectDM: (dm: typeof directMessages[0]) => void;
+    onSelectDM: (dm: typeof allDirectMessages[0]) => void;
 }
 
 export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectChannel, onSelectDM}: ChannelsPanelProps) {
     const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
     const [isMuted, setIsMuted] = useState(false);
     const [isDeafened, setIsDeafened] = useState(false);
+    const [directMessages, setDirectMessages] = useState(allDirectMessages);
 
     return (
         <div className="flex flex-col border-r bg-muted/40 h-full">

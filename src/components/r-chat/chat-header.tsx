@@ -1,12 +1,11 @@
 
 'use client';
 
-import { CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Hash, Menu, Monitor, Phone, Pin, Users, Video, X, AtSign, Inbox, Search } from "lucide-react";
+import { Hash, Menu, AtSign, Inbox, Search, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Message } from "../r-chat-page";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
@@ -21,11 +20,11 @@ type ChatHeaderProps = {
     membersPanelOpen: boolean;
 }
 
-export function ChatHeader({ name, description, messages, setMessages, onToggleChannels, onToggleMembers, membersPanelOpen }: ChatHeaderProps) {
+export function ChatHeader({ name, description, onToggleChannels, onToggleMembers, membersPanelOpen }: ChatHeaderProps) {
     const { toast } = useToast();
 
     return (
-        <CardHeader className="flex flex-row items-center gap-2 border-b p-3 shadow-sm flex-shrink-0">
+        <header className="flex flex-row items-center gap-2 border-b p-3 shadow-sm flex-shrink-0">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={onToggleChannels}>
                 <Menu className="h-5 w-5" />
             </Button>
@@ -44,6 +43,6 @@ export function ChatHeader({ name, description, messages, setMessages, onToggleC
                  <Button variant="ghost" size="icon" onClick={() => toast({title: "Viewing Inbox..."})}><Inbox className="h-5 w-5"/></Button>
                  <Button variant="ghost" size="icon" className={cn("hidden lg:flex", membersPanelOpen && "bg-accent")} onClick={onToggleMembers}><Users className="h-5 w-5"/></Button>
             </div>
-        </CardHeader>
+        </header>
     )
 }

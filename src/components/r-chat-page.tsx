@@ -3,14 +3,8 @@
 'use client';
 
 import {
-  Card,
-} from '@/components/ui/card';
-import {
   Bot,
-  Flame,
   MessageCircle,
-  ShipWheel,
-  Train,
   Users,
 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -24,7 +18,6 @@ import { ChannelsPanel } from './r-chat/channels-panel';
 import { PollCreator } from './r-chat/poll-creator';
 import { MembersPanel } from './r-chat/members-panel';
 import { FriendsPanel } from './r-chat/friends-panel';
-import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -32,7 +25,6 @@ export const realms = [
   { id: 'me', name: 'Home', icon: <MessageCircle /> },
   { id: 'r1', name: 'R&T Community Hub', icon: <Users /> },
   { id: 'r2', name: 'AI Assistants & Bots', icon: <Bot /> },
-  { id: 'r3', name: 'Study Groups', icon: <Flame /> },
 ];
 
 export const channelsByRealm: Record<
@@ -52,22 +44,12 @@ export const channelsByRealm: Record<
     { name: 'bot-commands', type: 'text', description: 'Use bot commands here' },
     { name: 'AI Voice Support', type: 'voice', description: 'Voice chat with AI support' },
   ],
-  r3: [
-    { name: 'railway-aspirants', type: 'text', description: 'General chat for banking aspirants' },
-    { name: 'bank-po-masters', type: 'text', description: 'General chat for banking aspirants' },
-    { name: 'SSC CGL Crew', type: 'text', description: 'For Staff Selection Commission exam preppers' },
-    { name: 'Railway Voice', type: 'voice', description: 'Voice chat for railway exam prep' },
-    { name: 'Banking Voice', type: 'voice', description: 'Voice chat for banking exam prep' },
-  ],
 };
 
 const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-2');
 
-export const directMessages = [
-    { id: 'u2', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'online' },
-    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: userAvatar?.imageUrl, status: 'idle' },
-    { id: 'u4', name: 'RI-AAAA', avatarUrl: userAvatar?.imageUrl, status: 'dnd' },
-    { id: 'u5', name: 'RI-BBBB', avatarUrl: userAvatar?.imageUrl, status: 'offline' },
+export const directMessages: any[] = [
+    // Data will be fetched from Firestore
 ];
 
 export type Sender = 'me' | 'other';
@@ -90,88 +72,11 @@ export type Message = {
 };
 
 const initialMessages: Message[] = [
-  {
-    id: 1,
-    sender: 'other',
-    type: 'text',
-    content: 'Hey! Are you ready for the mock test tomorrow?',
-    timestamp: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
-    read: true,
-  },
-  {
-    id: 2,
-    sender: 'me',
-    type: 'text',
-    content: 'Almost. Just revising the reasoning part. You?',
-    timestamp: new Date().toISOString(),
-    read: true,
-  },
-  {
-    id: 3,
-    sender: 'other',
-    type: 'text',
-    content: 'Same here. That new puzzle type is tricky.',
-    timestamp: new Date().toISOString(),
-    read: true,
-  },
-  {
-    id: 4,
-    sender: 'me',
-    type: 'voice',
-    content: 'Just sent you a voice note about it.',
-    duration: '0:15',
-    timestamp: new Date().toISOString(),
-    read: true,
-  },
-  {
-    id: 5,
-    sender: 'other',
-    type: 'poll',
-    content: 'Poll: What topic should we focus on next?',
-    timestamp: new Date().toISOString(),
-    read: true,
-    pollData: {
-      question: 'What topic should we focus on next?',
-      options: [
-        { text: 'Data Interpretation', votes: 5 },
-        { text: 'Advanced Puzzles', votes: 8 },
-        { text: 'English Grammar', votes: 2 },
-      ],
-    },
-  },
-  {
-    id: 6,
-    sender: 'other',
-    type: 'text',
-    content: "Let's do some advanced puzzles then. I'll share a resource link in the resources channel.",
-    timestamp: new Date().toISOString(),
-    read: true,
-  },
-  {
-    id: 7,
-    sender: 'me',
-    type: 'text',
-    content: "Sounds good! I'm heading there now.",
-    timestamp: new Date().toISOString(),
-    read: true,
-  },
-  {
-    id: 8,
-    sender: 'me',
-    type: 'image',
-    content: 'https://images.unsplash.com/photo-1517694712202-1428bc648c2a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    timestamp: new Date().toISOString(),
-    read: false,
-  }
+  // Dummy data removed, will be fetched from Firestore
 ];
 
-export const members = [
-    { id: '1', name: 'RI-XXXX', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
-    { id: '2', name: 'RI-YYYY', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
-    { id: '3', name: 'RI-ZZZZ', role: 'Online', status: 'Idle', avatarUrl: userAvatar?.imageUrl ?? '' },
-    { id: '4', name: 'RI-AAAA', role: 'Online', status: 'Do Not Disturb', avatarUrl: userAvatar?.imageUrl ?? '' },
-    { id: '5', name: 'RI-BBBB', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
-    { id: '6', name: 'RI-CCCC', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
+export const members: any[] = [
+    // Dummy data removed, will be fetched from Firestore
 ];
 
 
@@ -179,14 +84,14 @@ export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeRealm, setActiveRealm] = useState(realms[0]);
   const [activeChannel, setActiveChannel] = useState<typeof channelsByRealm.r1[0] | null>(null);
-  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(directMessages[0]);
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(directMessages.length > 0 ? directMessages[0] : null);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
   const [membersPanelOpen, setMembersPanelOpen] = useState(true);
 
   const handleSelectRealm = (realm: typeof realms[0]) => {
     setActiveRealm(realm);
-    setActiveChannel(realm.id === 'me' ? null : channelsByRealm[realm.id][0]);
+    setActiveChannel(realm.id === 'me' ? null : channelsByRealm[realm.id]?.[0] ?? null);
     setActiveDM(null);
   };
 

@@ -18,8 +18,6 @@ import { cn } from '@/lib/utils';
 import { Bot, CheckCheck, CircleUser, MessageSquare, Pencil, Pin, Play, Share2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Message, PollData } from '../r-chat-page';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Label } from '../ui/label';
 
 type MessageBubbleProps = {
     message: Message & { edited?: boolean };
@@ -76,7 +74,11 @@ const PollMessageBubble = ({ pollData }: { pollData: PollData }) => {
 
 
 export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGroup, isLastInGroup }: MessageBubbleProps) {
-    const formattedTimestamp = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const isISOTimestamp = typeof message.timestamp === 'string' && message.timestamp.includes('T');
+    
+    const formattedTimestamp = isISOTimestamp
+      ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : message.timestamp;
     
     return (
          <ContextMenu>

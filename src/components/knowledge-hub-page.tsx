@@ -37,49 +37,16 @@ import { useUser, useFirestore, useStorage } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Progress } from './ui/progress';
 import { uploadMaterial } from '@/services/materials-service';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
-const initialCommunityPosts = [
-  {
-    id: 1,
-    user: 'RI-YYYY',
-    avatar: userAvatar?.imageUrl,
-    time: '5m ago',
-    post: 'Just finished the Reasoning Puzzles course! The AI-generated tests are a game-changer. Anyone have tips for the advanced seating arrangements?',
-  },
-  {
-    id: 2,
-    user: 'RI-ZZZZ',
-    avatar: userAvatar?.imageUrl,
-    time: '1h ago',
-    post: 'Uploaded my handwritten notes for the Quantitative Aptitude percentage chapter. Hope it helps someone! #Quant #Notes',
-    hasAttachment: true,
-    attachmentTitle: 'Quant-Percentages-Notes.pdf',
-  },
+const initialCommunityPosts: any[] = [
+  // Dummy data removed, will be fetched from Firestore
 ];
 
-const allFriends = [
-  {
-    id: 1,
-    riId: 'RAX202514790',
-    avatarUrl: userAvatar?.imageUrl,
-  },
-  {
-    id: 2,
-    riId: 'RAX202514791',
-    avatarUrl: userAvatar?.imageUrl,
-  },
-  {
-    id: 3,
-    riId: 'RAX202514792',
-    avatarUrl: userAvatar?.imageUrl,
-  },
-  {
-    id: 4,
-    riId: 'RAX202514793',
-    avatarUrl: userAvatar?.imageUrl,
-  },
+const allFriends: any[] = [
+  // Dummy data removed
 ];
 
 const competitions = [
@@ -283,14 +250,26 @@ export function KnowledgeHubPage() {
                   )}
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex justify-between">
-                     <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-muted-foreground"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Paperclip className="mr-2 h-4 w-4" /> Attach File
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span tabIndex={0}>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-muted-foreground"
+                                disabled
+                              >
+                                <Paperclip className="mr-2 h-4 w-4" /> Attach File
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Coming Soon!</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
                       <Input
                         type="file"
                         ref={fileInputRef}
@@ -307,7 +286,7 @@ export function KnowledgeHubPage() {
                       </Button>
                 </CardFooter>
               </Card>
-              {communityPosts.map((post) => (
+              {communityPosts.length > 0 ? communityPosts.map((post) => (
                 <Card key={post.id}>
                   <CardHeader className="p-4">
                     <div className="flex items-center gap-3">
@@ -332,7 +311,11 @@ export function KnowledgeHubPage() {
                     )}
                   </CardContent>
                 </Card>
-              ))}
+              )) : (
+                <div className="text-center text-muted-foreground py-16">
+                    <p>No community posts yet.</p>
+                </div>
+              )}
             </div>
             <div className="space-y-4 lg:sticky lg:top-20">
               <Card>
@@ -350,7 +333,7 @@ export function KnowledgeHubPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    {filteredFriends.map((friend) => (
+                    {filteredFriends.length > 0 ? filteredFriends.map((friend) => (
                       <div
                         key={friend.id}
                         className="flex items-center justify-between p-2 rounded-md hover:bg-muted"
@@ -370,7 +353,11 @@ export function KnowledgeHubPage() {
                           Connect
                         </Button>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center text-muted-foreground py-4 text-sm">
+                        <p>No friends found.</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
