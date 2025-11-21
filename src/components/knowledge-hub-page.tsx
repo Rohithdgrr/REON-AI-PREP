@@ -139,7 +139,7 @@ export function KnowledgeHubPage() {
     const post = {
       id: Date.now(),
       user: 'RI-XXXX',
-      avatar: userAvatar?.imageUrl || 'https://i.ibb.co/ckT3S1g/wolf-gears.png',
+      avatar: userAvatar?.imageUrl,
       time: 'Just now',
       post: content,
       hasAttachment,
@@ -312,7 +312,7 @@ export function KnowledgeHubPage() {
                   <CardHeader className="p-4">
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={post.avatar} />
+                        <AvatarImage src={post.avatar ?? undefined} />
                         <AvatarFallback>{post.user.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div>
@@ -357,7 +357,7 @@ export function KnowledgeHubPage() {
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={friend.avatarUrl} />
+                            <AvatarImage src={friend.avatarUrl ?? undefined} />
                             <AvatarFallback>
                               {friend.riId.charAt(0)}
                             </AvatarFallback>

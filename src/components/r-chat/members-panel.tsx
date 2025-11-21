@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -56,7 +57,7 @@ export function MembersPanel({ members }: MembersPanelProps) {
                                          <div key={member.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/80 cursor-pointer">
                                              <div className="relative">
                                                 <Avatar className="h-8 w-8">
-                                                    <AvatarImage src={member.avatarUrl} />
+                                                    <AvatarImage src={member.avatarUrl ?? undefined} />
                                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                                 <span className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-background", statusColors[member.status])} />

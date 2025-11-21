@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { AtSign, Inbox, Search, User, Users } from "lucide-react";
@@ -7,12 +8,15 @@ import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+
+const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
 const friends = [
-  { id: 'u2', name: 'RI-YYYY', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'Online', customStatus: 'Playing Valorant' },
-  { id: 'u3', name: 'RI-ZZZZ', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'Idle', customStatus: '' },
-  { id: 'u4', name: 'RI-AAAA', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'Do Not Disturb', customStatus: 'In a meeting' },
-  { id: 'u5', name: 'RI-BBBB', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'Offline', customStatus: '' },
+  { id: 'u2', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'Online', customStatus: 'Playing Valorant' },
+  { id: 'u3', name: 'RI-ZZZZ', avatarUrl: userAvatar?.imageUrl, status: 'Idle', customStatus: '' },
+  { id: 'u4', name: 'RI-AAAA', avatarUrl: userAvatar?.imageUrl, status: 'Do Not Disturb', customStatus: 'In a meeting' },
+  { id: 'u5', name: 'RI-BBBB', avatarUrl: userAvatar?.imageUrl, status: 'Offline', customStatus: '' },
 ];
 
 const FriendRow = ({friend}: {friend: typeof friends[0]}) => {
@@ -27,7 +31,7 @@ const FriendRow = ({friend}: {friend: typeof friends[0]}) => {
         <div className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
             <div className="relative">
                 <Avatar className="h-10 w-10">
-                    <AvatarImage src={friend.avatarUrl} />
+                    <AvatarImage src={friend.avatarUrl ?? undefined} />
                     <AvatarFallback>{friend.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span className={`absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-muted ${statusColors[friend.status as keyof typeof statusColors]}`} />

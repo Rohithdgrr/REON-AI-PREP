@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -25,6 +26,7 @@ import { MembersPanel } from './r-chat/members-panel';
 import { FriendsPanel } from './r-chat/friends-panel';
 import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export const realms = [
   { id: 'me', name: 'Home', icon: <MessageCircle /> },
@@ -59,11 +61,13 @@ export const channelsByRealm: Record<
   ],
 };
 
+const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-2');
+
 export const directMessages = [
-    { id: 'u2', name: 'RI-YYYY', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'online' },
-    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'idle' },
-    { id: 'u4', name: 'RI-AAAA', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'dnd' },
-    { id: 'u5', name: 'RI-BBBB', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png', status: 'offline' },
+    { id: 'u2', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'online' },
+    { id: 'u3', name: 'RI-ZZZZ', avatarUrl: userAvatar?.imageUrl, status: 'idle' },
+    { id: 'u4', name: 'RI-AAAA', avatarUrl: userAvatar?.imageUrl, status: 'dnd' },
+    { id: 'u5', name: 'RI-BBBB', avatarUrl: userAvatar?.imageUrl, status: 'offline' },
 ];
 
 export type Sender = 'me' | 'other';
@@ -162,12 +166,12 @@ const initialMessages: Message[] = [
 ];
 
 export const members = [
-    { id: '1', name: 'RI-XXXX', role: 'Online', status: 'Online', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: '2', name: 'RI-YYYY', role: 'Online', status: 'Online', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: '3', name: 'RI-ZZZZ', role: 'Online', status: 'Idle', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: '4', name: 'RI-AAAA', role: 'Online', status: 'Do Not Disturb', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: '5', name: 'RI-BBBB', role: 'Offline', status: 'Offline', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
-    { id: '6', name: 'RI-CCCC', role: 'Offline', status: 'Offline', avatarUrl: 'https://i.ibb.co/ckT3S1g/wolf-gears.png' },
+    { id: '1', name: 'RI-XXXX', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: '2', name: 'RI-YYYY', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: '3', name: 'RI-ZZZZ', role: 'Online', status: 'Idle', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: '4', name: 'RI-AAAA', role: 'Online', status: 'Do Not Disturb', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: '5', name: 'RI-BBBB', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: '6', name: 'RI-CCCC', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
 ];
 
 

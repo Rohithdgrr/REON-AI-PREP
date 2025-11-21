@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -38,7 +39,7 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
                             <div className="flex items-center flex-1 gap-2" onClick={() => onSelectDM(contact)}>
                                 <div className="relative">
                                     <Avatar className="mr-2 h-8 w-8">
-                                        <AvatarImage src={contact.avatarUrl} />
+                                        <AvatarImage src={contact.avatarUrl ?? undefined} />
                                         <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-muted bg-green-500" />
