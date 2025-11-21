@@ -129,7 +129,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">
           Settings & Support
@@ -145,155 +145,150 @@ export function SettingsPage() {
           <TabsTrigger value="help">Help & Support</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-            <div className="grid gap-8 lg:grid-cols-3 mt-6">
-                <div className="lg:col-span-2 space-y-8">
-                    <Card>
-                        <CardHeader>
-                        <CardTitle>Profile</CardTitle>
-                        <CardDescription>Update your personal information and manage account security.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex items-center gap-6">
-                                <Avatar className="h-20 w-20">
-                                    <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
-                                    <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>
-                                </Avatar>
-                                <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Full Name</Label>
-                                    <Input id="name" defaultValue={user?.displayName ?? ""} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" defaultValue={user?.email ?? ""} disabled />
-                                </div>
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="mobile">Mobile</Label>
-                                <Input id="mobile" defaultValue={user?.phoneNumber ?? ""} />
-                            </div>
-
-                             <Separator />
-
-                            <Accordion type="multiple" className="w-full">
-                                <AccordionItem value="security">
-                                    <AccordionTrigger className="text-base font-semibold">
-                                        <div className="flex items-center gap-2"><Lock /> Security & Account Actions</div>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="pt-4 space-y-6">
-                                        <div className="space-y-4 p-4 border rounded-lg">
-                                            <Label className="text-base">Change Password</Label>
-                                             <div className="space-y-2">
-                                                <Label htmlFor="current-password">Current Password</Label>
-                                                <Input id="current-password" type="password" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="new-password">New Password</Label>
-                                                <Input id="new-password" type="password" />
-                                            </div>
-                                            <Button>Update Password</Button>
-                                        </div>
-                                         <div className="space-y-4 p-4 border rounded-lg">
-                                            <Label className="text-base">Account Actions</Label>
-                                             <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-                                                <LogOut className="mr-2 h-4 w-4" />
-                                                Logout from this device
-                                            </Button>
-                                        </div>
-                                        <div className="space-y-4 p-4 border border-destructive rounded-lg">
-                                            <Label className="text-base text-destructive">Danger Zone</Label>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
-                                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                                        Delete My Account
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete your
-                                                        account and remove all your data from our servers.
-                                                    </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                             <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data.</p>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-
-                        </CardContent>
-                        <CardFooter>
-                            <Button>Save Changes</Button>
-                        </CardFooter>
-                    </Card>
-                    
-                </div>
-                 <div className="lg:col-span-1 space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Appearance</CardTitle>
-                            <CardDescription>Customize the look and feel of the app.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
+            <div className="flex flex-col gap-8 mt-6">
+                <Card>
+                    <CardHeader>
+                    <CardTitle>Profile</CardTitle>
+                    <CardDescription>Update your personal information and manage account security.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center gap-6">
+                            <Avatar className="h-20 w-20">
+                                <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
+                                <AvatarFallback><User className="h-10 w-10" /></AvatarFallback>
+                            </Avatar>
+                            <Button variant="outline"><Upload className="mr-2 h-4 w-4" /> Change Photo</Button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Theme</Label>
-                                <div className="flex rounded-md bg-muted p-1">
-                                    <Button variant={theme === 'light' ? 'background' : 'ghost'} onClick={() => setTheme('light')} className="flex-1">
-                                        <Sun className="mr-2"/> Light
-                                    </Button>
-                                    <Button variant={theme === 'dark' ? 'background' : 'ghost'} onClick={() => setTheme('dark')} className="flex-1">
-                                        <Moon className="mr-2"/> Dark
-                                    </Button>
-                                    <Button variant={theme === 'system' ? 'background' : 'ghost'} onClick={() => setTheme('system')} className="flex-1">
-                                        <Monitor className="mr-2"/> System
-                                    </Button>
-                                </div>
+                                <Label htmlFor="name">Full Name</Label>
+                                <Input id="name" defaultValue={user?.displayName ?? ""} />
                             </div>
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Preferences</CardTitle>
-                            <CardDescription>Manage language and notifications.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="language">Language</Label>
-                                <Select defaultValue="en">
-                                    <SelectTrigger id="language" className="w-[180px]">
-                                        <SelectValue placeholder="Select language" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="en">English</SelectItem>
-                                        <SelectItem value="te">Telugu</SelectItem>
-                                        <SelectItem value="hi">Hindi</SelectItem>
-                                        <SelectItem value="ta">Tamil</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" defaultValue={user?.email ?? ""} disabled />
                             </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                                    <p className="text-xs text-muted-foreground">Receive updates about tests and progress.</p>
-                                </div>
-                                <Switch id="email-notifications" defaultChecked />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="mobile">Mobile</Label>
+                            <Input id="mobile" defaultValue={user?.phoneNumber ?? ""} />
+                        </div>
+
+                         <Separator />
+
+                        <Accordion type="multiple" className="w-full">
+                            <AccordionItem value="security">
+                                <AccordionTrigger className="text-base font-semibold">
+                                    <div className="flex items-center gap-2"><Lock /> Security & Account Actions</div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-4 space-y-6">
+                                    <div className="space-y-4 p-4 border rounded-lg">
+                                        <Label className="text-base">Change Password</Label>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="current-password">Current Password</Label>
+                                            <Input id="current-password" type="password" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="new-password">New Password</Label>
+                                            <Input id="new-password" type="password" />
+                                        </div>
+                                        <Button>Update Password</Button>
+                                    </div>
+                                     <div className="space-y-4 p-4 border rounded-lg">
+                                        <Label className="text-base">Account Actions</Label>
+                                         <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            Logout from this device
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-4 p-4 border border-destructive rounded-lg">
+                                        <Label className="text-base text-destructive">Danger Zone</Label>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
+                                                    {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                                    Delete My Account
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete your
+                                                    account and remove all your data from our servers.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                                                    Delete
+                                                </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                         <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data.</p>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+
+                    </CardContent>
+                    <CardFooter>
+                        <Button>Save Changes</Button>
+                    </CardFooter>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Appearance</CardTitle>
+                        <CardDescription>Customize the look and feel of the app.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            <Label>Theme</Label>
+                            <div className="flex rounded-md bg-muted p-1">
+                                <Button variant={theme === 'light' ? 'background' : 'ghost'} onClick={() => setTheme('light')} className="flex-1">
+                                    <Sun className="mr-2"/> Light
+                                </Button>
+                                <Button variant={theme === 'dark' ? 'background' : 'ghost'} onClick={() => setTheme('dark')} className="flex-1">
+                                    <Moon className="mr-2"/> Dark
+                                </Button>
+                                <Button variant={theme === 'system' ? 'background' : 'ghost'} onClick={() => setTheme('system')} className="flex-1">
+                                    <Monitor className="mr-2"/> System
+                                </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Preferences</CardTitle>
+                        <CardDescription>Manage language and notifications.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="language">Language</Label>
+                            <Select defaultValue="en">
+                                <SelectTrigger id="language" className="w-[180px]">
+                                    <SelectValue placeholder="Select language" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="en">English</SelectItem>
+                                    <SelectItem value="te">Telugu</SelectItem>
+                                    <SelectItem value="hi">Hindi</SelectItem>
+                                    <SelectItem value="ta">Tamil</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <Label htmlFor="email-notifications">Email Notifications</Label>
+                                <p className="text-xs text-muted-foreground">Receive updates about tests and progress.</p>
+                            </div>
+                            <Switch id="email-notifications" defaultChecked />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </TabsContent>
         <TabsContent value="help">
