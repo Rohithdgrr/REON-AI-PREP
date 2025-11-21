@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { User, Upload, LogOut, Loader2, Mail, Phone } from "lucide-react";
+import { User, Upload, LogOut, Loader2, Mail, Phone, Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useUser, useAuth, useFirestore } from "@/firebase";
 import { signOut, deleteUser } from "firebase/auth";
@@ -179,11 +179,32 @@ export function SettingsPage() {
                             <Button>Save Changes</Button>
                         </CardFooter>
                     </Card>
-
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Appearance</CardTitle>
+                            <CardDescription>Customize the look and feel of the app.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                                <Label>Theme</Label>
+                                <div className="flex rounded-md bg-muted p-1">
+                                    <Button variant={theme === 'light' ? 'background' : 'ghost'} onClick={() => setTheme('light')} className="flex-1">
+                                        <Sun className="mr-2"/> Light
+                                    </Button>
+                                    <Button variant={theme === 'dark' ? 'background' : 'ghost'} onClick={() => setTheme('dark')} className="flex-1">
+                                        <Moon className="mr-2"/> Dark
+                                    </Button>
+                                    <Button variant={theme === 'system' ? 'background' : 'ghost'} onClick={() => setTheme('system')} className="flex-1">
+                                        <Monitor className="mr-2"/> System
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>Preferences</CardTitle>
-                            <CardDescription>Customize your app experience.</CardDescription>
+                            <CardDescription>Manage language and notifications.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="flex items-center justify-between">
@@ -199,18 +220,6 @@ export function SettingsPage() {
                                         <SelectItem value="ta">Tamil</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label htmlFor="dark-mode">Dark Mode</Label>
-                                    <p className="text-xs text-muted-foreground">Toggle between light and dark themes.</p>
-                                </div>
-                                <Switch 
-                                    id="dark-mode"
-                                    checked={theme === 'dark'}
-                                    onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                />
                             </div>
                             <Separator />
                             <div className="flex items-center justify-between">
