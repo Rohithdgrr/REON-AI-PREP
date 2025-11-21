@@ -28,7 +28,7 @@ function DashboardLayout({
           isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
         )}
       >
-        <Header />
+        <Header toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-20 sm:p-6 lg:p-8 lg:pb-8">
           <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
         </main>
