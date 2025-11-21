@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { User, Upload, LogOut, Loader2, Mail, Phone, Moon, Sun, Monitor } from "lucide-react";
+import { User, Upload, LogOut, Loader2, Mail, Phone, Moon, Sun, Monitor, Lock, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useUser, useAuth, useFirestore } from "@/firebase";
 import { signOut, deleteUser } from "firebase/auth";
@@ -150,9 +150,9 @@ export function SettingsPage() {
                     <Card>
                         <CardHeader>
                         <CardTitle>Profile</CardTitle>
-                        <CardDescription>Update your personal information.</CardDescription>
+                        <CardDescription>Update your personal information and manage account security.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-6">
                             <div className="flex items-center gap-6">
                                 <Avatar className="h-20 w-20">
                                     <AvatarImage src={user?.photoURL ?? userAvatar?.imageUrl} />
@@ -170,16 +170,78 @@ export function SettingsPage() {
                                     <Input id="email" type="email" defaultValue={user?.email ?? ""} disabled />
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                             <div className="space-y-2">
                                 <Label htmlFor="mobile">Mobile</Label>
                                 <Input id="mobile" defaultValue={user?.phoneNumber ?? ""} />
                             </div>
+
+                             <Separator />
+
+                            <Accordion type="multiple" className="w-full">
+                                <AccordionItem value="security">
+                                    <AccordionTrigger className="text-base font-semibold">
+                                        <div className="flex items-center gap-2"><Lock /> Security & Account Actions</div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pt-4 space-y-6">
+                                        <div className="space-y-4 p-4 border rounded-lg">
+                                            <Label className="text-base">Change Password</Label>
+                                             <div className="space-y-2">
+                                                <Label htmlFor="current-password">Current Password</Label>
+                                                <Input id="current-password" type="password" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="new-password">New Password</Label>
+                                                <Input id="new-password" type="password" />
+                                            </div>
+                                            <Button>Update Password</Button>
+                                        </div>
+                                         <div className="space-y-4 p-4 border rounded-lg">
+                                            <Label className="text-base">Account Actions</Label>
+                                             <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
+                                                <LogOut className="mr-2 h-4 w-4" />
+                                                Logout from this device
+                                            </Button>
+                                        </div>
+                                        <div className="space-y-4 p-4 border border-destructive rounded-lg">
+                                            <Label className="text-base text-destructive">Danger Zone</Label>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
+                                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                                        Delete My Account
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete your
+                                                        account and remove all your data from our servers.
+                                                    </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                             <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data.</p>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+
                         </CardContent>
                         <CardFooter>
                             <Button>Save Changes</Button>
                         </CardFooter>
                     </Card>
-                    <Card>
+                    
+                </div>
+                 <div className="lg:col-span-1 space-y-8">
+                     <Card>
                         <CardHeader>
                             <CardTitle>Appearance</CardTitle>
                             <CardDescription>Customize the look and feel of the app.</CardDescription>
@@ -201,7 +263,7 @@ export function SettingsPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                     <Card>
                         <CardHeader>
                             <CardTitle>Preferences</CardTitle>
                             <CardDescription>Manage language and notifications.</CardDescription>
@@ -230,72 +292,6 @@ export function SettingsPage() {
                                 <Switch id="email-notifications" defaultChecked />
                             </div>
                         </CardContent>
-                    </Card>
-                </div>
-                <div className="space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Security</CardTitle>
-                            <CardDescription>Manage your account security.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="current-password">Current Password</Label>
-                                <Input id="current-password" type="password" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="new-password">New Password</Label>
-                                <Input id="new-password" type="password" />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button>Change Password</Button>
-                        </CardFooter>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Account Actions</CardTitle>
-                            <CardDescription>Manage your session and account status.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button variant="outline" onClick={handleLogout} className="w-full">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Logout
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-destructive">
-                        <CardHeader>
-                            <CardTitle className="text-destructive">Delete Account</CardTitle>
-                            <CardDescription>Permanently delete your account and all associated data.</CardDescription>
-                        </CardHeader>
-                        <CardFooter>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" disabled={isDeleting}>
-                                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Delete My Account
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete your
-                                        account and remove your data from our servers.
-                                    </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                                        Delete
-                                    </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </CardFooter>
                     </Card>
                 </div>
             </div>
