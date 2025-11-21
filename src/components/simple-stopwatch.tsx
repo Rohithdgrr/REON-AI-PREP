@@ -17,14 +17,14 @@ const Stat = ({ label, value }: { label: string, value: string }) => (
 
 export function SimpleStopwatch() {
   const {
-    displayTime,
+    time,
     isRunning,
     laps,
-    stats,
     start,
-    pause,
+    stop,
     reset,
     lap,
+    stats,
   } = useStopwatch();
 
   return (
@@ -33,7 +33,7 @@ export function SimpleStopwatch() {
             <CardContent className="p-4 flex flex-col items-center gap-4">
                 <div
                     className="text-7xl font-mono font-bold tracking-tighter w-full"
-                    dangerouslySetInnerHTML={{ __html: displayTime }}
+                    dangerouslySetInnerHTML={{ __html: time }}
                 />
                 
                 <div className="flex gap-4">
@@ -49,7 +49,7 @@ export function SimpleStopwatch() {
                     </Button>
                     <Button 
                         id="startBtn" 
-                        onClick={isRunning ? pause : start}
+                        onClick={isRunning ? stop : start}
                         size="lg"
                         className={cn(
                             "w-20 h-20 rounded-full text-lg shadow-lg", 

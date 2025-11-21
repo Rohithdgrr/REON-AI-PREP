@@ -1,14 +1,13 @@
 
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
-const formatTime = (ms: number) => {
-  const date = new Date(ms);
-  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-  const seconds = date.getUTCSeconds().toString().padStart(2, '0');
-  const millis = Math.floor(date.getUTCMilliseconds() / 10).toString().padStart(2, '0');
-  return `${minutes}:${seconds}.<small>${millis}</small>`;
+const formatTime = (ms: number): string => {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const milliseconds = Math.floor((ms % 1000) / 10);
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.<small class="text-3xl">${milliseconds.toString().padStart(2, '0')}</small>`;
 };
 
 type Lap = {
@@ -21,78 +20,93 @@ type Lap = {
 export const useStopwatch = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [laps, setLaps] = useState<Lap[]>([]);
-  const [lapTimesRaw, setLapTimesRaw] = useState<number[]>([]);
-
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef(0);
-  
-  const update = useCallback(() => {
-    setElapsedTime(Date.now() - startTimeRef.current);
-  }, []);
+  const [laps, setLaps] = useState<number[]>([]);
+  const frameRequestRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   const start = useCallback(() => {
     if (isRunning) return;
     setIsRunning(true);
     startTimeRef.current = Date.now() - elapsedTime;
-    timerRef.current = setInterval(update, 10);
-  }, [elapsedTime, isRunning, update]);
 
-  const pause = useCallback(() => {
-    if (!isRunning) return;
-    if (timerRef.current) clearInterval(timerRef.current);
+    const animate = () => {
+      setElapsedTime(Date.now() - (startTimeRef.current ?? 0));
+      frameRequestRef.current = requestAnimationFrame(animate);
+    };
+    frameRequestRef.current = requestAnimationFrame(animate);
+  }, [isRunning, elapsedTime]);
+
+  const stop = useCallback(() => {
+    if (!isRunning || frameRequestRef.current === null) return;
+    cancelAnimationFrame(frameRequestRef.current);
+    frameRequestRef.current = null;
     setIsRunning(false);
   }, [isRunning]);
 
   const reset = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setIsRunning(false);
+    stop();
     setElapsedTime(0);
     setLaps([]);
-    setLapTimesRaw([]);
-  }, []);
+  }, [stop]);
 
   const lap = useCallback(() => {
     if (!isRunning) return;
+    setLaps(prevLaps => [...prevLaps, elapsedTime]);
+  }, [isRunning, elapsedTime]);
 
-    setLapTimesRaw(prevRawTimes => {
-        const newLapTimes = [...prevRawTimes, elapsedTime];
-        const lapDiffs = newLapTimes.map((time, index) => {
-            return index === 0 ? time : time - newLapTimes[index - 1];
-        });
-        
-        const validDiffs = lapDiffs.filter(d => d > 0);
-        const minDiff = validDiffs.length > 1 ? Math.min(...validDiffs) : 0;
-        const maxDiff = validDiffs.length > 1 ? Math.max(...validDiffs) : 0;
-
-        const newLaps = newLapTimes.map((overall, index) => {
-            const lapTime = lapDiffs[index];
-            let type: Lap['type'] = 'normal';
-
-            if (validDiffs.length > 1) {
-                if (lapTime === minDiff) type = 'best';
-                if (lapTime === maxDiff) type = 'worst';
-            }
-
-            return {
-                lapNumber: index + 1,
-                lapTime: formatTime(lapTime),
-                overallTime: formatTime(overall),
-                type,
-            };
-        }).reverse();
-        
-        setLaps(newLaps);
-        return newLapTimes;
+  const formattedLaps: Lap[] = useMemo(() => {
+    const lapDiffs = laps.map((lapTime, i) => {
+        const previousLapTime = i > 0 ? laps[i - 1] : 0;
+        return lapTime - previousLapTime;
     });
-}, [isRunning, elapsedTime]);
+
+    if (lapDiffs.length <= 1) {
+        return laps.map((lapTime, i) => ({
+            lapNumber: i + 1,
+            lapTime: formatTime(lapDiffs[i]),
+            overallTime: formatTime(lapTime),
+            type: 'normal',
+        })).reverse();
+    }
+    
+    const minLap = Math.min(...lapDiffs);
+    const maxLap = Math.max(...lapDiffs);
+
+    return laps.map((lapTime, i) => {
+        const diff = lapDiffs[i];
+        let type: Lap['type'] = 'normal';
+        if (diff === minLap) type = 'best';
+        if (diff === maxLap) type = 'worst';
+        
+        return {
+            lapNumber: i + 1,
+            lapTime: formatTime(diff),
+            overallTime: formatTime(lapTime),
+            type: type,
+        };
+    }).reverse();
+  }, [laps]);
+  
+  const stats = useMemo(() => {
+     const lapDiffs = laps.map((lapTime, i) => i > 0 ? lapTime - laps[i-1] : lapTime);
+     if (laps.length === 0) {
+        return { lapCount: '0', bestLap: '-', worstLap: '-' };
+     }
+     const best = Math.min(...lapDiffs);
+     const worst = Math.max(...lapDiffs);
+     return {
+        lapCount: String(laps.length),
+        bestLap: formatTime(best),
+        worstLap: formatTime(worst),
+     }
+  }, [laps]);
 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         e.preventDefault();
-        isRunning ? pause() : start();
+        isRunning ? stop() : start();
       } else if (e.key.toLowerCase() === 'l' && isRunning) {
         lap();
       } else if (e.key.toLowerCase() === 'r' && (elapsedTime > 0 || laps.length > 0)) {
@@ -103,31 +117,19 @@ export const useStopwatch = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (frameRequestRef.current) {
+        cancelAnimationFrame(frameRequestRef.current);
+      }
     };
-  }, [isRunning, start, pause, lap, reset, elapsedTime, laps]);
-  
-  const getStats = () => {
-    const lapDiffs = lapTimesRaw.map((time, index) => index === 0 ? time : time - (lapTimesRaw[index-1] || 0));
-    const validDiffs = lapDiffs.filter(d => d > 0);
-    const minDiff = validDiffs.length > 0 ? Math.min(...validDiffs) : 0;
-    const maxDiff = validDiffs.length > 0 ? Math.max(...validDiffs) : 0;
-    
-    return {
-        lapCount: String(laps.length),
-        bestLap: minDiff > 0 ? formatTime(minDiff) : '-',
-        worstLap: maxDiff > 0 ? formatTime(maxDiff) : '-',
-    }
-  }
-
+  }, [isRunning, start, stop, lap, reset, elapsedTime, laps]);
 
   return {
-    displayTime: formatTime(elapsedTime),
+    time: formatTime(elapsedTime),
     isRunning,
-    laps,
-    stats: getStats(),
+    laps: formattedLaps,
+    stats,
     start,
-    pause,
+    stop,
     reset,
     lap,
   };
