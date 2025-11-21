@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -39,7 +40,7 @@ const useTimerStore = () => {
     const { toast } = useToast();
 
     useEffect(() => {
-        audioRef.current = new Audio('/audio/timer-end.mp3');
+        // audioRef.current = new Audio('/audio/timer-end.mp3');
         try {
             const storedRecents = localStorage.getItem("recentTimers");
             if (storedRecents) {
@@ -92,7 +93,7 @@ const useTimerStore = () => {
                 if (t.isActive && t.remaining > 0) {
                     return { ...t, remaining: t.remaining - 1 };
                 } else if (t.isActive && t.remaining === 0) {
-                    audioRef.current?.play();
+                    // audioRef.current?.play();
                     toast({ title: "Timer Finished!", description: t.label });
                     return { ...t, isActive: false };
                 }
