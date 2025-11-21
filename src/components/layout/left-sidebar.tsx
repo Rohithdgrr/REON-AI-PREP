@@ -20,7 +20,6 @@ import {
   PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -35,7 +34,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/notifications', icon: Bell, label: 'Job Notifications' },
   { href: '/dashboard/roadmap', icon: Map, label: 'Roadmap' },
   { href: '/dashboard/prep', icon: BookOpen, label: 'Prep' },
   { href: '/dashboard/suggestions', icon: Lightbulb, label: 'Suggestions' },
@@ -158,7 +156,7 @@ function SidebarContent({
         </nav>
       </div>
        <div className="mt-auto p-4 border-t border-sidebar-border/50">
-        <Link href="/dashboard/settings"
+        <Link href="/dashboard/settings?tab=help"
             className={cn(
                 'w-full flex justify-start items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                 isCollapsed && 'justify-center'
@@ -178,8 +176,12 @@ function SidebarContent({
   );
 }
 
-export function LeftSidebar() {
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
+interface LeftSidebarProps {
+  isCollapsed: boolean;
+  toggleSidebar: () => void;
+}
+
+export function LeftSidebar({ isCollapsed, toggleSidebar }: LeftSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const pathname = usePathname();
 
@@ -194,15 +196,15 @@ export function LeftSidebar() {
     <>
       {/* Desktop Sidebar */}
       <div
-        data-collapsed={isDesktopCollapsed}
+        data-collapsed={isCollapsed}
         className={cn(
           'fixed inset-y-0 left-0 z-20 hidden flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300 lg:flex',
-          isDesktopCollapsed ? 'w-20' : 'w-64'
+          isCollapsed ? 'w-20' : 'w-64'
         )}
       >
         <SidebarContent
-          isCollapsed={isDesktopCollapsed}
-          toggleSidebar={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
+          isCollapsed={isCollapsed}
+          toggleSidebar={toggleSidebar}
         />
       </div>
 
