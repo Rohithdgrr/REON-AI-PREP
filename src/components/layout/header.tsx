@@ -7,6 +7,7 @@ import {
   Search,
   Settings,
   LogOut,
+  HelpCircle,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -71,8 +72,8 @@ export function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-               <Link href="/dashboard/settings" className="flex items-center cursor-pointer">
-                 <Settings className="mr-2 h-4 w-4" />
+               <Link href="/dashboard/settings?tab=help" className="flex items-center cursor-pointer">
+                 <HelpCircle className="mr-2 h-4 w-4" />
                  Support
               </Link>
             </DropdownMenuItem>
