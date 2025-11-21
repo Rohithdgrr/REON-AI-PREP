@@ -39,7 +39,6 @@ type Session = {
   mode: AIMode;
   input: string;
   response: string;
-  model: string;
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
@@ -86,14 +85,8 @@ const suggestionCards = [
   },
 ];
 
-const llamaModels = [
-    { value: "meta-llama/llama-3-8b-instruct", label: "LIBRA L1 8b"},
-    { value: "meta-llama/llama-3-70b-instruct", label: "LIBRA L2 70b"},
-];
-
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
-  const [model, setModel] = useState(llamaModels[0].value);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -140,12 +133,11 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
       mode: 'Chat',
       input: textToProcess,
       response: '',
-      model: model,
     };
     
     setSessionHistory(prev => [...prev, newSession]);
     
-    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM". Use markdown for formatting, including bold (**text**), italics (*text*), and lists (- item or 1. item).`;
+    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI PREP exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM". Use markdown for formatting, including bold (**text**), italics (*text*), and lists (- item or 1. item).`;
 
     try {
         const fullPrompt = `${systemPrompt}\n\nUser: ${textToProcess}`;
@@ -153,7 +145,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
         // This simulates a streaming effect by updating the state with the final result.
         const response = await answerQuestionsWithAI({
             prompt: fullPrompt,
-            model: model.includes('70b') ? 'L2' : 'L1'
+            model: 'L1'
         });
 
         setSessionHistory(prevHistory => {
@@ -402,18 +394,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
-        <div className="flex justify-center mb-2">
-            <Select value={model} onValueChange={(v) => setModel(v)}>
-                <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select a model" />
-                </SelectTrigger>
-                <SelectContent>
-                    {llamaModels.map(m => (
-                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
         <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end">
           <Textarea
             placeholder="Ask LIBRA anything..."

@@ -13,8 +13,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-body' });
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-headline' });
 
 export const metadata: Metadata = {
-  title: 'REON AI - Your Personal AI Exam Prep Partner',
-  description: 'AI-powered learning platform for competitive exams in India.',
+  title: 'REON AI PREP - Your Personal AI Exam Prep Partner',
+  description: 'REON AI PREP is your personal AI-powered learning platform for competitive exams in India like Railway and Bank PO. Get personalized study plans, mock tests, and AI-driven insights to ace your exams.',
 };
 
 export default function RootLayout({

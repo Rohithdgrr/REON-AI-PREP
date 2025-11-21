@@ -27,17 +27,9 @@ const answerQuestionsFlow = ai.defineFlow(
     outputSchema: AnswerQuestionsOutputSchema,
   },
   async ({ prompt, model }) => {
-    const selectedModelRef = model === 'L2' 
-      ? 'openrouter/meta-llama/llama-3-70b-instruct' 
-      : 'openrouter/meta-llama/llama-3-8b-instruct';
-      
-    const selectedModel = modelRef({
-        name: selectedModelRef
-    });
-
     const { text } = await ai.generate({
         prompt: prompt,
-        model: selectedModel,
+        model: 'grok-1',
     });
     return text;
   }

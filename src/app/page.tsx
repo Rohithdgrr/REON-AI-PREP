@@ -40,7 +40,7 @@ export default function HomePage() {
         <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm sticky top-0 z-20 border-b">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
               <Bot className="h-7 w-7 text-primary" />
-              <span className="hidden sm:inline">REON AI</span>
+              <span className="hidden sm:inline">REON AI PREP</span>
             </Link>
             <nav className='hidden md:flex gap-6 items-center'>
               <Link href="#features" className='text-sm font-medium text-muted-foreground hover:text-primary'>Features</Link>
@@ -69,7 +69,7 @@ export default function HomePage() {
                  <div className="absolute inset-0 bg-black/60" />
                  <div className="relative z-10 p-4 max-w-4xl mx-auto">
                      <h1 className="text-4xl md:text-6xl font-bold font-headline leading-tight">Your Personal AI Exam Partner</h1>
-                     <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-white/80">Stop guessing, start preparing. REON AI provides AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
+                     <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-white/80">Stop guessing, start preparing. REON AI PREP provides AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
                      <Button size="lg" className="mt-8 text-base" asChild>
                         <Link href="/login">Start Your Free Trial</Link>
                      </Button>
@@ -142,7 +142,7 @@ export default function HomePage() {
              <section id="tools" className="py-16 lg:py-24 bg-background">
                 <div className="container mx-auto px-4 text-center">
                   <h2 className="text-3xl lg:text-4xl font-bold font-headline">More Than Just a Study App</h2>
-                  <p className="text-muted-foreground mt-2 max-w-2xl mx-auto mb-12">REON AI comes packed with tools to keep you focused and productive.</p>
+                  <p className="text-muted-foreground mt-2 max-w-2xl mx-auto mb-12">REON AI PREP comes packed with tools to keep you focused and productive.</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                       <div className="flex flex-col items-center gap-2"><Map className="h-8 w-8 text-primary"/><span>Roadmap</span></div>
                       <div className="flex flex-col items-center gap-2"><FileQuestion className="h-8 w-8 text-primary"/><span>AI Quiz</span></div>
@@ -158,7 +158,7 @@ export default function HomePage() {
               <div className="col-span-4 md:col-span-1">
                  <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
                     <Bot className="h-7 w-7 text-primary" />
-                    <span>REON AI</span>
+                    <span>REON AI PREP</span>
                   </Link>
                   <p className="text-sm text-muted-foreground mt-2">Your personal AI partner for acing competitive exams.</p>
                   <div className="flex gap-4 mt-4">
@@ -193,7 +193,7 @@ export default function HomePage() {
           </div>
           <div className="border-t py-4">
             <p className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-                © {new Date().getFullYear()} REON AI. All rights reserved.
+                © {new Date().getFullYear()} REON AI PREP. All rights reserved.
             </p>
           </div>
         </footer>

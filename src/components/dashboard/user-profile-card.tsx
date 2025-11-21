@@ -3,10 +3,9 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bot, Rocket, Target } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
@@ -18,13 +17,11 @@ export function UserProfileCard() {
 
     const userProfileRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        // Correctly use the authenticated user's UID to fetch their document.
         return doc(firestore, 'users', user.uid);
     }, [firestore, user]);
 
     const { data: userProfile, isLoading } = useDoc(userProfileRef);
     
-    // Reformat the RI-ID for display if it contains underscores
     const displayRiId = userProfile?.riId?.replace(/_/g, '');
 
     if (isLoading) {
@@ -50,35 +47,23 @@ export function UserProfileCard() {
     }
 
     return (
-        <Card className="w-full rounded-2xl shadow-lg overflow-hidden">
-            <div className="grid md:grid-cols-3 items-center">
-                <div className="md:col-span-1 p-6 md:p-8 flex flex-col items-center text-center bg-card">
-                    <div className="relative">
-                        <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
-                        <Avatar className="h-[15vw] w-[15vw] min-h-32 min-w-32 max-h-48 max-w-48 relative border-4 border-background rounded-full">
-                           <AvatarImage src={userProfile?.profilePhoto ?? userAvatar?.imageUrl} className="rounded-full" />
-                           <AvatarFallback className="rounded-full text-5xl">
-                             {userProfile?.fullName?.charAt(0) ?? <Bot className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28" />}
-                           </AvatarFallback>
-                        </Avatar>
-                    </div>
+        <Card className="w-full rounded-2xl shadow-lg overflow-hidden bg-card">
+            <div className="flex flex-col md:flex-row items-center gap-6 p-6 md:p-8">
+                <div className="relative flex-shrink-0">
+                    <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
+                    <Avatar className="relative h-32 w-32 sm:h-36 sm:w-36 border-4 border-background">
+                       <AvatarImage src={userProfile?.profilePhoto ?? userAvatar?.imageUrl} alt={userProfile?.fullName ?? 'User avatar'} />
+                       <AvatarFallback className="text-5xl">
+                         {userProfile?.fullName?.charAt(0) ?? <Bot className="h-20 w-20" />}
+                       </AvatarFallback>
+                    </Avatar>
                 </div>
-                <div className="md:col-span-2 p-6 md:p-8 text-center md:text-left">
+                <div className="text-center md:text-left flex-1">
                     <p className="text-sm font-semibold text-muted-foreground tracking-widest uppercase">Registered Identifier</p>
                     {displayRiId && <p className="text-lg font-mono text-primary">{displayRiId}</p>}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-headline mt-1">{userProfile?.fullName ?? 'Welcome!'}</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold font-headline mt-1">{userProfile?.fullName ?? 'Welcome!'}</h2>
                     <p className="text-muted-foreground mt-1 text-md">{userProfile?.email}</p>
                     <p className="text-muted-foreground mt-4 text-sm md:text-base">Welcome back! Use this RI for quick logins and progress sync.</p>
-                    <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
-                        <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 py-5 text-base">
-                            <Target className="mr-2" />
-                            Start adaptive quiz
-                        </Button>
-                        <Button size="lg" variant="outline" className="py-5 text-base">
-                            <Rocket className="mr-2" />
-                            Launch mock console
-                        </Button>
-                    </div>
                 </div>
             </div>
         </Card>

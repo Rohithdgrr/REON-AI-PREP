@@ -133,7 +133,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center py-12 px-4">
         <Card className="mx-auto w-full max-w-[380px] p-6 shadow-xl">
             <CardHeader className="p-0 mb-6 text-center">
-              <h1 className="text-3xl font-bold font-headline">Welcome to REON AI</h1>
+              <h1 className="text-3xl font-bold font-headline">Welcome to REON AI PREP</h1>
               <p className="text-balance text-muted-foreground">
                 Sign in or create an account to continue
               </p>
