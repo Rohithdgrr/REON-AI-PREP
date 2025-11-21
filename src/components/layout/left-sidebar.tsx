@@ -34,6 +34,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
   { href: '/dashboard/roadmap', icon: Map, label: 'Roadmap' },
   { href: '/dashboard/prep', icon: BookOpen, label: 'Prep' },
   { href: '/dashboard/suggestions', icon: Lightbulb, label: 'Suggestions' },

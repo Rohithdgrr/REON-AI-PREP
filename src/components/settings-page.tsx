@@ -192,6 +192,55 @@ export function SettingsPage() {
                                 <Input id="mobile" defaultValue={user?.phoneNumber ?? ""} />
                             </div>
                         </div>
+                         <Separator/>
+                        <div className="space-y-4">
+                            <Label className="text-base">Change Password</Label>
+                                <div className="space-y-2">
+                                <Label htmlFor="current-password">Current Password</Label>
+                                <Input id="current-password" type="password" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="new-password">New Password</Label>
+                                <Input id="new-password" type="password" />
+                            </div>
+                            <Button>Update Password</Button>
+                        </div>
+                        <Separator/>
+                         <div className="space-y-4">
+                            <Label className="text-base">Account Actions</Label>
+                                <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Logout from this device
+                            </Button>
+                        </div>
+                        <Separator/>
+                        <div className="space-y-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+                            <Label className="text-base text-destructive">Danger Zone</Label>
+                            <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data.</p>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
+                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                        Delete My Account
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete your
+                                        account and remove all your data from our servers.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                                        Delete
+                                    </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
                     </CardContent>
                      <CardFooter>
                         <Button>Save Profile</Button>
@@ -258,62 +307,6 @@ export function SettingsPage() {
                                 <p className="text-xs text-muted-foreground">Receive updates about tests and progress.</p>
                             </div>
                             <Switch id="email-notifications" defaultChecked />
-                        </div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Security & Account</CardTitle>
-                        <CardDescription>Manage your password and account actions.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-4">
-                            <Label className="text-base">Change Password</Label>
-                                <div className="space-y-2">
-                                <Label htmlFor="current-password">Current Password</Label>
-                                <Input id="current-password" type="password" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="new-password">New Password</Label>
-                                <Input id="new-password" type="password" />
-                            </div>
-                            <Button>Update Password</Button>
-                        </div>
-                        <Separator/>
-                         <div className="space-y-4">
-                            <Label className="text-base">Account Actions</Label>
-                                <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Logout from this device
-                            </Button>
-                        </div>
-                        <Separator/>
-                        <div className="space-y-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-                            <Label className="text-base text-destructive">Danger Zone</Label>
-                            <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data.</p>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" className="w-full justify-start" disabled={isDeleting}>
-                                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                        Delete My Account
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete your
-                                        account and remove all your data from our servers.
-                                    </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                                        Delete
-                                    </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
                         </div>
                     </CardContent>
                 </Card>

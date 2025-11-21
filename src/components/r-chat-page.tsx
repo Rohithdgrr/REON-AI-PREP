@@ -175,7 +175,7 @@ export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [activeRealm, setActiveRealm] = useState(realms[0]);
   const [activeChannel, setActiveChannel] = useState<typeof channelsByRealm.r1[0] | null>(null);
-  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(null);
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(directMessages[0]);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
   const [membersPanelOpen, setMembersPanelOpen] = useState(true);
