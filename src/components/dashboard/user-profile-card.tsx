@@ -55,7 +55,7 @@ export function UserProfileCard() {
                 <div className="md:col-span-1 p-6 md:p-8 flex flex-col items-center text-center bg-card">
                     <div className="relative">
                         <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />
-                        <Avatar className="h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48 relative border-4 border-background rounded-full">
+                        <Avatar className="h-[15vw] w-[15vw] min-h-32 min-w-32 max-h-48 max-w-48 relative border-4 border-background rounded-full">
                            <AvatarImage src={userProfile?.profilePhoto ?? userAvatar?.imageUrl} className="rounded-full" />
                            <AvatarFallback className="rounded-full text-5xl">
                              {userProfile?.fullName?.charAt(0) ?? <Bot className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28" />}
