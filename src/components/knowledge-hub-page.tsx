@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { flushSync } from 'react-dom';
 import {
   Card,
   CardContent,
@@ -33,11 +32,10 @@ import { Input } from './ui/input';
 import { useRouter } from 'next/navigation';
 import { Badge } from './ui/badge';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
-import { useUser, useFirebase } from '@/firebase';
-import { getDownloadURL, ref, uploadBytesResumable, UploadTaskSnapshot } from 'firebase/storage';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useUser } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Progress } from './ui/progress';
+import { uploadMaterial } from '@/services/materials-service';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
@@ -119,7 +117,6 @@ export function KnowledgeHubPage() {
   const router = useRouter();
   const { setActiveTool } = useToolsSidebar();
   const { user } = useUser();
-  const { storage, firestore } = useFirebase();
 
   const [communityPosts, setCommunityPosts] = useState(initialCommunityPosts);
   const [newPost, setNewPost] = useState('');
@@ -166,7 +163,7 @@ export function KnowledgeHubPage() {
 
 
   const handleFileUpload = async () => {
-    if (!uploadStatus.file || !user || !storage || !firestore) {
+    if (!uploadStatus.file || !user) {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
@@ -178,42 +175,22 @@ export function KnowledgeHubPage() {
 
     setUploadStatus(prev => ({ ...prev, status: 'uploading', error: undefined }));
 
-    const storageRef = ref(
-      storage,
-      `users/${user.uid}/materials/${Date.now()}_${file.name}`
-    );
-    
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on('state_changed',
-        (snapshot: UploadTaskSnapshot) => {
-            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            flushSync(() => {
+    try {
+        await uploadMaterial(
+            user.uid,
+            file,
+            (progress) => {
                 setUploadStatus(prev => ({ ...prev, progress: progress }));
-            });
-        },
-        (error: any) => {
-            console.error('Upload error:', error);
-            flushSync(() => {
-                setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
-            });
-        },
-        async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            const materialsCollection = collection(firestore, `users/${user.uid}/materials`);
-            await addDoc(materialsCollection, {
-                userId: user.uid,
-                title: file.name,
-                url: downloadURL,
-                type: file.type || 'unknown',
-                createdAt: serverTimestamp(),
-            });
-            flushSync(() => {
-                 setUploadStatus(prev => ({ ...prev, status: 'success' }));
-                 handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
-            });
-        }
-    );
+            }
+        );
+
+        setUploadStatus(prev => ({ ...prev, status: 'success' }));
+        handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
+
+    } catch(error: any) {
+        console.error('Upload error:', error);
+        setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
+    }
   };
 
   const handleStartChallenge = (title: string) => {
