@@ -33,8 +33,8 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true); // Manages loading state for redirect processing
-  const [isSubmitting, setIsSubmitting] = useState(false); // Manages loading state for form submissions
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -87,38 +87,29 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    // This effect runs on page load to handle the redirect from Google Sign-In
     if (auth) {
       getRedirectResult(auth)
         .then((result) => {
           if (result) {
-            // User has successfully signed in via redirect.
-            // The onAuthStateChanged listener will handle the user state update and redirect.
             toast({ title: "Signed In Successfully!", description: `Welcome, ${result.user.displayName}!`});
-            // We don't need to set loading to false here, the user state change will handle it.
-          } else {
-            // No redirect result, let the isUserLoading state determine the loading status.
-            if (!isUserLoading) {
-              setIsLoading(false);
-            }
+            // Redirect will be handled by the user state change effect
           }
         })
         .catch((error) => {
           handleAuthError(error);
-          setIsLoading(false);
+        })
+        .finally(() => {
+          setIsProcessingRedirect(false);
         });
+    } else {
+        setIsProcessingRedirect(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth, isUserLoading]);
+  }, [auth]);
 
   useEffect(() => {
-    // This effect handles redirection after user state is confirmed.
     if (!isUserLoading && user) {
         router.replace('/dashboard');
-    }
-    // If there's no user and Firebase has checked, stop all loading.
-    if (!isUserLoading && !user) {
-        setIsLoading(false);
     }
   }, [user, isUserLoading, router]);
 
@@ -160,7 +151,6 @@ export default function LoginPage() {
             displayName: name,
         });
         
-        // This will be picked up by the on-create logic in withAuth
         localStorage.setItem(`temp_user_dob_${userCredential.user.uid}`, format(dob, 'yyyy-MM-dd'));
 
     } catch (error) {
@@ -168,7 +158,7 @@ export default function LoginPage() {
     }
   }
   
-  if (isUserLoading || isLoading) {
+  if (isUserLoading || isProcessingRedirect) {
      return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
@@ -177,7 +167,6 @@ export default function LoginPage() {
   }
   
   if (user) {
-    // This is a fallback in case the useEffect redirect hasn't fired yet.
     return (
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />

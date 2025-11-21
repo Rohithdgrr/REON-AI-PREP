@@ -180,7 +180,7 @@ export function KnowledgeHubPage() {
             user.uid,
             file,
             (progress) => {
-                setUploadStatus(prev => ({ ...prev, progress: progress }));
+                setUploadStatus(prev => ({ ...prev, progress: progress, status: 'uploading' }));
             }
         );
 
@@ -429,3 +429,5 @@ export function KnowledgeHubPage() {
     </div>
   );
 }
+
+    
