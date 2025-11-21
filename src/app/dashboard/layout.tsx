@@ -17,7 +17,7 @@ function DashboardLayout({
       <LeftSidebar />
       <div className="flex flex-1 flex-col transition-all duration-300 lg:pl-20">
         <Header />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-20 sm:p-6 lg:p-8 lg:pr-[calc(5rem+1px)] lg:pb-8">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-20 sm:p-6 lg:p-8 lg:pb-8">
           <div className="mx-auto w-full max-w-screen-2xl">{children}</div>
         </main>
       </div>
@@ -28,5 +28,3 @@ function DashboardLayout({
 }
 
 export default withAuth(DashboardLayout);
-
-    

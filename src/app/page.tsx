@@ -40,7 +40,7 @@ export default function HomePage() {
         <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm sticky top-0 z-20 border-b">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
               <Bot className="h-7 w-7 text-primary" />
-              <span>REON AI</span>
+              <span className="hidden sm:inline">REON AI</span>
             </Link>
             <nav className='hidden md:flex gap-6 items-center'>
               <Link href="#features" className='text-sm font-medium text-muted-foreground hover:text-primary'>Features</Link>
@@ -49,7 +49,7 @@ export default function HomePage() {
             </nav>
             <div>
                 <Button asChild>
-                    <Link href="/login">Get Started <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href="/login">Get Started <ArrowRight className="ml-2 h-4 w-4 hidden sm:inline" /></Link>
                 </Button>
             </div>
         </header>
@@ -185,10 +185,10 @@ export default function HomePage() {
                <div className="col-span-4 md:col-span-1">
                   <h4 className="font-semibold mb-3">Stay Updated</h4>
                   <p className="text-sm text-muted-foreground mb-3">Subscribe to our newsletter for the latest updates and tips.</p>
-                  <div className="flex gap-2">
+                  <form className="flex gap-2">
                       <input type="email" placeholder="Enter your email" className="w-full text-sm p-2 border rounded-md bg-background"/>
-                      <Button size="sm">Subscribe</Button>
-                  </div>
+                      <Button type="submit" size="sm">Subscribe</Button>
+                  </form>
               </div>
           </div>
           <div className="border-t py-4">

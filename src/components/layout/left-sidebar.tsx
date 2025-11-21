@@ -5,51 +5,35 @@ import Link from 'next/link';
 import {
   Bell,
   BookOpen,
-  Camera,
   ChevronLeft,
   FileQuestion,
-  Globe,
   HelpCircle,
-  Home,
   LayoutDashboard,
   Lightbulb,
-  LogOut,
   Map,
   MessageCircle,
-  Mic,
-  PanelLeft,
-  PanelRight,
-  PlayCircle,
   Settings,
   Target,
   TestTube2,
-  User,
   Users,
-  Wrench,
   Menu,
+  PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
@@ -107,7 +91,7 @@ function NavLink({
   isCollapsed: boolean;
 }) {
   const pathname = usePathname();
-  const isActive = (item.href === '/' && pathname === '/') || (item.href !== '/' && pathname.startsWith(item.href));
+  const isActive = (item.href === '/dashboard' && pathname === '/dashboard') || (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -223,6 +207,14 @@ function SidebarContent({
 export function LeftSidebar() {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  const mobileNavItems = [
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { href: '/dashboard/notifications', icon: Bell, label: 'Alerts' },
+      { href: '/dashboard/roadmap', icon: Map, label: 'Roadmap' },
+      { href: '/dashboard/prep', icon: BookOpen, label: 'Prep' },
+  ]
 
   return (
     <>
@@ -240,10 +232,12 @@ export function LeftSidebar() {
         />
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Bottom Navigation */}
        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t bg-sidebar text-sidebar-foreground h-16">
         <nav className="flex items-center justify-around h-full">
-          {navItems.slice(0, 4).map((item) => (
+          {mobileNavItems.map((item) => {
+             const isActive = (item.href === '/dashboard' && pathname === '/dashboard') || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            return (
              <TooltipProvider key={item.label} delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -251,31 +245,33 @@ export function LeftSidebar() {
                       href={item.href}
                       className={cn(
                         'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
-                        usePathname() === item.href
+                        isActive
                           ? 'text-sidebar-primary bg-sidebar-accent'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent'
                       )}
                     >
                       <item.icon className="h-5 w-5" />
+                      <span>{item.label}</span>
                     </Link>
                 </TooltipTrigger>
                 <TooltipContent side="top">{item.label}</TooltipContent>
               </Tooltip>
              </TooltipProvider>
-          ))}
+          )})}
           <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
             <SheetTrigger asChild>
                  <TooltipProvider delayDuration={0}>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                           <button
+                           <div
                               className={cn(
-                                'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full',
+                                'flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-xs transition-all h-full w-full cursor-pointer',
                                 'text-sidebar-foreground hover:bg-sidebar-accent'
                               )}
                             >
                               <Menu className="h-5 w-5" />
-                            </button>
+                              <span>More</span>
+                            </div>
                         </TooltipTrigger>
                         <TooltipContent side="top">More</TooltipContent>
                     </Tooltip>

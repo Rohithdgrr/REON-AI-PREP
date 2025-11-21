@@ -1,3 +1,4 @@
+
 import { ArrowDown, ArrowUp, Crown, Star } from "lucide-react";
 import {
   Card,
@@ -39,42 +40,44 @@ export function Leaderboard() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">Rank</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-right hidden sm:table-cell">Accuracy</TableHead>
-              <TableHead className="text-right">XP</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {leaderboardData.map((user) => (
-              <TableRow key={user.rank} className={user.isCurrentUser ? "bg-accent" : ""}>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    #{user.rank}
-                    {user.change === "up" && <ArrowUp className="h-4 w-4 text-green-500" />}
-                    {user.change === "down" && <ArrowDown className="h-4 w-4 text-red-500" />}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                     {user.name}
-                    {user.isTopper && <Crown className="h-4 w-4 text-yellow-500" />}
-                    {user.isCurrentUser && user.changeAmount && <Badge variant="secondary">+{user.changeAmount}</Badge>}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right hidden sm:table-cell">{user.accuracy}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {user.xp} <Star className="h-4 w-4 text-blue-500" />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="w-full overflow-x-auto">
+            <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead className="w-[80px]">Rank</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="text-right hidden sm:table-cell">Accuracy</TableHead>
+                <TableHead className="text-right">XP</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {leaderboardData.map((user) => (
+                <TableRow key={user.rank} className={user.isCurrentUser ? "bg-accent" : ""}>
+                    <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                        #{user.rank}
+                        {user.change === "up" && <ArrowUp className="h-4 w-4 text-green-500" />}
+                        {user.change === "down" && <ArrowDown className="h-4 w-4 text-red-500" />}
+                    </div>
+                    </TableCell>
+                    <TableCell>
+                    <div className="flex items-center gap-2">
+                        {user.name}
+                        {user.isTopper && <Crown className="h-4 w-4 text-yellow-500" />}
+                        {user.isCurrentUser && user.changeAmount && <Badge variant="secondary">+{user.changeAmount}</Badge>}
+                    </div>
+                    </TableCell>
+                    <TableCell className="text-right hidden sm:table-cell">{user.accuracy}</TableCell>
+                    <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                        {user.xp} <Star className="h-4 w-4 text-blue-500" />
+                    </div>
+                    </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </div>
       </CardContent>
     </Card>
   );

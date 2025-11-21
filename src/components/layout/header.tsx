@@ -3,15 +3,8 @@
 import Link from 'next/link';
 import {
   Bell,
-  Home,
   Menu,
-  Package2,
   Search,
-  Users,
-  LineChart,
-  Package,
-  ShoppingCart,
-  PanelLeft,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -23,19 +16,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LeftSidebar } from './left-sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useUser } from '@/firebase';
+import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 
 export function Header() {
   const auth = useAuth();
   const { user } = useUser();
+  const { setActiveTool } = useToolsSidebar();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   const handleLogout = () => {
@@ -46,15 +39,20 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
-      <div className="relative flex-1">
+      <div className="relative flex-1 md:grow-0">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search for courses, notes, or anything..."
-          className="w-full rounded-lg bg-muted pl-11 text-base h-12 shadow-inner"
+          placeholder="Search..."
+          className="w-full rounded-lg bg-muted pl-11 h-10 shadow-inner md:w-[200px] lg:w-[336px]"
         />
       </div>
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setActiveTool({ id: 'notifications'})}>
+          <Bell className="h-5 w-5" />
+          <span className="sr-only">Toggle notifications</span>
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -77,7 +75,12 @@ export function Header() {
                 Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">Support</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+               <Link href="/dashboard/help" className="flex items-center cursor-pointer">
+                 <Settings className="mr-2 h-4 w-4" />
+                 Support
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
