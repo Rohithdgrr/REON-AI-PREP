@@ -3,14 +3,12 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { channelsByRealm, directMessages, realms } from "../r-chat-page";
-import { ChevronDown, CircleUser, Hash, Headphones, Mic, Settings, User, X } from "lucide-react";
+import { CircleUser, Headphones, Mic, Settings, X } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
 
@@ -36,19 +34,21 @@ export function ChannelsPanel({ activeRealm, activeChannel, activeDM, onSelectCh
             <ScrollArea className="flex-1 px-2 py-2">
                 <div className="space-y-1">
                     {directMessages.map((contact) => (
-                        <Button key={contact.id} variant={activeDM?.id === contact.id ? 'secondary' : 'ghost'} className="w-full justify-start h-auto p-2" onClick={() => onSelectDM(contact)}>
-                        <div className="relative">
-                            <Avatar className="mr-2 h-8 w-8">
-                                <AvatarImage src={contact.avatarUrl} />
-                                <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-muted bg-green-500" />
+                         <div key={contact.id}  className={cn("w-full justify-start h-auto p-2 group flex items-center rounded-md cursor-pointer", activeDM?.id === contact.id ? 'bg-secondary' : 'hover:bg-muted/50')}>
+                            <div className="flex items-center flex-1 gap-2" onClick={() => onSelectDM(contact)}>
+                                <div className="relative">
+                                    <Avatar className="mr-2 h-8 w-8">
+                                        <AvatarImage src={contact.avatarUrl} />
+                                        <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-muted bg-green-500" />
+                                </div>
+                                <span className="font-semibold text-sm">{contact.name}</span>
+                            </div>
+                            <Button variant="ghost" size="icon" className="ml-auto h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <X className="h-4 w-4" />
+                            </Button>
                         </div>
-                        <span className="font-semibold text-sm">{contact.name}</span>
-                        <Button variant="ghost" size="icon" className="ml-auto h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <X className="h-4 w-4" />
-                        </Button>
-                        </Button>
                     ))}
                 </div>
             </ScrollArea>

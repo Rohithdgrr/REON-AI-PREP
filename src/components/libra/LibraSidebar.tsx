@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 type AIMode = 'Chat' | 'History';
 
@@ -85,18 +86,14 @@ const suggestionCards = [
   },
 ];
 
-const mistralModels = [
-    { value: "open-mistral-nemo", label: "LIBRA L1 12b"},
-    { value: "open-mistral-7b", label: "LIBRA L2 7b"},
-    { value: "open-mixtral-8x7b", label: "LIBRA L3 46b"},
-    { value: "open-mixtral-8x22b", label: "LIBRA L4 141b"},
+const llamaModels = [
+    { value: "meta-llama/llama-3-8b-instruct", label: "LIBRA L1 8b"},
+    { value: "meta-llama/llama-3-70b-instruct", label: "LIBRA L2 70b"},
 ];
 
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
-  const [model, setModel] = useState(mistralModels[0].value);
-  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
-  const [groqApiKey] = useState("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");
+  const [model, setModel] = useState(llamaModels[0].value);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
@@ -133,14 +130,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
       });
       return;
     }
-     if (!apiKey) {
-      toast({
-        variant: 'destructive',
-        title: 'API Key Missing',
-        description: 'Please provide a Mistral API Key.',
-      });
-      return;
-    }
 
     setIsLoading(true);
     setInput('');
@@ -158,87 +147,35 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     
     const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM". Use markdown for formatting, including bold (**text**), italics (*text*), and lists (- item or 1. item).`;
 
-    const messages = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: textToProcess }
-    ];
-
-    const streamResponse = async (response: Response) => {
-        if (!response.body) {
-            throw new Error("Response body is empty.");
-        }
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6);
-                    if (data.trim() === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || '';
-                        if (content) {
-                            setSessionHistory(prevHistory => {
-                                const newHistory = [...prevHistory];
-                                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-                                if (sessionIndex > -1) {
-                                    newHistory[sessionIndex].response += content;
-                                }
-                                return newHistory;
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Error parsing streaming JSON:', e);
-                    }
-                }
-            }
-        }
-    };
-
     try {
-        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-            body: JSON.stringify({
-                model: model, messages: messages,
-                temperature: 0.7, max_tokens: 1024, stream: true,
-            }),
-            signal: abortControllerRef.current.signal
+        const fullPrompt = `${systemPrompt}\n\nUser: ${textToProcess}`;
+        // Note: The answerQuestionsWithAI flow might not support streaming responses directly.
+        // This simulates a streaming effect by updating the state with the final result.
+        const response = await answerQuestionsWithAI({
+            prompt: fullPrompt,
+            model: model.includes('70b') ? 'L2' : 'L1'
         });
-        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
-        await streamResponse(mistralResponse);
-    } catch (mistralError: any) {
-        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
-        try {
-            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
-                body: JSON.stringify({
-                    model: 'llama3-8b-8192', messages: messages,
-                    temperature: 0.7, max_tokens: 1024, stream: true,
-                }),
-                signal: abortControllerRef.current.signal
-            });
-            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
-            await streamResponse(groqResponse);
-        } catch (error: any) {
-            if (error.name === 'AbortError') {
-              console.log('Fetch aborted by user.');
-            } else {
-                 console.error(`API Error:`, error);
-                  toast({
-                      variant: "destructive",
-                      title: 'AI Error',
-                      description: error.message || 'The model failed to respond. Please check console.',
-                  });
-                  setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
+
+        setSessionHistory(prevHistory => {
+            const newHistory = [...prevHistory];
+            const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+            if (sessionIndex > -1) {
+                newHistory[sessionIndex].response = response;
             }
+            return newHistory;
+        });
+
+    } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch aborted by user.');
+        } else {
+             console.error(`API Error:`, error);
+              toast({
+                  variant: "destructive",
+                  title: 'AI Error',
+                  description: error.message || 'The model failed to respond. Please check console.',
+              });
+              setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
         }
     } finally {
       setIsLoading(false);
@@ -471,7 +408,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                     <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                    {mistralModels.map(m => (
+                    {llamaModels.map(m => (
                         <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                     ))}
                 </SelectContent>

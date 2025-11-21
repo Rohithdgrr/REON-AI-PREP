@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A simple AI flow to answer general questions or perform text manipulation.
@@ -5,13 +6,9 @@
  * - answerQuestionsWithAI - A function that takes a text prompt and returns an AI-generated text response.
  */
 
-import { ai, llamaL1Model, llamaL2Model } from '@/ai/genkit';
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-
-const modelMap = {
-  'L1': llamaL1Model,
-  'L2': llamaL2Model,
-};
+import { modelRef } from 'genkit';
 
 const AnswerQuestionsInputSchema = z.object({
   prompt: z.string(),
@@ -30,7 +27,13 @@ const answerQuestionsFlow = ai.defineFlow(
     outputSchema: AnswerQuestionsOutputSchema,
   },
   async ({ prompt, model }) => {
-    const selectedModel = modelMap[model || 'L1'];
+    const selectedModelRef = model === 'L2' 
+      ? 'openrouter/meta-llama/llama-3-70b-instruct' 
+      : 'openrouter/meta-llama/llama-3-8b-instruct';
+      
+    const selectedModel = modelRef({
+        name: selectedModelRef
+    });
 
     const { text } = await ai.generate({
         prompt: prompt,
