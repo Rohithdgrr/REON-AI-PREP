@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { AtSign, Inbox, Search, User, Users } from "lucide-react";
@@ -9,11 +8,12 @@ import { Separator } from "../ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { cn } from "@/lib/utils";
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
 const friends = [
-  { id: 'u2', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'Online', customStatus: 'Playing Valorant' },
+  { id: 'u2', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'Online', customStatus: 'Attempting a mock test' },
   { id: 'u3', name: 'RI-ZZZZ', avatarUrl: userAvatar?.imageUrl, status: 'Idle', customStatus: '' },
   { id: 'u4', name: 'RI-AAAA', avatarUrl: userAvatar?.imageUrl, status: 'Do Not Disturb', customStatus: 'In a meeting' },
   { id: 'u5', name: 'RI-BBBB', avatarUrl: userAvatar?.imageUrl, status: 'Offline', customStatus: '' },
@@ -34,7 +34,7 @@ const FriendRow = ({friend}: {friend: typeof friends[0]}) => {
                     <AvatarImage src={friend.avatarUrl ?? undefined} />
                     <AvatarFallback>{friend.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className={`absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-muted ${statusColors[friend.status as keyof typeof statusColors]}`} />
+                <span className={cn("absolute bottom-0 right-0 block h-3 w-3 rounded-full border-2 border-muted", statusColors[friend.status as keyof typeof statusColors])} />
             </div>
             <div className="flex-1">
                 <p className="font-semibold">{friend.name}</p>

@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from "../ui/button";
-import { Hash, Menu, AtSign, Inbox, Search, Users } from "lucide-react";
+import { Hash, Menu, AtSign, Inbox, Search, Users, Headphones } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Message } from "../r-chat-page";
 import { Dispatch, SetStateAction } from "react";
@@ -13,15 +13,16 @@ import { Separator } from "../ui/separator";
 type ChatHeaderProps = {
     name: string;
     description: string;
-    messages: Message[];
-    setMessages: Dispatch<SetStateAction<Message[]>>;
+    type?: 'text' | 'voice' | 'dm';
     onToggleChannels: () => void;
     onToggleMembers: () => void;
     membersPanelOpen: boolean;
 }
 
-export function ChatHeader({ name, description, onToggleChannels, onToggleMembers, membersPanelOpen }: ChatHeaderProps) {
+export function ChatHeader({ name, description, type, onToggleChannels, onToggleMembers, membersPanelOpen }: ChatHeaderProps) {
     const { toast } = useToast();
+
+    const Icon = type === 'text' ? Hash : type === 'voice' ? Headphones : AtSign;
 
     return (
         <header className="flex flex-row items-center gap-2 border-b p-3 shadow-sm flex-shrink-0">
@@ -29,7 +30,7 @@ export function ChatHeader({ name, description, onToggleChannels, onToggleMember
                 <Menu className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-2">
-                <AtSign className="h-5 w-5 text-muted-foreground" />
+                <Icon className="h-5 w-5 text-muted-foreground" />
                 <h2 className="font-semibold text-base">{name}</h2>
             </div>
             <Separator orientation="vertical" className="h-6 mx-2 hidden sm:block" />

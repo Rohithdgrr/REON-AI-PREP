@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { Bot, CheckCheck, CircleUser, MessageSquare, Pencil, Pin, Play, Share2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Message, PollData } from '../r-chat-page';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type MessageBubbleProps = {
     message: Message & { edited?: boolean };
@@ -27,6 +28,10 @@ type MessageBubbleProps = {
     isFirstInGroup: boolean;
     isLastInGroup: boolean;
 }
+
+const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+const libraAvatar = PlaceHolderImages.find((img) => img.id === 'app-logo');
+
 
 const VoiceMessageBubble = ({ duration }: { duration: string }) => (
   <div className="flex items-center gap-2 p-2 rounded-lg bg-black/10 dark:bg-white/10 max-w-xs">
@@ -90,13 +95,14 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                     message.sender === 'me' ? 'justify-end' : ''
                   )}
                 >
-                  {message.sender === 'other' && (
+                  {message.sender !== 'me' && (
                      <div className="w-8 h-8 flex-shrink-0">
                       {isLastInGroup ? (
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            <Bot />
-                          </AvatarFallback>
+                           <AvatarImage src={message.avatarUrl ?? libraAvatar?.imageUrl} />
+                           <AvatarFallback>
+                            {message.senderName?.charAt(0) ?? <Bot />}
+                           </AvatarFallback>
                         </Avatar>
                       ) : <div className="w-8"/>}
                      </div>
@@ -110,7 +116,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                     {isFirstInGroup && (
                         <div className={cn("flex items-baseline gap-2", message.sender === 'me' && 'flex-row-reverse')}>
                             <span className="font-semibold text-sm">
-                                {message.sender === 'me' ? 'RI-XXXX' : 'LIBRA AI'}
+                                {message.sender === 'me' ? 'RI-XXXX' : message.senderName}
                             </span>
                              <span className="text-xs text-muted-foreground">{formattedTimestamp}</span>
                         </div>
@@ -159,6 +165,7 @@ export function MessageBubble({ message, onEdit, onDelete, onReply, isFirstInGro
                      <div className="w-8 h-8 flex-shrink-0 flex items-end">
                       {isLastInGroup && (
                          <Avatar className="h-8 w-8">
+                          <AvatarImage src={userAvatar?.imageUrl} />
                           <AvatarFallback>
                             <CircleUser />
                           </AvatarFallback>

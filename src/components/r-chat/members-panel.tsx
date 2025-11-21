@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -31,11 +30,11 @@ const roleHierarchy = ['Online', 'Offline'];
 export function MembersPanel({ members }: MembersPanelProps) {
 
     const groupedMembers = members.reduce((acc, member) => {
-        const role = member.role || 'Members';
-        if (!acc[role]) {
-            acc[role] = [];
+        const status = member.status || 'Offline';
+        if (!acc[status]) {
+            acc[status] = [];
         }
-        acc[role].push(member);
+        acc[status].push(member);
         return acc;
     }, {} as Record<string, Member[]>);
 

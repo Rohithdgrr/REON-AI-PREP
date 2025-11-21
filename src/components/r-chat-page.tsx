@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -48,8 +47,9 @@ export const channelsByRealm: Record<
 
 const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-2');
 
-export const directMessages: any[] = [
-    // Data will be fetched from Firestore
+export const directMessages = [
+    { id: 'dm1', name: 'RI-YYYY', avatarUrl: userAvatar?.imageUrl, status: 'Online' },
+    { id: 'dm2', name: 'RI-ZZZZ', avatarUrl: userAvatar?.imageUrl, status: 'Idle' },
 ];
 
 export type Sender = 'me' | 'other';
@@ -62,6 +62,8 @@ export type PollData = {
 export type Message = {
   id: number;
   sender: Sender;
+  senderName?: string;
+  avatarUrl?: string;
   type: MessageType;
   content: string;
   duration?: string;
@@ -72,19 +74,39 @@ export type Message = {
 };
 
 const initialMessages: Message[] = [
-  // Dummy data removed, will be fetched from Firestore
+    {
+    id: 1,
+    sender: 'other',
+    senderName: 'LIBRA AI',
+    type: 'text',
+    content: "Welcome to the #general-chat channel! Feel free to ask questions, share resources, or just chat with fellow aspirants. How's everyone's prep going today?",
+    timestamp: '2024-07-29T10:00:00Z',
+    read: true,
+  },
+  {
+    id: 2,
+    sender: 'me',
+    type: 'text',
+    content: "Hey everyone! I'm struggling a bit with Data Interpretation questions. Any good resources or tips?",
+    timestamp: '2024-07-29T10:02:00Z',
+    read: true,
+  },
 ];
 
-export const members: any[] = [
-    // Dummy data removed, will be fetched from Firestore
+export const members = [
+    { id: 'u1', name: 'RI-XXXX', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: 'u2', name: 'RI-YYYY', role: 'Online', status: 'Online', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: 'u3', name: 'RI-ZZZZ', role: 'Online', status: 'Idle', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: 'u4', name: 'RI-AAAA', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
+    { id: 'u5', name: 'RI-BBBB', role: 'Offline', status: 'Offline', avatarUrl: userAvatar?.imageUrl ?? '' },
 ];
 
 
 export function RChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
-  const [activeRealm, setActiveRealm] = useState(realms[0]);
-  const [activeChannel, setActiveChannel] = useState<typeof channelsByRealm.r1[0] | null>(null);
-  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(directMessages.length > 0 ? directMessages[0] : null);
+  const [activeRealm, setActiveRealm] = useState(realms[1]);
+  const [activeChannel, setActiveChannel] = useState<typeof channelsByRealm.r1[0] | null>(channelsByRealm.r1[0]);
+  const [activeDM, setActiveDM] = useState<typeof directMessages[0] | null>(null);
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
   const [mobileChannelsOpen, setMobileChannelsOpen] = useState(false);
   const [membersPanelOpen, setMembersPanelOpen] = useState(true);
@@ -107,9 +129,16 @@ export function RChatPage() {
     setActiveRealm(realms.find(r => r.id === 'me')!);
     setMobileChannelsOpen(false);
   };
+  
+  const handleSelectFriends = () => {
+    setActiveDM(null);
+    setActiveChannel(null);
+    setActiveRealm(realms.find(r => r.id === 'me')!);
+  }
 
   const activeConversationName = activeDM ? activeDM.name : (activeChannel ? activeChannel.name : "Friends");
   const activeConversationDescription = activeDM ? `This is the beginning of your direct message history with ${activeDM.name}.` : (activeChannel ? activeChannel.description : "Manage your friends and direct messages.");
+  const activeConversationType = activeDM ? 'dm' : activeChannel?.type;
 
   const showFriendsPanel = activeRealm.id === 'me' && !activeDM;
 
@@ -130,6 +159,7 @@ export function RChatPage() {
                     activeDM={activeDM}
                     onSelectChannel={handleSelectChannel}
                     onSelectDM={handleSelectDM}
+                    onSelectFriends={handleSelectFriends}
                 />
             </SheetContent>
         </Sheet>
@@ -141,6 +171,7 @@ export function RChatPage() {
                 activeDM={activeDM}
                 onSelectChannel={handleSelectChannel}
                 onSelectDM={handleSelectDM}
+                onSelectFriends={handleSelectFriends}
             />
         </div>
 
@@ -151,8 +182,7 @@ export function RChatPage() {
               <ChatHeader
                   name={activeConversationName}
                   description={activeConversationDescription}
-                  messages={messages}
-                  setMessages={setMessages}
+                  type={activeConversationType}
                   onToggleChannels={() => setMobileChannelsOpen(true)}
                   onToggleMembers={() => setMembersPanelOpen(!membersPanelOpen)}
                   membersPanelOpen={membersPanelOpen}
