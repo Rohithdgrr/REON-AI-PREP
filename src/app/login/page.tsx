@@ -33,7 +33,8 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true); // Default to true to handle initial auth check
+  const [isLoading, setIsLoading] = useState(true); // Manages loading state for redirect processing
+  const [isSubmitting, setIsSubmitting] = useState(false); // Manages loading state for form submissions
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -43,7 +44,7 @@ export default function LoginPage() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
   const handleAuthError = (error: AuthError) => {
-    setIsLoading(false);
+    setIsSubmitting(false);
     console.error("Authentication Error:", error.code, error.message);
     
     let title = "Authentication Failed";
@@ -94,11 +95,11 @@ export default function LoginPage() {
             // User has successfully signed in via redirect.
             // The onAuthStateChanged listener will handle the user state update and redirect.
             toast({ title: "Signed In Successfully!", description: `Welcome, ${result.user.displayName}!`});
-            setIsLoading(true); // Keep loading state until redirect happens
+            // We don't need to set loading to false here, the user state change will handle it.
           } else {
-            // No redirect result, so we can stop the initial load if user isn't loading
-             if (!isUserLoading) {
-                setIsLoading(false);
+            // No redirect result, let the isUserLoading state determine the loading status.
+            if (!isUserLoading) {
+              setIsLoading(false);
             }
           }
         })
@@ -107,6 +108,7 @@ export default function LoginPage() {
           setIsLoading(false);
         });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, isUserLoading]);
 
   useEffect(() => {
@@ -114,7 +116,7 @@ export default function LoginPage() {
     if (!isUserLoading && user) {
         router.replace('/dashboard');
     }
-    // If there's no user and we're not still waiting for Firebase to check, stop loading.
+    // If there's no user and Firebase has checked, stop all loading.
     if (!isUserLoading && !user) {
         setIsLoading(false);
     }
@@ -122,7 +124,7 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = () => {
     if (!auth) return;
-    setIsLoading(true);
+    setIsSubmitting(true);
     const provider = new GoogleAuthProvider();
     signInWithRedirect(auth, provider).catch(handleAuthError);
   };
@@ -130,11 +132,10 @@ export default function LoginPage() {
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
-    setIsLoading(true);
+    setIsSubmitting(true);
     signInWithEmailAndPassword(auth, email, password)
       .catch((error) => {
         handleAuthError(error);
-        setIsLoading(false); // Explicitly stop loading on error
       });
   }
 
@@ -145,13 +146,12 @@ export default function LoginPage() {
         toast({ variant: 'destructive', title: "Missing Information", description: "Please fill out all fields to register." });
         return;
     }
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
         const methods = await fetchSignInMethodsForEmail(auth, email);
         if (methods.length > 0) {
             handleAuthError({ code: 'auth/account-exists-with-different-credential' } as AuthError);
-            setIsLoading(false);
             return;
         }
 
@@ -165,13 +165,12 @@ export default function LoginPage() {
 
     } catch (error) {
         handleAuthError(error as AuthError);
-        setIsLoading(false); // Explicitly stop loading on error
     }
   }
   
   if (isUserLoading || isLoading) {
      return (
-        <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex h-screen w-full items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
         </div>
       );
@@ -189,8 +188,8 @@ export default function LoginPage() {
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
-      <div className="flex items-center justify-center py-12">
-        <Card className="mx-auto w-[380px] p-6 shadow-xl">
+      <div className="flex items-center justify-center py-12 px-4">
+        <Card className="mx-auto w-full max-w-[380px] p-6 shadow-xl">
             <CardHeader className="p-0 mb-6 text-center">
               <h1 className="text-3xl font-bold font-headline">Welcome to REON AI</h1>
               <p className="text-balance text-muted-foreground">
@@ -207,16 +206,17 @@ export default function LoginPage() {
                         <form onSubmit={handleEmailLogin} className="space-y-4 pt-4">
                              <div className="space-y-2">
                                 <Label htmlFor="login-email">Email</Label>
-                                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting}/>
                              </div>
                               <div className="space-y-2 relative">
                                 <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} />
+                                <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting}/>
                                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                              </div>
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Login
                             </Button>
                         </form>
@@ -225,15 +225,15 @@ export default function LoginPage() {
                         <form onSubmit={handleEmailRegister} className="space-y-4 pt-4">
                             <div className="space-y-2">
                                 <Label htmlFor="register-name">Full Name</Label>
-                                <Input id="register-name" placeholder="John Doe" required value={name} onChange={e => setName(e.target.value)} />
+                                <Input id="register-name" placeholder="John Doe" required value={name} onChange={e => setName(e.target.value)} disabled={isSubmitting}/>
                              </div>
                              <div className="space-y-2">
                                 <Label htmlFor="register-email">Email</Label>
-                                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting}/>
                              </div>
                               <div className="space-y-2 relative">
                                 <Label htmlFor="register-password">Password</Label>
-                                <Input id="register-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} />
+                                <Input id="register-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting}/>
                                  <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
@@ -248,6 +248,7 @@ export default function LoginPage() {
                                             "w-full justify-start text-left font-normal",
                                             !dob && "text-muted-foreground"
                                         )}
+                                        disabled={isSubmitting}
                                         >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {dob ? format(dob, "PPP") : <span>Pick a date</span>}
@@ -266,7 +267,8 @@ export default function LoginPage() {
                                     </PopoverContent>
                                 </Popover>
                              </div>
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Create Account
                             </Button>
                         </form>
@@ -282,7 +284,8 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                 <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
+                 <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
+                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                    <GoogleIcon /> Sign in with Google
                  </Button>
 
