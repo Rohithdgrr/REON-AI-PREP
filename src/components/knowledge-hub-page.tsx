@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { flushSync } from 'react-dom';
 import {
   Card,
   CardContent,
@@ -186,18 +187,19 @@ export function KnowledgeHubPage() {
 
     uploadTask.on('state_changed',
         (snapshot: UploadTaskSnapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadStatus(prev => ({ ...prev, progress: progress }));
+            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            flushSync(() => {
+                setUploadStatus(prev => ({ ...prev, progress: progress }));
+            });
         },
         (error: any) => {
             console.error('Upload error:', error);
-            setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
+            flushSync(() => {
+                setUploadStatus(prev => ({ ...prev, status: 'error', error: 'Upload failed. Please try again.' }));
+            });
         },
         async () => {
-            // Upload completed successfully, now get the download URL
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-            // Create document in Firestore
             const materialsCollection = collection(firestore, `users/${user.uid}/materials`);
             await addDoc(materialsCollection, {
                 userId: user.uid,
@@ -206,9 +208,10 @@ export function KnowledgeHubPage() {
                 type: file.type || 'unknown',
                 createdAt: serverTimestamp(),
             });
-
-            setUploadStatus(prev => ({ ...prev, status: 'success' }));
-            handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
+            flushSync(() => {
+                 setUploadStatus(prev => ({ ...prev, status: 'success' }));
+                 handlePostSubmit(newPost || `Shared a new file: ${file.name}`, true, file.name);
+            });
         }
     );
   };
