@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, fetchSignInMethodsForEmail, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, fetchSignInMethodsForEmail, getRedirectResult, AuthError } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -33,7 +33,8 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start loading to handle redirect result
+  const [isRedirectProcessing, setIsRedirectProcessing] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -42,13 +43,7 @@ export default function LoginPage() {
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
-  useEffect(() => {
-    if (!isUserLoading && user) {
-        router.replace('/dashboard');
-    }
-  }, [user, isUserLoading, router]);
-
-  const handleAuthError = (error: any) => {
+  const handleAuthError = (error: AuthError) => {
     setIsLoading(false);
     console.error("Authentication Error:", error.code, error.message);
     
@@ -59,7 +54,7 @@ export default function LoginPage() {
       case 'auth/popup-closed-by-user':
       case 'auth/cancelled-popup-request':
         title = "Sign-in Cancelled";
-        description = "The sign-in window was closed. To use Google Sign-In, please enable pop-ups for this site and ensure your domain is authorized in the Firebase Console.";
+        description = "The sign-in window was closed. Please try again.";
         break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -77,7 +72,7 @@ export default function LoginPage() {
         break;
       case 'auth/account-exists-with-different-credential':
         title = "Account Exists";
-        description = 'An account already exists with this email. Please sign in using the original method (e.g., Google).';
+        description = 'An account already exists with this email. Please sign in using the method you originally used (e.g., Google).';
         break;
       case 'auth/operation-not-allowed':
         title = "Sign-in Method Disabled";
@@ -95,15 +90,45 @@ export default function LoginPage() {
     });
   }
 
+  useEffect(() => {
+    // This effect runs on page load to handle the redirect from Google Sign-In
+    if (auth && isRedirectProcessing) {
+      getRedirectResult(auth)
+        .then((result) => {
+          if (result) {
+            // User has successfully signed in via redirect.
+            // The onAuthStateChanged listener in withAuth will handle the rest.
+            toast({ title: "Signed In Successfully!", description: `Welcome, ${result.user.displayName}!`});
+          }
+        })
+        .catch((error) => {
+          handleAuthError(error);
+        })
+        .finally(() => {
+          setIsRedirectProcessing(false);
+          setIsLoading(false);
+        });
+    } else if (!auth) {
+        setIsRedirectProcessing(false);
+        setIsLoading(false);
+    }
+  }, [auth, isRedirectProcessing]);
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+        router.replace('/dashboard');
+    } else if (!isUserLoading && !user && !isRedirectProcessing) {
+        // Only stop loading if we are not processing a redirect and there's no user.
+        setIsLoading(false);
+    }
+  }, [user, isUserLoading, router, isRedirectProcessing]);
+
   const handleGoogleSignIn = () => {
     if (!auth) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider)
-      .catch(handleAuthError)
-      .finally(() => {
-        // isLoading will be handled by the redirect
-      });
+    // Use signInWithRedirect for better mobile and new-window experience
+    signInWithRedirect(auth, provider).catch(handleAuthError);
   };
 
   const handleEmailLogin = (e: React.FormEvent) => {
@@ -113,7 +138,7 @@ export default function LoginPage() {
     signInWithEmailAndPassword(auth, email, password)
       .catch(handleAuthError)
       .finally(() => {
-        setIsLoading(false);
+        // isLoading is handled by the useEffect that watches the user state
       });
   }
 
@@ -127,30 +152,28 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-        // Check if an account already exists with this email
         const methods = await fetchSignInMethodsForEmail(auth, email);
         if (methods.length > 0) {
-            handleAuthError({ code: 'auth/account-exists-with-different-credential' });
+            handleAuthError({ code: 'auth/account-exists-with-different-credential' } as AuthError);
+            setIsLoading(false);
             return;
         }
 
-        // If no account exists, create one
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { 
             displayName: name,
         });
         
-        // Store DOB temporarily for the `withAuth` HOC to pick up
         localStorage.setItem(`temp_user_dob_${userCredential.user.uid}`, format(dob, 'yyyy-MM-dd'));
 
     } catch (error) {
-        handleAuthError(error);
+        handleAuthError(error as AuthError);
     } finally {
-        setIsLoading(false);
+        // isLoading will be handled by the user state change effect
     }
   }
   
-  if (isUserLoading || user) {
+  if (isUserLoading || user || isLoading) {
      return (
         <div className="flex h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
