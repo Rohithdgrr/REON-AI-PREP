@@ -37,6 +37,29 @@ export default function HomePage() {
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-background">
+         <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "url": "https://reon.ai/",
+                "name": "REON AI PREP",
+                "description": "Your personal AI-powered learning platform for competitive exams in India like Railway and Bank PO.",
+                 "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://reon.ai/search?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "REON AI",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://logopond.com/logos/e35d00520f8db085f6e0f3c5f70fd9e6.png"
+                  }
+                }
+            }) }}
+        />
         <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm sticky top-0 z-20 border-b">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
               <Bot className="h-7 w-7 text-primary" />
@@ -200,5 +223,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

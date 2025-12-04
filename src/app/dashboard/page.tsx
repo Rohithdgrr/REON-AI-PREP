@@ -1,5 +1,5 @@
 
-'use client';
+import { type Metadata } from 'next';
 import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { MissionsCard } from "@/components/dashboard/missions-card";
 import { StatsCards } from "@/components/dashboard/stats-cards";
@@ -7,6 +7,11 @@ import { TasksCard } from "@/components/dashboard/tasks-card";
 import { TodaysPlan } from "@/components/dashboard/todays-plan";
 import { UserProfileCard } from "@/components/dashboard/user-profile-card";
 import { WeaknessRadar } from "@/components/dashboard/weakness-radar";
+
+export const metadata: Metadata = {
+    title: 'Dashboard',
+    description: 'Your central hub for exam preparation. Track your progress, view your study plan, and climb the leaderboard.',
+};
 
 
 export default function DashboardPage() {
