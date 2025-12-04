@@ -11,12 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   Table,
   TableBody,
   TableCell,
@@ -32,6 +26,8 @@ import { type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-sug
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import { stickerGifData } from "@/lib/sticker-gif-data";
 
 const generalSuggestions = [
   {
@@ -298,38 +294,56 @@ export function SuggestionsPage() {
             </Card>
         </TabsContent>
         <TabsContent value="general" className="mt-6">
-             <div className="space-y-2">
-                <Accordion type="single" collapsible className="w-full">
-                    {generalSuggestions.map((suggestion) => {
-                        const image = PlaceHolderImages.find(img => img.id === suggestion.imageId);
-                        return (
-                            <AccordionItem key={suggestion.id} value={suggestion.id}>
-                                <AccordionTrigger className="text-lg hover:no-underline">{suggestion.title}</AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="grid md:grid-cols-2 gap-6 items-center">
-                                        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                                            {suggestion.points.map((point, i) => (
-                                            <li key={i}>{point}</li>
-                                            ))}
-                                        </ul>
-                                        {image && (
-                                            <div className="relative aspect-video rounded-lg overflow-hidden">
-                                                <Image 
-                                                    src={image.imageUrl} 
-                                                    alt={image.description}
-                                                    fill
-                                                    className="object-cover"
-                                                    data-ai-hint={image.imageHint}
-                                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
+             <div className="space-y-8">
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {generalSuggestions.map((suggestion, index) => {
+                      const image = PlaceHolderImages.find(img => img.id === suggestion.imageId);
+                      const sticker = stickerGifData.stickers[index % stickerGifData.stickers.length];
+                      return (
+                        <CarouselItem key={suggestion.id}>
+                          <Card className="overflow-hidden">
+                            <div className="grid md:grid-cols-2">
+                              <div className="p-6 md:p-8 flex flex-col justify-center order-2 md:order-1">
+                                <CardTitle className="text-2xl font-headline mb-4 relative">
+                                  {suggestion.title}
+                                  {sticker && (
+                                    <Image 
+                                      src={sticker.url} 
+                                      alt={sticker.alt} 
+                                      width={64} 
+                                      height={64}
+                                      className="absolute -top-8 -right-4 md:-top-6 md:-right-8 w-16 h-16 transform rotate-12"
+                                    />
+                                  )}
+                                </CardTitle>
+                                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                                  {suggestion.points.map((point, i) => (
+                                    <li key={i}>{point}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              {image && (
+                                <div className="relative min-h-[250px] md:min-h-[400px] order-1 md:order-2">
+                                  <Image
+                                    src={image.imageUrl}
+                                    alt={image.description}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint={image.imageHint}
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </Card>
+                        </CarouselItem>
+                      )
                     })}
-                </Accordion>
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2" />
+                  <CarouselNext className="right-2" />
+                </Carousel>
             </div>
 
             <Card className="mt-8">
