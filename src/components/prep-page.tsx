@@ -12,9 +12,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Book, FileText, Film, Layers, ListChecks, Expand, X, Bot, Upload, Loader2, File, Link as LinkIcon, Download } from "lucide-react";
+import { Book, FileText, Film, Layers, ListChecks, Expand, X, Bot, Upload, Loader2, File, Link as LinkIcon, Download, UserSquare } from "lucide-react";
 import { videoData } from "@/lib/video-data";
-import { otherMaterialsData } from "@/lib/other-materials-data";
+import otherMaterialsData from "@/lib/other-materials-data";
 import Image from "next/image";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
@@ -39,6 +39,7 @@ const prepMaterials = [
 
 const categories = [
   { name: "All", icon: Book },
+  { name: "My Uploads", icon: UserSquare },
   { name: "Notes", icon: FileText },
   { name: "PYQs & MCQs", icon: ListChecks },
   { name: "Cheatsheets", icon: Layers },
@@ -126,18 +127,31 @@ export function PrepPage() {
   const [browserState, setBrowserState] = useState<{open: boolean, url: string, title: string}>({open: false, url: '', title: ''});
   const { setActiveTool } = useToolsSidebar();
 
-  const allTags = useMemo(() => {
-    const tags = new Set<string>();
-    prepMaterials.forEach(m => m.tags.forEach(t => tags.add(t)));
-    return ["All", ...Array.from(tags)];
-  }, []);
-
   const materialsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
     return collection(firestore, `users/${user.uid}/materials`);
   }, [user, firestore]);
 
   const { data: userMaterials, isLoading: isLoadingMaterials } = useCollection(materialsQuery);
+
+  const allMaterials = useMemo(() => {
+    const uploadedMaterials = (userMaterials || []).map(m => ({
+        ...m,
+        category: 'My Uploads',
+        type: 'My Uploads',
+        description: `Uploaded on ${m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleDateString() : '...'}`,
+        tags: ['Personal', m.type.split('/')[0]],
+        icon: File,
+    }));
+    return [...uploadedMaterials, ...prepMaterials];
+  }, [userMaterials]);
+
+
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    allMaterials.forEach(m => m.tags.forEach(t => tags.add(t)));
+    return ["All", ...Array.from(tags)];
+  }, [allMaterials]);
 
   const handleOpenUrl = (url: string, title: string) => {
     setBrowserState({ open: true, url, title });
@@ -157,18 +171,29 @@ export function PrepPage() {
 
   const currentCategoryTags = useMemo(() => {
     const tags = new Set<string>();
-    prepMaterials.filter(m => activeTab === 'All' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
+    allMaterials.filter(m => activeTab === 'All' || m.category === activeTab).forEach(m => m.tags.forEach(t => tags.add(t)));
     return ['All', ...Array.from(tags)];
-  }, [activeTab]);
+  }, [activeTab, allMaterials]);
   
   const renderMaterials = (category: string) => {
     const currentFilter = activeFilters[category] || 'All';
     
-    let materialsToShow = prepMaterials.filter(material => {
+    let materialsToShow = allMaterials.filter(material => {
         const categoryMatch = category === 'All' || material.category === category;
         const filterMatch = currentFilter === 'All' || material.tags.includes(currentFilter);
         return categoryMatch && filterMatch;
     });
+
+    if (isLoadingMaterials && category === "My Uploads") {
+        return (
+             <Card className="col-span-full">
+                <CardContent className="flex flex-col items-center justify-center p-16 text-center">
+                    <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                    <h3 className="text-xl font-semibold">Loading My Uploads...</h3>
+                </CardContent>
+            </Card>
+        )
+    }
 
     if (materialsToShow.length === 0) {
       const categoryIcon = categories.find(c => c.name === category)?.icon || Book;
@@ -178,7 +203,7 @@ export function PrepPage() {
                   <categoryIcon className="h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-xl font-semibold">No Materials Found</h3>
                   <p className="text-muted-foreground mt-2">
-                    There are no materials matching your filter.
+                    {category === "My Uploads" ? "You haven't uploaded any materials yet. Go to the Knowledge Hub to upload." : "There are no materials matching your filter."}
                   </p>
               </CardContent>
           </Card>
@@ -217,7 +242,7 @@ export function PrepPage() {
       
       <Tabs defaultValue="All" className="w-full" onValueChange={setActiveTab}>
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
-          <TabsList className="grid w-full grid-cols-5 min-w-[500px]">
+          <TabsList className="grid w-full grid-cols-6 min-w-[600px]">
             {categories.map((cat) => (
               <TabsTrigger key={cat.name} value={cat.name}>
                 <cat.icon className="mr-2 h-4 w-4" />

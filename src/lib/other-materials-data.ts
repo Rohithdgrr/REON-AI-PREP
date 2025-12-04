@@ -1,628 +1,448 @@
 
 export const otherMaterialsData = [
-    {
-      "id": "doc-1",
-      "type": "Notes",
-      "title": "RRB NTPC Full Notes PDF in English",
-      "description": "Comprehensive notes for the RRB NTPC exam in English.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC", "English"],
-      "url": "https://drive.google.com/file/d/1eqMy4Cq4gOUe-r4xZHe5a_JHBxo_DsDM/view?usp=sharing"
-    },
-    {
-      "id": "doc-2",
-      "type": "Notes",
-      "title": "RRB NTPC Full Notes PDF in English [sscstudy.com]",
-      "description": "Complete study notes for RRB NTPC from sscstudy.com.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC", "English"],
-      "url": "https://drive.google.com/file/d/1VE6VQ9eHAW9SXKbYiZj0GZ83_nun7wuf/view"
-    },
-    {
-      "id": "doc-3",
-      "type": "Notes",
-      "title": "GK Digest for RRB NTPC 2017",
-      "description": "A digest of General Knowledge questions for the 2017 RRB NTPC exam.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC", "PYQ"],
-      "url": "https://www.pdfdrive.com/gk-digest-for-rrb-ntpc-2017-e33605777.html"
-    },
-    {
-      "id": "doc-4",
-      "type": "PYQs & MCQs",
-      "title": "Railway RRB NTPC GK Question Paper (March/April)",
-      "description": "General Knowledge question paper from the March/April RRB NTPC exam.",
-      "category": "PYQs & MCQs",
-      "tags": ["GK", "Railway", "NTPC", "PYQ"],
-      "url": "https://www.pdfdrive.com/railway-rrb-ntpc-gk-question-paper-asked-on-marchapril-e18167066.html"
-    },
-    {
-      "id": "doc-5",
-      "type": "PYQs & MCQs",
-      "title": "Railway RRB 2016 – 1074 Questions asked in Exam",
-      "description": "A collection of 1074 questions asked in the 2016 Railway RRB exam.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "2016"],
-      "url": "https://www.pdfdrive.com/railway-rrb-2016-1074-questions-asked-in-exam-e19622901.html"
-    },
-    {
-      "id": "doc-6",
-      "type": "Notes",
-      "title": "GK POWER CAPSULE FOR RRB NTPC EXAM",
-      "description": "A power capsule of General Knowledge for the RRB NTPC exam.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC"],
-      "url": "https://www.pdfdrive.com/gk-power-capsule-for-rrb-ntpc-exam-govt-online-exam-e18169582.html"
-    },
-    {
-      "id": "doc-7",
-      "type": "Notes",
-      "title": "gK Power caPSUle For rrB ntPc exaM",
-      "description": "General Knowledge power capsule for the RRB NTPC exam.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC"],
-      "url": "https://www.pdfdrive.com/gk-power-capsule-for-rrb-ntpc-exam-e33605536.html"
-    },
-    {
-      "id": "doc-8",
-      "type": "Notes",
-      "title": "Notes and Projects 📚📚",
-      "description": "A Telegram channel with various notes and projects.",
-      "category": "Notes",
-      "tags": ["Notes", "Telegram"],
-      "url": "https://telegram.me/s/NotesandProjects?before=184"
-    },
-    {
-      "id": "doc-9",
-      "type": "Notes",
-      "title": "Complete General Knowledge in English For RRB NTPC, GROUP D, ALP and JE",
-      "description": "Complete GK notes in English for various Railway exams.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC", "Group D", "ALP", "JE"],
-      "url": "https://drive.google.com/file/d/17ZHcfg2V6LIBhL-pIVZaHGXOSwROMjqU/view?usp=sharing"
-    },
-    {
-      "id": "doc-10",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper 28th March 2016 Shift 1",
-      "description": "Previous year question paper from March 28, 2016, Shift 1.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2016"],
-      "url": "https://drive.google.com/file/d/1pHhExbv90xablsiEFitgkEV3XqaK9_x9/view?usp=sharing"
-    },
-    {
-      "id": "doc-11",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Question Paper 11 March 2021 PDF [sscstudy.com]",
-      "description": "Question paper from March 11, 2021, provided by sscstudy.com.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2021"],
-      "url": "https://drive.google.com/file/d/1CQUZUCDKuJdCWF1LPmtJFs7YZjWNuYud/view?usp=sharing"
-    },
-    {
-      "id": "doc-12",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper 11th April 2016 Shift 1",
-      "description": "Previous year question paper from April 11, 2016, Shift 1.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2016"],
-      "url": "https://drive.google.com/file/d/16L3tdtGFJKVEY4iGljBlp879Et0oZsQ0/view?usp=sharing"
-    },
-    {
-      "id": "doc-13",
-      "type": "Notes",
-      "title": "Complete General Knowledge in Hindi For RRB NTPC, GROUP D, ALP and JE",
-      "description": "Complete GK notes in Hindi for various Railway exams.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC", "Group D", "ALP", "JE", "Hindi"],
-      "url": "https://drive.google.com/file/d/1Ro6cZ0GmHV0E9QBsCDTWGRAO3IMwgLSl/view?usp=sharing"
-    },
-    {
-      "id": "doc-14",
-      "type": "Notes",
-      "title": "Complete Notes For RRB NTPC Non Technical Recruitment Exam in Hindi",
-      "description": "Complete notes in Hindi for the non-technical RRB NTPC exam.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC", "Hindi"],
-      "url": "https://drive.google.com/file/d/1UWfpJbBa2mwMRRRoeIKEsCeRYYuAmF0Z/view?usp=sharing"
-    },
-    {
-      "id": "doc-15",
-      "type": "Notes",
-      "title": "RRB NTPC General Knowledge Notes in Hindi",
-      "description": "General Knowledge notes for RRB NTPC in Hindi.",
-      "category": "Notes",
-      "tags": ["GK", "Railway", "NTPC", "Hindi"],
-      "url": "https://drive.google.com/file/d/1TFri5rXhq3qQ-47HSsUr6cwT4udFtTEf/view?usp=sharing"
-    },
-    {
-      "id": "doc-16",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC 7 Practice Set in Hindi PDF Free Download",
-      "description": "A set of 7 practice tests for RRB NTPC in Hindi.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "Hindi"],
-      "url": "https://drive.google.com/file/d/14o4E5bj6rX4bjnNscFotk00zL_4_KLcR/view?usp=sharing"
-    },
-    {
-      "id": "doc-17",
-      "type": "PYQs & MCQs",
-      "title": "RAILWAY NTPC question bank",
-      "description": "A question bank for the Railway NTPC exam.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC"],
-      "url": "https://www.pdfdrive.com/railway-ntpc-question-bank-e187601709.html"
-    },
-    {
-      "id": "doc-18",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper 02nd April 2016 Shift 1",
-      "description": "Previous year question paper from April 2, 2016, Shift 1.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2016"],
-      "url": "https://drive.google.com/file/d/1wFg6FEseJfLlXZywi5RHczZpEks6PgJ7/view?usp=sharing"
-    },
-    {
-      "id": "doc-19",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC 2016 All Shift Previous Year Question Paper PDF in Hindi",
-      "description": "All shift PYQs from 2016 in Hindi.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2016", "Hindi"],
-      "url": "https://drive.google.com/file/d/1oKDTIzMZ9dgnH7ndJL1H0X16lMmp_dZ7/view?usp=sharing"
-    },
-    {
-      "id": "doc-20",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper 27th April 2016 Shift 1",
-      "description": "Previous year question paper from April 27, 2016, Shift 1.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC", "2016"],
-      "url": "https://drive.google.com/file/d/1i2ClC8hFZH6KH9_nsmrZFArTwbaJpyEL/view?usp=sharing"
-    },
-    {
-      "id": "doc-21",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper PDFs for CBT 1 and 2",
-      "description": "PYQ PDFs for both CBT 1 and 2 from Career Power.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.careerpower.in/rrb-ntpc-previous-year-question-papers.html"
-    },
-    {
-      "id": "doc-22",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Papers, Download Free PDF",
-      "description": "Free downloadable PYQs from sscadda.com.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.sscadda.com/rrb-ntpc-previous-year-papers/"
-    },
-    {
-      "id": "doc-23",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper, Download PDF with Solution",
-      "description": "PYQs with solutions from adda247.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.adda247.com/jobs/rrb-ntpc-previous-year-question-paper/"
-    },
-    {
-      "id": "doc-24",
-      "type": "PYQs & MCQs",
-      "title": "[Solved] RRB NTPC Reasoning Questions with Detailed Solutions",
-      "description": "Solved reasoning problems with detailed explanations from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://testbook.com/questions/rrb-ntpc-reasoning-questions--64b552a693b0e1639c17edb4"
-    },
-    {
-      "id": "doc-25",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Questions: Attempt Free Quiz, Download PDF",
-      "description": "Free quiz and PDF for reasoning questions from PracticeMock.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "Quiz", "Railway", "NTPC"],
-      "url": "https://www.practicemock.com/blog/rrb-ntpc-reasoning-questions/"
-    },
-    {
-      "id": "doc-26",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Previous Year Questions PDFs",
-      "description": "Reasoning PYQ PDFs from studysmart.guru.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://studysmart.guru/home/free-pdfs/click-here-for-rrb-ntpc-reasoning-questions/"
-    },
-    {
-      "id": "doc-27",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper, Download PDF for CBT 1 and 2",
-      "description": "Downloadable PYQs for CBT 1 and 2 from Jagran Josh.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.jagranjosh.com/articles/rrb-ntpc-previous-year-question-paper-cbt-1-and-cbt-2-pdf-download-1725355852-1"
-    },
-    {
-      "id": "doc-28",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Papers and Solution PDF for CBT 1 and 2",
-      "description": "PYQs and solutions for CBT 1 and 2 from pw.live.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://store.pw.live/blogs/rrb-exams/rrb-ntpc-previous-year-papers-and-solution-pdf"
-    },
-    {
-      "id": "doc-29",
-      "type": "PYQs & MCQs",
-      "title": "Download Free RRB NTPC PYQ PDFs: Start Your Preparation",
-      "description": "Free PYQ PDFs from Utkarsh.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://utkarsh.com/exams/ntpc/ntpc-previous-year-question-paper/download-free-railway-ntpc-pyq-pdfs"
-    },
-    {
-      "id": "doc-30",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Questions and Answers PDF With Solutions (Stage 1, 2)",
-      "description": "Reasoning Q&A with solutions for Stage 1 and 2 from Freshersnow.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://www.freshersnow.com/rrb-ntpc-reasoning-questions-and-answers/"
-    },
-    {
-      "id": "doc-31",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Questions PDF",
-      "description": "Reasoning questions PDF from Cracku.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://cracku.in/blog/rrb-ntpc-reasoning-questions-pdf/"
-    },
-    {
-      "id": "doc-32",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Papers, Download Moderate Practice Set PDFs",
-      "description": "Moderate level practice sets from PracticeMock.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.practicemock.com/blog/rrb-ntpc-previous-year-question-papers/"
-    },
-    {
-      "id": "doc-33",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Expected Question Paper",
-      "description": "Expected reasoning question paper from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://blogmedia.testbook.com/blog/wp-content/uploads/2019/04/rrb-ntpc-reasoning-expected-question-paper-916abbb1.pdf"
-    },
-    {
-      "id": "doc-34",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC UG CBT 1 Previous Year Question Paper and Solution",
-      "description": "PYQ and solution for UG CBT 1 from Careerera.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.careerera.com/in/government-jobs/article/rrb-ntpc-previous-year-question-paper-and-solution"
-    },
-    {
-      "id": "doc-35",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC UG Question Paper 2025 Out, PDF Download [All Shifts]",
-      "description": "2025 question papers for all shifts from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC", "2025"],
-      "url": "https://testbook.com/blog/rrb-ntpc-question-paper-2025-out/"
-    },
-    {
-      "id": "doc-36",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper PDF, CBT 1 & 2 Download with Solutions",
-      "description": "PYQs with solutions for CBT 1 & 2 from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://testbook.com/rrb-ntpc/previous-year-papers"
-    },
-    {
-      "id": "doc-37",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Papers PDFs With Solution",
-      "description": "PYQ PDFs with solutions from pw.live.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://www.pw.live/railway/exams/rrb-ntpc-previous-year-question-papers"
-    },
-    {
-      "id": "doc-38",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Reasoning Questions Set-2 PDF",
-      "description": "Second set of reasoning questions from Cracku.",
-      "category": "PYQs & MCQs",
-      "tags": ["Reasoning", "PYQ", "Railway", "NTPC"],
-      "url": "https://cracku.in/blog/rrb-ntpc-reasoning-questions-set-2-pdf/"
-    },
-    {
-      "id": "doc-39",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Question Paper 2021 With Answer Key PDF (All Shift)",
-      "description": "2021 question papers with answer keys for all shifts from Exammix.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC", "2021"],
-      "url": "https://www.exammix.com/rrb-ntpc-question-paper-2021-with-answer-key-pdf-all-shift/"
-    },
-    {
-      "id": "doc-40",
-      "type": "PYQs & MCQs",
-      "title": "All Previous Year Question Papers of Rrb Ntpc Exam",
-      "description": "Collection of all PYQs from KD Campus.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Reasoning", "Railway", "NTPC"],
-      "url": "https://study.kdcampus.live/previous-year-pdf/all-previous-year-question-papers-of-rrb-ntpc-exam"
-    },
-    {
-      "id": "doc-41",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC General Science Questions Set-2 PDF",
-      "description": "Second set of General Science questions.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC"],
-      "url": "https://www.scribd.com/document/408176828/Blog-Downloads-a1103b7b-1fe8-4da3-a1da-d22d354aff7b"
-    },
-    {
-      "id": "doc-42",
-      "type": "PYQs & MCQs",
-      "title": "[Solved] RRB NTPC Science Questions with Detailed Solutions",
-      "description": "Solved science questions with detailed explanations from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC"],
-      "url": "https://testbook.com/questions/rrb-ntpc-science-questions--64b552d05892952591cb95c6"
-    },
-    {
-      "id": "doc-43",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC PREVIOUS YEARS QUESTIONS WITH SOLUTION",
-      "description": "PYQs with solutions from studylikeapro.com.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC", "PYQ"],
-      "url": "https://www.studylikeapro.com/p/rrb-ntpc-previous-years-questions-with.html"
-    },
-    {
-      "id": "doc-44",
-      "type": "Notes",
-      "title": "General Science for RRB NTPC & Group D Exam – PDF Free Download",
-      "description": "Free PDF for General Science from Exampundit.",
-      "category": "Notes",
-      "tags": ["General Science", "Railway", "NTPC", "Group D"],
-      "url": "https://exampundit.in/general-science-for-railway-exam-pdf/"
-    },
-    {
-      "id": "doc-45",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year General Science Questions PDF",
-      "description": "General Science PYQs from Cracku.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://cracku.in/blog/rrb-ntpc-previous-year-general-science-questions-pdf/"
-    },
-    {
-      "id": "doc-46",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Railway Exams 2025 I 150 General Science Questions – PDF",
-      "description": "150 General Science questions for 2025 exams from Parcham Classes.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC", "2025"],
-      "url": "https://parchamclasses.in/product/rrb-ntpc-railway-exams-2025-i-150-general-science-questions-pdf/"
-    },
-    {
-      "id": "doc-47",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Papers PDFs With Solution",
-      "description": "PYQ PDFs with solutions from pw.live.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://www.pw.live/railway/exams/rrb-ntpc-previous-year-question-papers"
-    },
-    {
-      "id": "doc-48",
-      "type": "PYQs & MCQs",
-      "title": "General Science Previous Year RRB Exam MCQs",
-      "description": "General Science MCQs from previous RRB exams, available on Amazon.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway"],
-      "url": "https://www.amazon.in/General-Science-Previous-Year-Exam-ebook/dp/B07PWTHF2L"
-    },
-    {
-      "id": "doc-49",
-      "type": "PYQs & MCQs",
-      "title": "5000 General knowledge (Hindi) MCQs for Railways RRB",
-      "description": "5000 GK MCQs in Hindi from qmaths.in.",
-      "category": "PYQs & MCQs",
-      "tags": ["GK", "Railway", "Hindi"],
-      "url": "https://www.qmaths.in/2016/01/5000-general-knowledge-mcqs-for-rrb-ntpc-2016.html"
-    },
-    {
-      "id": "doc-50",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper with Solutions; Download PDF for CBT 1 and 2",
-      "description": "PYQs with solutions for CBT 1 and 2 from Prepp.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://prepp.in/rrb-ntpc-exam/practice_papers"
-    },
-    {
-      "id": "doc-51",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Paper, Download PDF with Solution",
-      "description": "PYQs with solutions from adda247.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://www.adda247.com/jobs/rrb-ntpc-previous-year-question-paper/"
-    },
-    {
-      "id": "doc-52",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Papers and Solution PDF for CBT 1 and 2",
-      "description": "PYQs and solutions for CBT 1 and 2 from pw.live.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://store.pw.live/blogs/rrb-exams/rrb-ntpc-previous-year-papers-and-solution-pdf"
-    },
-    {
-      "id": "doc-53",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous year Question Paper PDF",
-      "description": "PYQ PDFs from sscstudy.com.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://sscstudy.com/rrb-ntpc-previous-year-question-paper-pdf/"
-    },
-    {
-      "id": "doc-54",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC 2025, Top General Science MCQs with Answers",
-      "description": "Top General Science MCQs with answers for 2025 exam from Karmasandhan.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC", "2025"],
-      "url": "https://www.karmasandhan.com/rrb-ntpc-2025-exam-important-general-science-physics-mcqs-with-answers"
-    },
-    {
-      "id": "doc-55",
-      "type": "PYQs & MCQs",
-      "title": "All Previous Year Question Papers of Rrb Ntpc Exam",
-      "description": "Collection of all PYQs from KD Campus.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "PYQ", "Railway", "NTPC"],
-      "url": "https://study.kdcampus.live/previous-year-pdf/all-previous-year-question-papers-of-rrb-ntpc-exam"
-    },
-    {
-      "id": "doc-56",
-      "type": "Notes",
-      "title": "RRB NTPC Exam 2025 Analysis (OUT, Oct 13)",
-      "description": "Exam analysis from Shiksha.",
-      "category": "Notes",
-      "tags": ["Analysis", "Railway", "NTPC", "2025"],
-      "url": "https://www.shiksha.com/exams/rrb-ntpc-exam-analysis"
-    },
-    {
-      "id": "doc-57",
-      "type": "PYQs & MCQs",
-      "title": "1000+ GK MCQs PDF for RRB NTPC 2019",
-      "description": "Over 1000 GK MCQs for the 2019 exam from Exampundit.",
-      "category": "PYQs & MCQs",
-      "tags": ["GK", "PYQ", "Railway", "NTPC", "2019"],
-      "url": "https://exampundit.in/1000-gk-mcqs-pdf-for-rrb-ntpc-2019/"
-    },
-    {
-      "id": "doc-58",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC General Awareness Question Paper, Free PDF & Quiz",
-      "description": "GA question paper with free PDF and quiz from PracticeMock.",
-      "category": "PYQs & MCQs",
-      "tags": ["GA", "Quiz", "Railway", "NTPC"],
-      "url": "https://www.practicemock.com/blog/rrb-ntpc-general-awareness-question-paper/"
-    },
-    {
-      "id": "doc-59",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC Previous Year Question Papers, Download Moderate Practice Set PDFs",
-      "description": "Moderate level practice sets from PracticeMock.",
-      "category": "PYQs & MCQs",
-      "tags": ["PYQ", "Railway", "NTPC"],
-      "url": "https://www.practicemock.com/blog/rrb-ntpc-previous-year-question-papers/"
-    },
-    {
-      "id": "doc-60",
-      "type": "PYQs & MCQs",
-      "title": "RRB NTPC General Science Questions Set-3 PDF",
-      "description": "Third set of General Science questions from Cracku.",
-      "category": "PYQs & MCQs",
-      "tags": ["General Science", "Railway", "NTPC"],
-      "url": "https://cracku.in/blog/rrb-ntpc-general-science-questions-set-3-pdf/"
-    },
-    {
-      "id": "doc-61",
-      "type": "Cheatsheets",
-      "title": "All GA Questions Asked Three Phases of RRB NTPC Exam : Free PDF 1",
-      "description": "GA questions from the first three phases of the RRB NTPC exam.",
-      "category": "Cheatsheets",
-      "tags": ["GA", "PYQ", "Railway", "NTPC"],
-      "url": "https://wpassets.adda247.com/wp-content/uploads/multisite/sites/2/2021/01/13172028/Formatted-ga-questions-asked-in-ntpc.pdf"
-    },
-    {
-      "id": "doc-62",
-      "type": "Cheatsheets",
-      "title": "RRB NTPC General Awareness Question Paper, Free PDF & Quiz",
-      "description": "GA question paper with free PDF and quiz from PracticeMock.",
-      "category": "Cheatsheets",
-      "tags": ["GA", "Quiz", "Railway", "NTPC"],
-      "url": "https://www.practicemock.com/blog/rrb-ntpc-general-awareness-question-paper/"
-    },
-    {
-      "id": "doc-63",
-      "type": "Notes",
-      "title": "RRB NTPC Study Material in English",
-      "description": "English study material from BankExamsToday.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC", "English"],
-      "url": "https://www.bankexamstoday.com/p/rrb-ntpc-study-material-in-english.html"
-    },
-    {
-      "id": "doc-64",
-      "type": "Notes",
-      "title": "RRB NTPC General Awareness Preparation, Tips and Tricks",
-      "description": "GA preparation tips and tricks from pw.live.",
-      "category": "Notes",
-      "tags": ["GA", "Strategy", "Railway", "NTPC"],
-      "url": "https://www.pw.live/railway/exams/rrb-ntpc-general-awareness-preparation"
-    },
-    {
-      "id": "doc-65",
-      "type": "Notes",
-      "title": "Ultra Bundle PDF General Awareness for Railway NTPC, Group-D Exams",
-      "description": "Ultra bundle PDF for GA from Exampundit.",
-      "category": "Notes",
-      "tags": ["GA", "Railway", "NTPC", "Group D"],
-      "url": "https://pdf.exampundit.in/ultra-bundle-pdf-general-awareness-for-railway-ntpc-group-d-exams"
-    },
-    {
-      "id": "doc-66",
-      "type": "Notes",
-      "title": "RRB NTPC Notes PDF: Free Download All Subjects (2025-26)",
-      "description": "Free notes for all subjects for 2025-26 exams from Studycart24.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC"],
-      "url": "https://studycart24.com/rrb-ntpc-notes-pdf/"
-    },
-    {
-      "id": "doc-67",
-      "type": "Notes",
-      "title": "RRB NTPC Study Material Free Pdf Books 2025",
-      "description": "Free PDF books and study material for 2025 from Government Adda.",
-      "category": "Notes",
-      "tags": ["Notes", "Railway", "NTPC", "2025"],
-      "url": "https://governmentadda.com/rrb-ntpc-study-material-free-pdf/"
-    },
-    {
-      "id": "doc-68",
-      "type": "PYQs & MCQs",
-      "title": "[Solved] RRB NTPC GK Questions with Detailed Solutions",
-      "description": "Solved GK questions with detailed solutions from Testbook.",
-      "category": "PYQs & MCQs",
-      "tags": ["GK", "PYQ", "Railway", "NTPC"],
-      "url": "https://testbook.com/questions/rrb-ntpc-gk-questions--64b552be2819d5020ab670d1"
-    },
-    {
-      "id": "doc-69",
-      "type": "Notes",
-      "title": "Study Material For RRB Exam - General Knowledge",
-      "description": "GK study material from RRB Exam Portal.",
-      "category": "Notes",
-      "tags": ["GK", "Railway"],
-      "url": "https://rrbexamportal.com/GK"
-    }
-  ]
+  // SSC CHSL & CGL Resources
+  // Previous Year Papers (PYQs)
+  {
+    "id": "ssc-pyq-1",
+    "type": "PYQs & MCQs",
+    "title": "SSC CHSL Tier 1 PYQs (2016-2024)",
+    "description": "Shift-wise with solutions; 100+ papers.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "CHSL", "PYQ", "English", "Hindi"],
+    "url": "https://testbook.com/ssc-chsl/previous-year-papers"
+  },
+  {
+    "id": "ssc-pyq-2",
+    "type": "PYQs & MCQs",
+    "title": "SSC CGL Tier 1 & 2 PYQs (2018-2025)",
+    "description": "80+ papers, memory-based for 2025.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "CGL", "PYQ", "English", "Hindi"],
+    "url": "https://www.careerpower.in/ssc-cgl-previous-year-question-paper.html"
+  },
+  {
+    "id": "ssc-pyq-3",
+    "type": "PYQs & MCQs",
+    "title": "SSC CHSL/CGL Combined PYQs (Hindi)",
+    "description": "Tier 1 Hindi PDFs, 2023-2024.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "CGL", "CHSL", "PYQ", "Hindi"],
+    "url": "https://www.adda247.com/jobs/ssc-chsl-previous-year-question-paper/"
+  },
+  {
+    "id": "ssc-pyq-4",
+    "type": "PYQs & MCQs",
+    "title": "SSC Official Archive",
+    "description": "All years, direct from SSC.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "CGL", "CHSL", "PYQ", "Official"],
+    "url": "https://ssc.nic.in/previous-year-question-papers"
+  },
+  {
+    "id": "ssc-pyq-5",
+    "type": "PYQs & MCQs",
+    "title": "FreshersNow Telugu PYQs",
+    "description": "Adaptable for SSC exams.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "PYQ", "Telugu"],
+    "url": "https://www.freshersnow.com/ssc-chsl-previous-question-papers/"
+  },
+  {
+    "id": "ssc-pyq-6",
+    "type": "PYQs & MCQs",
+    "title": "EduTV Tamil PYQs (Video-linked)",
+    "description": "Video-linked PDFs for SSC PYQs in Tamil.",
+    "category": "PYQs & MCQs",
+    "tags": ["SSC", "PYQ", "Tamil"],
+    "url": "https://www.youtube.com/results?search_query=ssc+chsl+pyq+tamil+pdf"
+  },
+
+  // Study Notes
+  {
+    "id": "ssc-notes-1",
+    "type": "Notes",
+    "title": "Quantitative Aptitude Notes",
+    "description": "Formulas, tricks for algebra, geometry (200+ pages).",
+    "category": "Notes",
+    "tags": ["SSC", "Quant", "Maths", "English"],
+    "url": "https://sscstudy.com/ssc-cgl-study-material-pdf-free-download/"
+  },
+  {
+    "id": "ssc-notes-2",
+    "type": "Notes",
+    "title": "Reasoning Notes (Hindi/English)",
+    "description": "Verbal/non-verbal, 150+ topics.",
+    "category": "Notes",
+    "tags": ["SSC", "Reasoning", "Hindi", "English"],
+    "url": "https://www.adda247.com/exams/ssc/ssc-cgl-study-material/"
+  },
+  {
+    "id": "ssc-notes-3",
+    "type": "Notes",
+    "title": "English Grammar & Vocab Notes",
+    "description": "Grammar, vocab, comprehension (Hindi bilingual).",
+    "category": "Notes",
+    "tags": ["SSC", "English", "Hindi"],
+    "url": "https://testbook.com/ssc-cgl-exam/study-material"
+  },
+  {
+    "id": "ssc-notes-4",
+    "type": "Notes",
+    "title": "General Awareness Notes (Hindi)",
+    "description": "GK, current affairs (Lucent-based).",
+    "category": "Notes",
+    "tags": ["SSC", "GA", "GK", "Hindi"],
+    "url": "https://jkchrome.com/ssc-cgl-study-material-pdf/"
+  },
+  {
+    "id": "ssc-notes-5",
+    "type": "Notes",
+    "title": "SVR Academy Telugu Notes",
+    "description": "Basic SSC notes in Telugu.",
+    "category": "Notes",
+    "tags": ["SSC", "Notes", "Telugu"],
+    "url": "https://www.svracademy.com/ssc-notes-telugu/"
+  },
+  {
+    "id": "ssc-notes-6",
+    "type": "Notes",
+    "title": "UPSC Tamil Notes (via YouTube)",
+    "description": "Linked via channels like EduTV, adaptable for SSC.",
+    "category": "Notes",
+    "tags": ["SSC", "Notes", "Tamil"],
+    "url": "https://www.youtube.com/results?search_query=ssc+chsl+notes+tamil+pdf"
+  },
+
+  // Cheatsheets
+  {
+    "id": "ssc-cheatsheet-1",
+    "type": "Cheatsheets",
+    "title": "Maths Cheatsheet",
+    "description": "All formulas (average, interest, geometry; 20 pages).",
+    "category": "Cheatsheets",
+    "tags": ["SSC", "Maths", "Quant", "Formula"],
+    "url": "https://testbook.com/ssc-cgl-exam/maths-formulas"
+  },
+  {
+    "id": "ssc-cheatsheet-2",
+    "type": "Cheatsheets",
+    "title": "Reasoning Shortcuts (Hindi)",
+    "description": "Syllogism, coding-decoding.",
+    "category": "Cheatsheets",
+    "tags": ["SSC", "Reasoning", "Shortcuts", "Hindi"],
+    "url": "https://www.scribd.com/document/895543404/Document-1"
+  },
+  {
+    "id": "ssc-cheatsheet-3",
+    "type": "Cheatsheets",
+    "title": "Quant Short Tricks (Bilingual)",
+    "description": "Pipes, boats, trains.",
+    "category": "Cheatsheets",
+    "tags": ["SSC", "Quant", "Shortcuts", "English", "Hindi"],
+    "url": "https://www.jagranjosh.com/articles/ssc-cgl-maths-formulas-short-tricks-and-formulas-for-tier-1-exam-download-pdf-1800001759-1"
+  },
+  {
+    "id": "ssc-cheatsheet-4",
+    "type": "Cheatsheets",
+    "title": "GK Quick Notes (Hindi)",
+    "description": "Static GK cheatsheet.",
+    "category": "Cheatsheets",
+    "tags": ["SSC", "GK", "Notes", "Hindi"],
+    "url": "https://sscstudy.com/ssc-cgl-study-material-pdf-free-download/"
+  },
+  {
+    "id": "ssc-cheatsheet-5",
+    "type": "Cheatsheets",
+    "title": "Adaptable Tamil Formulas",
+    "description": "Use English cheatsheets; adapt from sources like Scribd.",
+    "category": "Cheatsheets",
+    "tags": ["SSC", "Formula", "Tamil"],
+    "url": "https://www.scribd.com/search?query=ssc+chsl+formulas+tamil"
+  },
   
-  export default otherMaterialsData;
+  // UPSC Resources
+  // PYQs
+  {
+    "id": "upsc-pyq-1",
+    "type": "PYQs & MCQs",
+    "title": "UPSC Prelims PYQs (2015-2025)",
+    "description": "GS/CSAT, with keys.",
+    "category": "PYQs & MCQs",
+    "tags": ["UPSC", "PYQ", "Prelims", "Official"],
+    "url": "https://upsc.gov.in/examinations/previous-question-papers"
+  },
+  {
+    "id": "upsc-pyq-2",
+    "type": "PYQs & MCQs",
+    "title": "UPSC Mains PYQs (2013-2025)",
+    "description": "GS Papers 1-4, Essay.",
+    "category": "PYQs & MCQs",
+    "tags": ["UPSC", "PYQ", "Mains", "English"],
+    "url": "https://vajiramandravi.com/upsc-previous-papers/"
+  },
+  {
+    "id": "upsc-pyq-3",
+    "type": "PYQs & MCQs",
+    "title": "Hindi Mains PYQs",
+    "description": "GS bilingual (2016-2024).",
+    "category": "PYQs & MCQs",
+    "tags": ["UPSC", "PYQ", "Mains", "Hindi"],
+    "url": "https://www.drishtiias.com/hindi/postal-course/upsc-study-material-hindi"
+  },
+  {
+    "id": "upsc-pyq-4",
+    "type": "PYQs & MCQs",
+    "title": "Telugu PYQs & Notes",
+    "description": "Includes PYQs by Pallavi Akurathi.",
+    "category": "PYQs & MCQs",
+    "tags": ["UPSC", "PYQ", "Telugu"],
+    "url": "https://archive.org/details/IASEXAMTELUGUMEDIUMNOTESBYPALLAVIAKURATHI"
+  },
+  {
+    "id": "upsc-pyq-5",
+    "type": "PYQs & MCQs",
+    "title": "Official UPSC Tamil PYQs",
+    "description": "Official Tamil Paper-I.",
+    "category": "PYQs & MCQs",
+    "tags": ["UPSC", "PYQ", "Tamil", "Official"],
+    "url": "https://upsc.gov.in/sites/default/files/Tamil%20Paper-I.pdf"
+  },
+
+  // Notes
+  {
+    "id": "upsc-notes-1",
+    "type": "Notes",
+    "title": "History Notes (Ancient/Modern)",
+    "description": "NCERT-based, 100+ pages.",
+    "category": "Notes",
+    "tags": ["UPSC", "History", "Notes", "English"],
+    "url": "https://testbook.com/ias-preparation/upsc-notes-pdf"
+  },
+  {
+    "id": "upsc-notes-2",
+    "type": "Notes",
+    "title": "Polity Notes (Hindi)",
+    "description": "Laxmikanth summaries.",
+    "category": "Notes",
+    "tags": ["UPSC", "Polity", "Notes", "Hindi"],
+    "url": "https://vajiramandravi.com/upsc-exam/free-upsc-study-material-notes/"
+  },
+  {
+    "id": "upsc-notes-3",
+    "type": "Notes",
+    "title": "Economy Notes (Bilingual)",
+    "description": "Budget, schemes.",
+    "category": "Notes",
+    "tags": ["UPSC", "Economy", "Notes", "English", "Hindi"],
+    "url": "https://iasscore.in/free-downloads"
+  },
+  {
+    "id": "upsc-notes-4",
+    "type": "Notes",
+    "title": "Environment Notes",
+    "description": "Ecology, biodiversity.",
+    "category": "Notes",
+    "tags": ["UPSC", "Environment", "Notes", "English"],
+    "url": "https://pwonlyias.com/upsc-notes/udaan-2/"
+  },
+  {
+    "id": "upsc-notes-5",
+    "type": "Notes",
+    "title": "R.C.Reddy Telugu Notes",
+    "description": "UPSC notes in Telugu.",
+    "category": "Notes",
+    "tags": ["UPSC", "Notes", "Telugu"],
+    "url": "https://www.rcreddyiasstudycircle.com/materials"
+  },
+  {
+    "id": "upsc-notes-6",
+    "type": "Notes",
+    "title": "Tamil Nadu Board Books",
+    "description": "Important for UPSC, in Tamil.",
+    "category": "Notes",
+    "tags": ["UPSC", "Notes", "Tamil"],
+    "url": "https://upscpdf.com/2023/10/17/download-tamil-nadu-board-books-important-for-upsc-state-psc-exam/"
+  },
+
+  // Cheatsheets
+  {
+    "id": "upsc-cheatsheet-1",
+    "type": "Cheatsheets",
+    "title": "GS1 Cheatsheet",
+    "description": "History/Geography timelines.",
+    "category": "Cheatsheets",
+    "tags": ["UPSC", "GS1", "Cheatsheet", "English"],
+    "url": "https://vajiramandravi.com/upsc-exam/quick-revision-notes-for-upsc-mains/"
+  },
+  {
+    "id": "upsc-cheatsheet-2",
+    "type": "Cheatsheets",
+    "title": "GS2/3 Facts (Hindi)",
+    "description": "Polity/Schemes quick notes.",
+    "category": "Cheatsheets",
+    "tags": ["UPSC", "GS2", "GS3", "Cheatsheet", "Hindi"],
+    "url": "https://pwonlyias.com/upsc-notes/udaan-2/"
+  },
+  {
+    "id": "upsc-cheatsheet-3",
+    "type": "Cheatsheets",
+    "title": "GS4 Ethics Cheatsheet",
+    "description": "Quotes/cases for Ethics paper.",
+    "category": "Cheatsheets",
+    "tags": ["UPSC", "GS4", "Ethics", "Cheatsheet", "English"],
+    "url": "https://www.visionias.in/resources/quick-revision-material/"
+  },
+  {
+    "id": "upsc-cheatsheet-4",
+    "type": "Cheatsheets",
+    "title": "Static Syllabus Cheatsheet (Bilingual)",
+    "description": "Full static syllabus quick revision.",
+    "category": "Cheatsheets",
+    "tags": ["UPSC", "Syllabus", "Cheatsheet", "English", "Hindi"],
+    "url": "https://www.scribd.com/document/911337099/UPSC-Static-Syllabus-Quick-Revision-Full"
+  },
+  {
+    "id": "upsc-cheatsheet-5",
+    "type": "Cheatsheets",
+    "title": "Adaptable Tamil Revision Notes",
+    "description": "Use English cheatsheets or search Scribd for Tamil notes.",
+    "category": "Cheatsheets",
+    "tags": ["UPSC", "Revision", "Tamil"],
+    "url": "https://www.scribd.com/search?query=upsc+tamil+quick+notes"
+  },
+
+  // GATE & PSU Resources
+  // PYQs
+  {
+    "id": "gate-pyq-1",
+    "type": "PYQs & MCQs",
+    "title": "GATE PYQs (1991-2025)",
+    "description": "All branches, with keys.",
+    "category": "PYQs & MCQs",
+    "tags": ["GATE", "PYQ", "All Branches", "English"],
+    "url": "https://www.geeksforgeeks.org/gate/original-gate-previous-year-question-papers-cse-and-it-gq/"
+  },
+  {
+    "id": "gate-pyq-2",
+    "type": "PYQs & MCQs",
+    "title": "IIT Official Archive (2007-2025)",
+    "description": "Branch-wise papers from IITKGP.",
+    "category": "PYQs & MCQs",
+    "tags": ["GATE", "PYQ", "Official", "English"],
+    "url": "https://gate.iitkgp.ac.in/old_question_papers.html"
+  },
+  {
+    "id": "gate-pyq-3",
+    "type": "PYQs & MCQs",
+    "title": "PSU-Specific GATE Papers",
+    "description": "GATE-linked PSU papers.",
+    "category": "PYQs & MCQs",
+    "tags": ["GATE", "PSU", "PYQ", "English"],
+    "url": "https://www.pw.live/gate/exams/gate-previous-year-question-papers"
+  },
+  {
+    "id": "gate-pyq-4",
+    "type": "PYQs & MCQs",
+    "title": "GateExplore Hindi Notes & PYQs",
+    "description": "Hindi notes and adaptable PYQs.",
+    "category": "PYQs & MCQs",
+    "tags": ["GATE", "Notes", "PYQ", "Hindi"],
+    "url": "https://www.gatexplore.com/study-material/"
+  },
+
+  // Notes
+  {
+    "id": "gate-notes-1",
+    "type": "Notes",
+    "title": "CSE Handwritten Notes",
+    "description": "Algorithms, OS, etc. from GitHub.",
+    "category": "Notes",
+    "tags": ["GATE", "CSE", "Notes", "English"],
+    "url": "https://github.com/Priyanshuu-2109/GATE-CSE-notes"
+  },
+  {
+    "id": "gate-notes-2",
+    "type": "Notes",
+    "title": "ME Notes (Ace Academy)",
+    "description": "SOM, TOM from Ekxam.",
+    "category": "Notes",
+    "tags": ["GATE", "ME", "Notes", "English"],
+    "url": "https://gate2016.info/free-gate-notes/"
+  },
+  {
+    "id": "gate-notes-3",
+    "type": "Notes",
+    "title": "EE Notes",
+    "description": "Machines, networks from UseMyNotes.",
+    "category": "Notes",
+    "tags": ["GATE", "EE", "Notes", "English"],
+    "url": "https://usemynotes.com/free-gate-ee-study-material-for-2026-aspirants/"
+  },
+  {
+    "id": "gate-notes-4",
+    "type": "Notes",
+    "title": "ECE Notes (Made Easy)",
+    "description": "Analog/digital from TheoryPoint.",
+    "category": "Notes",
+    "tags": ["GATE", "ECE", "Notes", "English"],
+    "url": "https://www.theorypoint.com/made-easy-ies-gate-psu-pdf/"
+  },
+  {
+    "id": "gate-notes-5",
+    "type": "Notes",
+    "title": "ACE Academy Hindi CS Notes",
+    "description": "Hindi notes for Computer Science.",
+    "category": "Notes",
+    "tags": ["GATE", "CSE", "Notes", "Hindi"],
+    "url": "https://www.gatexplore.com/ace-academy-class-notes-computer-science/"
+  },
   
-    
+  // Cheatsheets
+  {
+    "id": "gate-cheatsheet-1",
+    "type": "Cheatsheets",
+    "title": "CSE Formulas",
+    "description": "TOC, networks formulas.",
+    "category": "Cheatsheets",
+    "tags": ["GATE", "CSE", "Formula", "English"],
+    "url": "https://www.gateexam.info/gate-cse-formula-book-pdf/"
+  },
+  {
+    "id": "gate-cheatsheet-2",
+    "type": "Cheatsheets",
+    "title": "ME Cheatsheet (Scribd)",
+    "description": "Thermo, fluids formulas (20 pages).",
+    "category": "Cheatsheets",
+    "tags": ["GATE", "ME", "Formula", "English"],
+    "url": "https://www.scribd.com/document/636329742/GATE-NOTES-Strength-Of-Materials-Handwritten-GATE-IES-AEE-GENCO-PSU-Ace-Academy-Notes-Free-Download-PDF-CivilEnggForAll"
+  },
+  {
+    "id": "gate-cheatsheet-3",
+    "type": "Cheatsheets",
+    "title": "EE Formula Sheet",
+    "description": "Electrical Machines formulas.",
+    "category": "Cheatsheets",
+    "tags": ["GATE", "EE", "Formula", "English"],
+    "url": "https://www.erforum.net/2017/05/electrical-machine-formula-sheet-for-gate-ese-pdf-download.html"
+  },
+  {
+    "id": "gate-cheatsheet-4",
+    "type": "Cheatsheets",
+    "title": "ECE Formula Book",
+    "description": "Signals, EM fields formulas.",
+    "category": "Cheatsheets",
+    "tags": ["GATE", "ECE", "Formula", "English"],
+    "url": "https://www.gateexam.info/gate-formula-book-for-ece/"
+  },
+  {
+    "id": "gate-cheatsheet-5",
+    "type": "Cheatsheets",
+    "title": "Real Analysis Notes (Hindi)",
+    "description": "Notes for GATE Real Analysis.",
+    "category": "Cheatsheets",
+    "tags": ["GATE", "Maths", "Notes", "Hindi"],
+    "url": "https://www.mathscare.com/notes/gate-exam-real-analysis-notes-gate-2023/"
+  }
+];
+
+export default otherMaterialsData;
