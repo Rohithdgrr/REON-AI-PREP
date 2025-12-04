@@ -269,34 +269,41 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        
+        let buffer = '';
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            buffer += decoder.decode(value, { stream: true });
+            
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep the last, possibly incomplete line
 
             for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6);
-                    if (data.trim() === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || '';
-                        if (content) {
-                            setMessages(prevMessages => {
-                                const updatedMessages = [...prevMessages];
-                                const lastMessage = updatedMessages[updatedMessages.length - 1];
-                                if (lastMessage && lastMessage.role === 'assistant') {
-                                    lastMessage.content += content;
-                                }
-                                return updatedMessages;
-                            });
-                        }
-                    } catch (e) {
-                         console.error('Error parsing streaming JSON:', e);
+                if (line.trim() === '' || !line.startsWith('data: ')) continue;
+                
+                const data = line.substring(6);
+                if (data.trim() === '[DONE]') {
+                    break;
+                }
+                
+                try {
+                    const json = JSON.parse(data);
+                    const content = json.choices[0]?.delta?.content || '';
+                    if (content) {
+                        setMessages(prevMessages => {
+                            const updatedMessages = [...prevMessages];
+                            const lastMessage = updatedMessages[updatedMessages.length - 1];
+                            if (lastMessage && lastMessage.role === 'assistant') {
+                                lastMessage.content += content;
+                            }
+                            return updatedMessages;
+                        });
                     }
+                } catch (e) {
+                     console.error('Error parsing streaming JSON:', e, 'line:', line);
                 }
             }
         }
@@ -320,6 +327,10 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
                     return prev.slice(0, -1);
+                }
+                // Also remove the user message that triggered this
+                if(messages.length === prev.length -1) {
+                    return prev.slice(0,-2);
                 }
                 return prev;
             });
