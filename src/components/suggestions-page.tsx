@@ -60,7 +60,7 @@ const generalSuggestions = [
     ],
     imageId: "suggestion-schedule",
   },
-   {
+  {
     id: "concepts",
     title: "Focus on Conceptual Clarity",
     points: [
@@ -81,15 +81,16 @@ const generalSuggestions = [
     imageId: "suggestion-resources",
   },
   {
-    id: "notifications",
-    title: "Keep Track of Notifications",
+    id: "practice",
+    title: "Practice Regularly",
     points: [
-      "Regularly check official websites: rrbcdg.gov.in for Railway jobs, ibps.in, and sbi.co.in/careers for Banking jobs.",
-      "Subscribe to job alert sites or Telegram channels for instant updates.",
+      "Attempt sectional tests and mock exams weekly.",
+      "Analyze your performance to find weak areas.",
+      "Work on speed and accuracy — both matter equally in online tests.",
     ],
-    imageId: "suggestion-notifications",
+    imageId: "suggestion-practice",
   },
-   {
+  {
     id: "awareness",
     title: "Strengthen Current Affairs & General Awareness",
     points: [
@@ -100,14 +101,13 @@ const generalSuggestions = [
     imageId: "suggestion-awareness",
   },
   {
-    id: "practice",
-    title: "Practice Regularly",
+    id: "notifications",
+    title: "Keep Track of Notifications",
     points: [
-      "Attempt sectional tests and mock exams weekly.",
-      "Analyze your performance to find weak areas.",
-      "Work on speed and accuracy — both matter equally in online tests.",
+      "Regularly check official websites: rrbcdg.gov.in for Railway jobs, ibps.in, and sbi.co.in/careers for Banking jobs.",
+      "Subscribe to job alert sites or Telegram channels for instant updates.",
     ],
-    imageId: "suggestion-practice",
+    imageId: "suggestion-notifications",
   },
   {
     id: "motivation",
@@ -131,6 +131,7 @@ const generalSuggestions = [
     imageId: "suggestion-interview",
   },
 ];
+
 
 const quickRecap = [
     { area: "Goal Setting", suggestion: "Choose the right exam and understand its pattern" },
@@ -313,6 +314,7 @@ export function SuggestionsPage() {
                                       alt={sticker.alt} 
                                       width={64} 
                                       height={64}
+                                      unoptimized
                                       className="absolute -top-8 -right-4 md:-top-6 md:-right-8 w-16 h-16 transform rotate-12"
                                     />
                                   )}
@@ -387,3 +389,4 @@ export function SuggestionsPage() {
     
 
     
+

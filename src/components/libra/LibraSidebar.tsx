@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -31,6 +30,11 @@ import { cn } from '@/lib/utils';
 
 
 type AIMode = 'Chat' | 'History';
+
+type Message = {
+    role: 'user' | 'assistant';
+    content: string;
+}
 
 type Session = {
   id: number;
@@ -85,11 +89,51 @@ const suggestionCards = [
 
 const MISTRAL_API_KEY = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
 
+function buildSystemPrompt(): string {
+    return `You are LIBRA, an expert AI assistant integrated into the REON AI PREP application. Your primary role is to help users prepare for competitive government exams in India, such as Bank PO, SBI PO, and Railway (RRB NTPC) exams.
+
+**Your Core Directives:**
+1.  **Expertise**: Act as an expert tutor. Provide accurate, well-structured, and helpful information related to exam subjects (Quantitative Aptitude, Reasoning, English, General Awareness), study strategies, and exam patterns.
+2.  **Clarity and Formatting**:
+    *   Use clear and simple language. Avoid jargon where possible, or explain it if necessary.
+    *   Structure your responses for readability. Use **bold text** for headings and key terms. Use bullet points (\`-\` or \`*\`) for lists.
+    *   Ensure perfect spelling and grammar. Your responses must be professional and polished.
+3.  **Tone**: Be encouraging, supportive, and positive. Motivate the user in their preparation journey.
+4.  **Functionality**:
+    *   If asked to explain a topic, break it down into simple concepts.
+    *   If asked to create a quiz, provide multiple-choice questions with clear options and a correct answer.
+    *   If asked for a study plan, make it actionable and realistic.
+
+**Example Interaction:**
+
+*User:* "Explain Syllogism."
+
+*Your Ideal Response:*
+"Of course! Let's break down Syllogism.
+
+**What is Syllogism?**
+Syllogism is a part of logical reasoning where you are given a few statements (also called premises) and you have to deduce a conclusion from them. The key is to assume the statements are 100% true, even if they don't make sense in the real world.
+
+**Key Components:**
+- **Statements/Premises:** These are the facts you are given. (e.g., "All cats are dogs.")
+- **Conclusion:** This is what you need to determine is true or false based on the statements.
+
+Let's try a simple example:
+- **Statement 1:** All A are B.
+- **Statement 2:** All B are C.
+- **Conclusion:** All A are C.
+
+In this case, the conclusion is valid. The best way to solve these is by using Venn diagrams. Would you like me to explain how to use Venn diagrams for Syllogism?"
+`;
+}
+
+
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const { toast } = useToast();
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -102,7 +146,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   }, [initialPrompt]);
 
   useEffect(() => {
-    setSessionHistory([]);
+    setMessages([]);
   }, []);
 
   useEffect(() => {
@@ -110,7 +154,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
       scrollAreaRef.current.scrollTop =
         scrollAreaRef.current.scrollHeight;
     }
-  }, [sessionHistory, isLoading, currentMode]);
+  }, [messages, isLoading]);
 
 
   const handleAiRequest = async (promptOverride?: string) => {
@@ -127,16 +171,15 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     setIsLoading(true);
     setInput('');
     abortControllerRef.current = new AbortController();
+    
+    const newMessages: Message[] = [...messages, { role: 'user', content: textToProcess }];
+    setMessages(newMessages);
 
-    const newSession: Session = {
-      id: Date.now(),
-      mode: 'Chat',
-      input: textToProcess,
-      response: '',
-    };
-    
-    setSessionHistory(prev => [...prev, newSession]);
-    
+    // Add an empty assistant message to stream into
+    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+    const systemPrompt = buildSystemPrompt();
+
     try {
        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
             method: "POST",
@@ -146,7 +189,10 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             },
             body: JSON.stringify({
                 model: "open-mistral-nemo",
-                messages: [{ role: "user", content: textToProcess }],
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    ...newMessages.map(m => ({ role: m.role, content: m.content }))
+                ],
                 stream: true,
             }),
             signal: abortControllerRef.current.signal,
@@ -178,13 +224,13 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                         const json = JSON.parse(data);
                         const content = json.choices[0]?.delta?.content || '';
                         if (content) {
-                            setSessionHistory(prevHistory => {
-                                const newHistory = [...prevHistory];
-                                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-                                if (sessionIndex > -1) {
-                                    newHistory[sessionIndex].response += content;
+                            setMessages(prevMessages => {
+                                const updatedMessages = [...prevMessages];
+                                const lastMessage = updatedMessages[updatedMessages.length - 1];
+                                if (lastMessage && lastMessage.role === 'assistant') {
+                                    lastMessage.content += content;
                                 }
-                                return newHistory;
+                                return updatedMessages;
                             });
                         }
                     } catch (e) {
@@ -197,7 +243,8 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
-          setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
+          // Remove the user message and the empty assistant message
+          setMessages(prev => prev.slice(0, -2));
         } else {
              console.error(`API Error:`, error);
               toast({
@@ -205,7 +252,8 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                   title: 'AI Error',
                   description: error.message || 'The model failed to respond. Please check console.',
               });
-              setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
+              // Remove the user message and the empty assistant message
+             setMessages(prev => prev.slice(0, -2));
         }
     } finally {
       setIsLoading(false);
@@ -221,7 +269,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   }
 
   const handleNewChat = () => {
-    setSessionHistory([]);
+    setMessages([]);
     setInput('');
     setCurrentMode('Chat');
   };
@@ -246,13 +294,10 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   };
   
   const handleHistoryClick = (session: Session) => {
-    const newChatHistory = [
-      {
-        ...session,
-        id: Date.now(),
-      }
-    ];
-    setSessionHistory(newChatHistory);
+    setMessages([
+        { role: 'user', content: session.input },
+        { role: 'assistant', content: session.response },
+    ]);
     setCurrentMode('Chat');
   };
 
@@ -348,7 +393,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
               </p>
             )}
           </div>
-        ) : sessionHistory.length === 0 ? (
+        ) : messages.length === 0 ? (
           <div className="text-center h-full flex flex-col justify-center items-center">
             <BotMessageSquare className="mx-auto h-16 w-16 opacity-10 mb-4" />
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
@@ -372,58 +417,60 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {sessionHistory.map(session => (
-              <React.Fragment key={session.id}>
-                <div className="flex items-start gap-3 justify-end">
-                  <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
-                    <p className="text-sm">{session.input}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                    {(session.response || isLoading) ? (
-                      <>
-                        <FormattedAIResponse response={session.response} />
-                        {isLoading && session.id === sessionHistory[sessionHistory.length-1].id && (
-                          <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
+            {messages.map((message, index) => (
+              <React.Fragment key={index}>
+                {message.role === 'user' ? (
+                    <div className="flex items-start gap-3 justify-end">
+                      <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                    </div>
+                ) : (
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Bot className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="p-3 rounded-2xl bg-muted max-w-sm">
+                        {(message.content || isLoading) ? (
+                          <>
+                            <FormattedAIResponse response={message.content} />
+                            {isLoading && index === messages.length -1 && (
+                              <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
+                            )}
+                            {message.content && !isLoading && index === messages.length -1 && (
+                              <div className="flex items-center gap-1 mt-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => copyToClipboard(message.content)}
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() =>
+                                    downloadResponse(
+                                      message.content,
+                                      `libra-response.txt`
+                                    )
+                                  }
+                                >
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                              <Sparkles className="animate-spin h-5 w-5" /> Thinking...
+                            </div>
                         )}
-                        {session.response && !isLoading && (
-                          <div className="flex items-center gap-1 mt-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => copyToClipboard(session.response)}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() =>
-                                downloadResponse(
-                                  session.response,
-                                  `libra-response.txt`
-                                )
-                              }
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                       <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                          <Sparkles className="animate-spin h-5 w-5" /> Thinking...
-                        </div>
-                    )}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                )}
               </React.Fragment>
             ))}
           </div>
