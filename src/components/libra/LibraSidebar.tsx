@@ -66,7 +66,7 @@ const FormattedAIResponse = ({ response }: { response: string }) => {
     );
 };
 
-const suggestionCards = [
+const allSuggestionCards = [
   {
     title: 'Explain Topic',
     prompt: "Explain the topic of 'Data Interpretation' for bank exams.",
@@ -85,9 +85,23 @@ const suggestionCards = [
     prompt:
       'Summarize my notes on the Mughal Empire into 5 key points.',
   },
+  {
+      title: 'Compare Exams',
+      prompt: 'What are the main differences between the syllabus of SSC CGL and Bank PO?'
+  },
+  {
+      title: 'Give me a shortcut',
+      prompt: 'Give me a quick math shortcut for calculating compound interest.'
+  },
+  {
+      title: 'Suggest a Book',
+      prompt: 'What is the best book for preparing Quantitative Aptitude for the GATE exam?'
+  },
+  {
+      title: 'Explain a Concept',
+      prompt: 'Explain the concept of "Judicial Review" in the context of the Indian Constitution for UPSC prep.'
+  }
 ];
-
-const MISTRAL_API_KEY = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
 
 function buildSystemPrompt(): string {
     return `You are LIBRA, an expert AI assistant integrated into the REON AI PREP application. Your primary role is to help users prepare for competitive government exams in India, such as Bank PO, SBI PO, and Railway (RRB NTPC) exams.
@@ -138,6 +152,14 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [suggestionCards, setSuggestionCards] = useState(allSuggestionCards.slice(0, 4));
+
+  useEffect(() => {
+    // Shuffle and pick 4 random suggestions on component mount
+    const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
+    setSuggestionCards(shuffled.slice(0, 4));
+  }, []);
 
   useEffect(() => {
     if (initialPrompt) {
@@ -146,8 +168,12 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   }, [initialPrompt]);
 
   useEffect(() => {
-    setMessages([]);
-  }, []);
+    if (messages.length === 0) {
+      // Reshuffle suggestions when starting a new chat
+      const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
+      setSuggestionCards(shuffled.slice(0, 4));
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -185,7 +211,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${MISTRAL_API_KEY}`,
+                "Authorization": `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
                 model: "open-mistral-nemo",
