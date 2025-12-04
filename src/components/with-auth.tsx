@@ -46,8 +46,9 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
 
             const formattedDob = format(dob, 'yyyyMMdd');
             const userFirstLetter = (user.displayName || 'X').charAt(0).toUpperCase();
+            const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
             
-            const riId = `R${formattedDob}${userFirstLetter}T`;
+            const riId = `R${formattedDob}${userFirstLetter}T-${randomPart}`;
 
             setDoc(userRef, {
               id: user.uid,
