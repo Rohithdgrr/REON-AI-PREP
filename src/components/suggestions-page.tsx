@@ -22,7 +22,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "./ui/button";
 import { Loader2, Wand2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { type GeneratePrepSuggestionsOutput } from "@/ai/flows/generate-prep-suggestions";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -41,16 +40,6 @@ const generalSuggestions = [
     imageId: "suggestion-goal",
   },
   {
-    id: "foundation",
-    title: "Build a Strong Foundation",
-    points: [
-      "Start with basic concepts of Maths, English, and Reasoning.",
-      "Refer to NCERT books (6th–10th) to clear fundamentals.",
-      "For beginners, focus on accuracy first, then on speed.",
-    ],
-    imageId: "suggestion-foundation",
-  },
-  {
     id: "schedule",
     title: "Plan a Realistic Study Schedule",
     points: [
@@ -61,14 +50,14 @@ const generalSuggestions = [
     imageId: "suggestion-schedule",
   },
   {
-    id: "concepts",
-    title: "Focus on Conceptual Clarity",
+    id: "foundation",
+    title: "Build a Strong Foundation",
     points: [
-      "Understand the logic behind each question instead of memorizing answers.",
-      "Practice topic-wise tests before moving to full-length mocks.",
-      "Revisit topics until you can solve them confidently within time limits.",
+      "Start with basic concepts of Maths, English, and Reasoning.",
+      "Refer to NCERT books (6th–10th) to clear fundamentals.",
+      "For beginners, focus on accuracy first, then on speed.",
     ],
-    imageId: "suggestion-concepts",
+    imageId: "suggestion-foundation",
   },
   {
     id: "resources",
@@ -79,6 +68,16 @@ const generalSuggestions = [
       "Watch YouTube classes or join online courses for expert guidance.",
     ],
     imageId: "suggestion-resources",
+  },
+  {
+    id: "concepts",
+    title: "Focus on Conceptual Clarity",
+    points: [
+      "Understand the logic behind each question instead of memorizing answers.",
+      "Practice topic-wise tests before moving to full-length mocks.",
+      "Revisit topics until you can solve them confidently within time limits.",
+    ],
+    imageId: "suggestion-concepts",
   },
   {
     id: "practice",
@@ -110,6 +109,16 @@ const generalSuggestions = [
     imageId: "suggestion-notifications",
   },
   {
+    id: "interview",
+    title: "Prepare for the Interview (After Written Exam)",
+    points: [
+      "Work on communication skills and general awareness.",
+      "Read about banking terms, railway structure, and government policies.",
+      "Practice mock interviews to improve confidence.",
+    ],
+    imageId: "suggestion-interview",
+  },
+  {
     id: "motivation",
     title: "Stay Motivated and Consistent",
     points: [
@@ -120,17 +129,14 @@ const generalSuggestions = [
     ],
     imageId: "suggestion-motivation",
   },
-  {
-    id: "interview",
-    title: "Prepare for the Interview (After Written Exam)",
-    points: [
-      "Work on communication skills and general awareness.",
-      "Read about banking terms, railway structure, and government policies.",
-      "Practice mock interviews to improve confidence.",
-    ],
-    imageId: "suggestion-interview",
-  },
 ];
+
+type GeneratePrepSuggestionsOutput = {
+  suggestions: {
+    title: string;
+    points: string[];
+  }[];
+};
 
 
 const quickRecap = [
@@ -306,8 +312,10 @@ export function SuggestionsPage() {
                           <Card className="overflow-hidden">
                             <div className="grid md:grid-cols-2">
                               <div className="p-6 md:p-8 flex flex-col justify-center order-2 md:order-1">
-                                <CardTitle className="text-2xl font-headline mb-4 relative">
-                                  {suggestion.title}
+                                <div className="mb-4 flex items-start justify-between">
+                                  <CardTitle className="text-2xl font-headline">
+                                    {suggestion.title}
+                                  </CardTitle>
                                   {sticker && (
                                     <Image 
                                       src={sticker.url} 
@@ -315,10 +323,10 @@ export function SuggestionsPage() {
                                       width={64} 
                                       height={64}
                                       unoptimized
-                                      className="absolute -top-8 -right-4 md:-top-6 md:-right-8 w-16 h-16 transform rotate-12"
+                                      className="w-16 h-16 transform rotate-12 flex-shrink-0 ml-4"
                                     />
                                   )}
-                                </CardTitle>
+                                </div>
                                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                                   {suggestion.points.map((point, i) => (
                                     <li key={i}>{point}</li>
@@ -385,8 +393,3 @@ export function SuggestionsPage() {
     </div>
   );
 }
-
-    
-
-    
-
