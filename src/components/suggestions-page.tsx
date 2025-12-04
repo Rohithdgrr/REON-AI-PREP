@@ -179,7 +179,6 @@ export function SuggestionsPage() {
     const [aiSuggestions, setAiSuggestions] = useState<GeneratePrepSuggestionsOutput | null>(null);
     const { toast } = useToast();
     const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
-    const [groqApiKey] = useState("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");
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -221,22 +220,9 @@ export function SuggestionsPage() {
             const mistralResult = await processStream(mistralResponse);
             setAiSuggestions(JSON.parse(mistralResult));
             toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
-
-        } catch (mistralError: any) {
-             console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
-            try {
-                const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
-                    body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
-                });
-                if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
-                const groqResult = await processStream(groqResponse);
-                setAiSuggestions(JSON.parse(groqResult));
-                toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
-            } catch (error: any) {
-                console.error("Failed to generate suggestions", error);
-                toast({ variant: 'destructive', title: 'Generation Failed', description: error.message || 'Could not generate AI suggestions. Please try again.' });
-            }
+        } catch (error: any) {
+            console.error("Failed to generate suggestions", error);
+            toast({ variant: 'destructive', title: 'Generation Failed', description: error.message || 'Could not generate AI suggestions. Please try again.' });
         } finally {
             setIsGenerating(false);
         }

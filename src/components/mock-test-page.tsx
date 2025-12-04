@@ -199,7 +199,6 @@ export function MockTestPage() {
   const { setActiveTool } = useToolsSidebar();
 
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
-  const [groqApiKey] = useState("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");
 
   const [customTopic, setCustomTopic] = useState("Full Syllabus Mock");
   const [customSubTopic, setCustomSubTopic] = useState<string>('Previous Year Questions');
@@ -305,23 +304,9 @@ export function MockTestPage() {
         handleStartTest(testData);
         toast({ title: "Mock Test Generated!", description: `Your custom mock test "${result.title}" is ready. Starting now...` });
 
-    } catch (mistralError: any) {
-        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
-        try {
-            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
-                body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
-            });
-            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
-            const groqResult = await processStream(groqResponse);
-            const result: GenerateQuizOutput = JSON.parse(groqResult);
-            const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: result.questions.map((q, i) => ({ ...q, id: `q-${i}` })) };
-            handleStartTest(testData);
-            toast({ title: "Mock Test Generated!", description: `Your custom mock test "${result.title}" is ready. Starting now...` });
-        } catch (error: any) {
-            console.error("AI Test Generation Failed", error);
-            toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the mock test. Please try again." });
-        }
+    } catch (error: any) {
+        console.error("AI Test Generation Failed", error);
+        toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the mock test. Please try again." });
     } finally {
         setIsGenerating(false);
     }

@@ -242,7 +242,6 @@ export function PracticePage() {
   const [questionTimes, setQuestionTimes] = useState<QuestionTimes>({});
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
-  const [groqApiKey] = useState("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");
 
 
   useEffect(() => {
@@ -340,23 +339,9 @@ export function PracticePage() {
         const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
         handleStartTest(testData);
 
-    } catch (mistralError: any) {
-        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
-        try {
-            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
-                body: JSON.stringify({ model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
-            });
-            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
-            const groqResult = await processStream(groqResponse);
-            const result: GenerateQuizOutput = JSON.parse(groqResult);
-            const shuffledQuestions = shuffleArray(result.questions);
-            const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
-            handleStartTest(testData);
-        } catch (error: any) {
-            console.error("AI Test Generation Failed", error);
-            toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the test. Please try again." });
-        }
+    } catch (error: any) {
+        console.error("AI Test Generation Failed", error);
+        toast({ variant: "destructive", title: "AI Test Generation Failed", description: error.message || "There was an error generating the test. Please try again." });
     } finally {
         setIsGenerating(false);
     }

@@ -240,7 +240,6 @@ export function RoadmapPage() {
   const [previousPerformance, setPreviousPerformance] = useState("");
   const [aiPlan, setAiPlan] = useState<string | null>(null);
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI"); // State without setter, effectively a constant
-  const [groqApiKey] = useState("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");
   const { toast } = useToast();
 
   const handleGeneratePlan = async () => {
@@ -311,28 +310,13 @@ export function RoadmapPage() {
         await streamResponse(mistralResponse);
         toast({ title: "AI Plan Generated!", description: "Your personalized study plan is ready below." });
 
-    } catch (mistralError: any) {
-        console.warn("Mistral API failed, falling back to Groq:", mistralError.message);
-        try {
-            const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqApiKey}` },
-                body: JSON.stringify({
-                    model: 'llama3-8b-8192', messages: [{ role: "user", content: prompt }],
-                    temperature: 0.7, max_tokens: 2048, stream: true,
-                })
-            });
-            if (!groqResponse.ok) throw new Error(`Groq API Error: ${groqResponse.statusText}`);
-            await streamResponse(groqResponse);
-            toast({ title: "AI Plan Generated!", description: "Your personalized study plan is ready below." });
-        } catch (error: any) {
-            console.error("Failed to generate plan", error);
-            toast({
-                variant: "destructive",
-                title: "Generation Failed",
-                description: error.message || "Could not generate AI study plan. Please try again.",
-            });
-        }
+    } catch (error: any) {
+        console.error("Failed to generate plan", error);
+        toast({
+            variant: "destructive",
+            title: "Generation Failed",
+            description: error.message || "Could not generate AI study plan. Please try again.",
+        });
     } finally {
         setIsGenerating(false);
     }

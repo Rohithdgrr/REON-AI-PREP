@@ -27,7 +27,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
-import Groq from 'groq-sdk';
 import { cn } from '@/lib/utils';
 
 
@@ -84,10 +83,7 @@ const suggestionCards = [
   },
 ];
 
-const groq = new Groq({
-    apiKey: "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",
-    dangerouslyAllowBrowser: true
-});
+const MISTRAL_API_KEY = "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
 
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
@@ -142,26 +138,60 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     setSessionHistory(prev => [...prev, newSession]);
     
     try {
-        const stream = await groq.chat.completions.create({
-            messages: [{ role: 'user', content: textToProcess }],
-            model: 'llama3-8b-8192',
-            stream: true,
+       const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${MISTRAL_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: "open-mistral-nemo",
+                messages: [{ role: "user", content: textToProcess }],
+                stream: true,
+            }),
+            signal: abortControllerRef.current.signal,
         });
 
-        for await (const chunk of stream) {
-             if (abortControllerRef.current?.signal.aborted) {
-                stream.controller.abort();
-                throw new Error('AbortError');
-            }
-            const content = chunk.choices[0]?.delta?.content || '';
-            setSessionHistory(prevHistory => {
-                const newHistory = [...prevHistory];
-                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-                if (sessionIndex > -1) {
-                    newHistory[sessionIndex].response += content;
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
+        }
+
+        if (!response.body) {
+            throw new Error("Response body is empty.");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.substring(6);
+                    if (data.trim() === '[DONE]') break;
+                    try {
+                        const json = JSON.parse(data);
+                        const content = json.choices[0]?.delta?.content || '';
+                        if (content) {
+                            setSessionHistory(prevHistory => {
+                                const newHistory = [...prevHistory];
+                                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+                                if (sessionIndex > -1) {
+                                    newHistory[sessionIndex].response += content;
+                                }
+                                return newHistory;
+                            });
+                        }
+                    } catch (e) {
+                         console.error('Error parsing streaming JSON:', e);
+                    }
                 }
-                return newHistory;
-            });
+            }
         }
 
     } catch (error: any) {
