@@ -155,10 +155,14 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
   const [suggestionCards, setSuggestionCards] = useState(allSuggestionCards.slice(0, 4));
 
-  useEffect(() => {
-    // Shuffle and pick 4 random suggestions on component mount
+  const shuffleSuggestions = () => {
     const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
     setSuggestionCards(shuffled.slice(0, 4));
+  };
+  
+  useEffect(() => {
+    // Shuffle suggestions on initial mount (client-side only)
+    shuffleSuggestions();
   }, []);
 
   useEffect(() => {
@@ -170,8 +174,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   useEffect(() => {
     if (messages.length === 0) {
       // Reshuffle suggestions when starting a new chat
-      const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
-      setSuggestionCards(shuffled.slice(0, 4));
+      shuffleSuggestions();
     }
   }, [messages]);
 
