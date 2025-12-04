@@ -200,7 +200,8 @@ export function SuggestionsPage() {
             });
             if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
             const result = await mistralResponse.json();
-            setAiSuggestions(result.choices[0].message.content);
+            const content = result.choices[0].message.content;
+            setAiSuggestions(JSON.parse(content));
             toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
         } catch (error: any) {
             console.error("Failed to generate suggestions", error);
@@ -376,5 +377,3 @@ export function SuggestionsPage() {
     </div>
   );
 }
-
-    
