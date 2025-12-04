@@ -36,6 +36,7 @@ type AIMode = 'Chat' | 'History';
 type Message = {
     role: 'user' | 'assistant';
     content: string;
+    suggestions?: string[];
 }
 
 type Session = {
@@ -146,6 +147,7 @@ function buildSystemPrompt(): string {
     *   **Use Tables for Data**: For exam weightage, book recommendations, or topic breakdowns, a table is always better than a list.
     *   **Stay Relevant**: Keep your answers focused on the context of Indian competitive exams.
     *   **Encourage and Engage**: End your responses with a positive and encouraging note. Use emojis (like 📚, 🚀, 💪) to make the content engaging.
+4.  **Proactive Suggestions (IMPORTANT!)**: At the end of every response, you MUST suggest 2-3 relevant follow-up questions or actions. Format these suggestions using a special separator: \`[SUGGESTIONS]\`. Each suggestion should be on a new line. This helps guide the user's learning journey.
 
 **Example of a High-Quality Response:**
 
@@ -154,33 +156,19 @@ function buildSystemPrompt(): string {
 *Your Ideal Response:*
 
 ### What is Polity? (Simple & Clear Explanation)
-
 Polity refers to the system of government and the rules by which a country is governed. For Indian competitive exams, **Indian Polity** is a core subject that covers the Constitution, governmental structure, and administrative processes.
 
 ### Why is Polity Important for Government Exams?
-
 | Exam              | Approx. Questions | Topics Asked Most                                    |
 |-------------------|-------------------|------------------------------------------------------|
 | UPSC CSE Prelims  | 12–18             | Constitution, Fundamental Rights, Parliament, Judiciary |
 | SSC CGL/CHSL      | 6–12              | President, PM, Parliament, FR/DPSP, Amendments        |
-| Bank PO (Mains)   | 4-5 (in GA)       | Basic Constitutional features, recent amendments      |
-
-### Key Parts of Indian Polity
-
-| Part/Topic          | What It Covers (Simple)                                  | Key Articles / Examples                                 |
-|---------------------|----------------------------------------------------------|---------------------------------------------------------|
-| Fundamental Rights  | 6 rights every citizen has (e.g., Right to Equality)   | Art 12–35; Art 21 = Right to Life                       |
-| Parliament          | Lok Sabha + Rajya Sabha + President                        | Art 79–122; Money Bill only in Lok Sabha                |
-| Emergency Provisions| National, State, Financial Emergency                   | Art 352, 356 (President’s Rule), 360                    |
-
-### Best Sources to Study Polity
-| Level      | Book / Resource                          | Why Best?                                       |
-|------------|------------------------------------------|-------------------------------------------------|
-| Beginner   | Indian Polity by M. Laxmikanth         | "Bible for Polity" - covers everything.         |
-| Advanced   | Introduction to the Constitution by D.D. Basu | Deep understanding for Mains.                   |
-| Online     | YouTube: StudyIQ, Vision IAS             | Excellent video explanations.                   |
 
 Keep up the great work! Let me know if you want to dive deeper into any of these topics. 💪
+[SUGGESTIONS]
+Can you explain Fundamental Rights in detail?
+What's the difference between the Lok Sabha and Rajya Sabha?
+Create a 3-question quiz on the Preamble.
 `;
 }
 
@@ -312,10 +300,29 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                 }
             }
         }
+        
+        // After streaming is complete, parse for suggestions
+        setMessages(prev => {
+            const lastMessage = prev[prev.length -1];
+            if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content.includes('[SUGGESTIONS]')) {
+                const parts = lastMessage.content.split('[SUGGESTIONS]');
+                lastMessage.content = parts[0].trim();
+                lastMessage.suggestions = parts[1].trim().split('\n').filter(s => s.trim() !== '');
+            }
+            return [...prev];
+        });
 
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
+           // If aborted, clean up the empty assistant message
+            setMessages(prev => {
+                const lastMessage = prev[prev.length - 1];
+                if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
+                    return prev.slice(0, -1);
+                }
+                return prev;
+            });
         } else {
              console.error(`API Error:`, error);
               toast({
@@ -323,7 +330,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                   title: 'AI Error',
                   description: error.message || 'The model failed to respond. Please check console.',
               });
-              // Remove the user message and the empty assistant message
+              // Remove the user message and the empty assistant message on error
              setMessages(prev => prev.slice(0, -2));
         }
     } finally {
@@ -335,15 +342,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const handleStopGeneration = () => {
     if (abortControllerRef.current) {
         abortControllerRef.current.abort();
-        setIsLoading(false);
-        setMessages(prev => {
-            const lastMessage = prev[prev.length - 1];
-            // If the last message was the empty assistant placeholder, remove it and the user's prompt
-            if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
-                return prev.slice(0, -2);
-            }
-            return prev;
-        });
     }
   }
 
@@ -509,42 +507,53 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <Bot className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                        {(message.content || (isLoading && index === messages.length - 1)) ? (
-                          <>
-                            <FormattedAIResponse response={message.content} />
-                            {isLoading && index === messages.length -1 && (
-                              <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
+                      <div className="w-full max-w-sm space-y-3">
+                         <div className="p-3 rounded-2xl bg-muted">
+                            {(message.content || (isLoading && index === messages.length - 1)) ? (
+                            <>
+                                <FormattedAIResponse response={message.content} />
+                                {isLoading && index === messages.length -1 && (
+                                <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
+                                )}
+                            </>
+                            ) : (
+                            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                <Sparkles className="animate-spin h-5 w-5" /> Thinking...
+                                </div>
                             )}
-                            {message.content && !isLoading && index === messages.length -1 && (
-                              <div className="flex items-center gap-1 mt-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() => copyToClipboard(message.content)}
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() =>
-                                    downloadResponse(
-                                      message.content,
-                                      `libra-response.txt`
-                                    )
-                                  }
-                                >
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                              <Sparkles className="animate-spin h-5 w-5" /> Thinking...
+                         </div>
+                        {message.content && !isLoading && index === messages.length -1 && (
+                            <div className="flex items-center gap-2 justify-end">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => copyToClipboard(message.content)}
+                            >
+                                <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() =>
+                                downloadResponse(
+                                    message.content,
+                                    `libra-response.txt`
+                                )
+                                }
+                            >
+                                <Download className="h-4 w-4" />
+                            </Button>
+                            </div>
+                        )}
+                        {message.suggestions && message.suggestions.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {message.suggestions.map((suggestion, i) => (
+                                    <Button key={i} variant="outline" size="sm" className="text-xs h-auto py-1" onClick={() => handleAiRequest(suggestion)}>
+                                        {suggestion}
+                                    </Button>
+                                ))}
                             </div>
                         )}
                       </div>
@@ -558,6 +567,11 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
       {/* INPUT AREA - FIXED */}
       <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
+        {isLoading && (
+            <Button variant="outline" className="w-full" onClick={handleStopGeneration}>
+                <Square className="mr-2 h-4 w-4" /> Stop Generating
+            </Button>
+        )}
         <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end">
           <Textarea
             placeholder="Ask LIBRA anything..."
@@ -571,6 +585,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             }}
             rows={1}
             className="resize-none w-full border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm shadow-none"
+            disabled={isLoading}
           />
           <TooltipProvider>
             <Tooltip>
@@ -579,6 +594,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                   variant="ghost"
                   size="icon"
                   className="flex-shrink-0 h-8 w-8"
+                  disabled={true}
                 >
                   <Paperclip className="h-4 w-4" />
                 </Button>
@@ -589,12 +605,12 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             </Tooltip>
           </TooltipProvider>
           <Button
-            onClick={isLoading ? handleStopGeneration : () => handleAiRequest()}
-            disabled={!isLoading && input.trim() === ''}
+            onClick={() => handleAiRequest()}
+            disabled={isLoading || input.trim() === ''}
             size="icon"
             className="h-8 w-8 rounded-full flex-shrink-0"
           >
-            {isLoading ? <Square className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+            <Send className="h-4 w-4" />
           </Button>
         </div>
         <div className="text-[11px] text-muted-foreground text-center">
@@ -604,4 +620,5 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     </div>
   );
 }
+
 
