@@ -37,7 +37,6 @@ import { useUser, useFirestore, useStorage } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Progress } from './ui/progress';
 import { uploadMaterial } from '@/services/materials-service';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar-2');
 
@@ -250,25 +249,14 @@ export function KnowledgeHubPage() {
                   )}
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex justify-between">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span tabIndex={0}>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-muted-foreground"
-                                disabled
-                              >
-                                <Paperclip className="mr-2 h-4 w-4" /> Attach File
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Coming Soon!</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-muted-foreground"
+                        onClick={() => fileInputRef.current?.click()}
+                        >
+                        <Paperclip className="mr-2 h-4 w-4" /> Attach File
+                    </Button>
                       
                       <Input
                         type="file"
