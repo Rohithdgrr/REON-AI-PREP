@@ -294,47 +294,6 @@
         "dateTaken"
       ]
     },
-    "CourseProgress": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "CourseProgress",
-      "type": "object",
-      "description": "Represents a user's progress in a specific course.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the course progress entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N CourseProgress)"
-        },
-        "courseId": {
-          "type": "string",
-          "description": "Reference to Course. (Relationship: Course 1:N CourseProgress)"
-        },
-        "modulesCompleted": {
-          "type": "number",
-          "description": "Number of modules completed in the course."
-        },
-        "completionRate": {
-          "type": "number",
-          "description": "Course completion rate (percentage)."
-        },
-        "lastAccessed": {
-          "type": "string",
-          "description": "Date when the course was last accessed.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "courseId",
-        "modulesCompleted",
-        "completionRate",
-        "lastAccessed"
-      ]
-    },
     "PodcastListening": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PodcastListening",
@@ -479,72 +438,6 @@
         "convertedFileType",
         "conversionDate",
         "isGuestMode"
-      ]
-    },
-    "RMessage": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "RMessage",
-      "type": "object",
-      "description": "Represents a message in the R-Chat section.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the message entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N RMessage)"
-        },
-        "channelId": {
-          "type": "string",
-          "description": "Reference to RChannel. (Relationship: RChannel 1:N RMessage)"
-        },
-        "content": {
-          "type": "string",
-          "description": "Message content."
-        },
-        "timestamp": {
-          "type": "string",
-          "description": "Message timestamp.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "channelId",
-        "content",
-        "timestamp"
-      ]
-    },
-    "RChannel": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "RChannel",
-      "type": "object",
-      "description": "Represents a channel in the R-Chat section.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the channel entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "Channel name."
-        },
-        "type": {
-          "type": "string",
-          "description": "Channel type (Text, Voice)."
-        },
-        "description": {
-          "type": "string",
-          "description": "Channel description."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "type",
-        "description"
       ]
     },
     "LeaderboardEntry": {
@@ -704,26 +597,6 @@
         }
       },
       {
-        "path": "/users/{userId}/courseProgress/{courseProgressId}",
-        "definition": {
-          "entityName": "CourseProgress",
-          "schema": {
-            "$ref": "#/backend/entities/CourseProgress"
-          },
-          "description": "Stores course progress data. Only the authenticated user can access their own course progress data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "courseProgressId",
-              "description": "The unique identifier of the course progress."
-            }
-          ]
-        }
-      },
-      {
         "path": "/users/{userId}/podcastListening/{podcastListeningId}",
         "definition": {
           "entityName": "PodcastListening",
@@ -780,42 +653,6 @@
         }
       },
       {
-        "path": "/rChannels/{rChannelId}",
-        "definition": {
-          "entityName": "RChannel",
-          "schema": {
-            "$ref": "#/backend/entities/RChannel"
-          },
-          "description": "Stores chat channel metadata. Includes denormalized 'members' map for authorization independence.",
-          "params": [
-            {
-              "name": "rChannelId",
-              "description": "The unique identifier of the chat channel."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/rChannels/{rChannelId}/rMessages/{rMessageId}",
-        "definition": {
-          "entityName": "RMessage",
-          "schema": {
-            "$ref": "#/backend/entities/RMessage"
-          },
-          "description": "Stores chat messages within a channel. Includes denormalized 'members' map (copied from the parent rChannel) for authorization independence.",
-          "params": [
-            {
-              "name": "rChannelId",
-              "description": "The unique identifier of the chat channel."
-            },
-            {
-              "name": "rMessageId",
-              "description": "The unique identifier of the chat message."
-            }
-          ]
-        }
-      },
-      {
         "path": "/leaderboardEntries/{leaderboardEntryId}",
         "definition": {
           "entityName": "LeaderboardEntry",
@@ -832,6 +669,8 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, DBAC (Database-Based Access Control), and support secure list operations (QAPs). It uses path-based ownership for user-specific data and denormalization to avoid `get()` calls in security rules. Every document contains the necessary authorization information within itself, eliminating the need to fetch parent document data during security rule evaluation. This approach ensures that all operations, including atomic transactions and batches, can be performed securely and efficiently.\n\n*   **Users Collection (`/users/{userId}`):** Stores user profile information. Access is restricted to the authenticated user.\n*   **Materials Collection (`/users/{userId}/materials/{materialId}`):** Stores metadata for user-uploaded files, ensuring only the owner can access them.\n*   **User Profile Collection (`/users/{userId}/profiles/{profileId}`):** Stores additional user profile data, and only accessible to that user.\n*   **Quizzes Collection (`/users/{userId}/quizzes/{quizId}`):** Stores quiz data, ensuring users can only access their own quizzes.\n*   **Practice Tests Collection (`/users/{userId}/practiceTests/{practiceTestId}`):** Stores practice test results, ensuring users can only access their own practice tests.\n*   **Mock Tests Collection (`/users/{userId}/mockTests/{mockTestId}`):** Stores mock test results, ensuring users can only access their own mock tests.\n*   **Course Progress Collection (`/users/{userId}/courseProgress/{courseProgressId}`):** Stores course progress data, ensuring users can only access their own progress.\n*   **Podcast Listening Collection (`/users/{userId}/podcastListening/{podcastListeningId}`):** Stores podcast listening history, ensuring users can only access their own listening history.\n*   **Notifications Collection (`/users/{userId}/notifications/{notificationId}`):** Stores user-specific notifications, ensuring users can only access their own notifications.\n*   **File Conversions Collection (`/fileConversions/{fileConversionId}`):** File conversions are global, and access should be public, but userId can be checked and restrict access to only users for whom userId matches request.auth.uid and can be created if auth is null.\n*   **RChannel Collection (`/rChannels/{rChannelId}`):** Stores chat channel metadata. Access to channels could be public, with read access granted to all, or restricted based on a `members` map in each channel document.\n*   **RMessage Collection (`/rChannels/{rChannelId}/rMessages/{rMessageId}`):**  Messages inherit the security posture of their parent `rChannel`.  If channels are public, messages are public.  If channels have a `members` map, that is denormalized into each message document, granting access only to channel members.\n*   **Leaderboard Entries Collection (`/leaderboardEntries/{leaderboardEntryId}`):** Global leaderboard data. Access should be open for reading but restricted for modifications to prevent abuse.  Consider a Cloud Function triggered on write to validate data or limit write access to a service account.\n\nThis structure supports the QAPs by:\n\n1.  **Segregation:**  Each user's data is stored under their unique `userId`, preventing unauthorized access.\n2.  **Authorization Independence:** Access control information (e.g., ownership) is denormalized, avoiding costly and insecure `get()` calls in rules.\n3.  **DBAC:**  Authorization is based solely on `request.auth.uid`, simplifying role management and security rule logic.\n4.  **Rules are not Filters:** Secure `list` operations are possible because rules only need to check `request.auth.uid` against the document's `userId` or `members` map (which, again, is denormalized)."
+    "reasoning": "The Firestore data structure is designed to ensure Authorization Independence, DBAC (Database-Based Access Control), and support secure list operations (QAPs). It uses path-based ownership for user-specific data and denormalization to avoid `get()` calls in security rules. Every document contains the necessary authorization information within itself, eliminating the need to fetch parent document data during security rule evaluation. This approach ensures that all operations, including atomic transactions and batches, can be performed securely and efficiently.\n\n*   **Users Collection (`/users/{userId}`):** Stores user profile information. Access is restricted to the authenticated user.\n*   **Materials Collection (`/users/{userId}/materials/{materialId}`):** Stores metadata for user-uploaded files, ensuring only the owner can access them.\n*   **User Profile Collection (`/users/{userId}/profiles/{profileId}`):** Stores additional user profile data, and only accessible to that user.\n*   **Quizzes Collection (`/users/{userId}/quizzes/{quizId}`):** Stores quiz data, ensuring users can only access their own quizzes.\n*   **Practice Tests Collection (`/users/{userId}/practiceTests/{practiceTestId}`):** Stores practice test results, ensuring users can only access their own practice tests.\n*   **Mock Tests Collection (`/users/{userId}/mockTests/{mockTestId}`):** Stores mock test results, ensuring users can only access their own mock tests.\n*   **Podcast Listening Collection (`/users/{userId}/podcastListening/{podcastListeningId}`):** Stores podcast listening history, ensuring users can only access their own listening history.\n*   **Notifications Collection (`/users/{userId}/notifications/{notificationId}`):** Stores user-specific notifications, ensuring users can only access their own notifications.\n*   **File Conversions Collection (`/fileConversions/{fileConversionId}`):** File conversions are global, and access should be public, but userId can be checked and restrict access to only users for whom userId matches request.auth.uid and can be created if auth is null.\n*   **Leaderboard Entries Collection (`/leaderboardEntries/{leaderboardEntryId}`):** Global leaderboard data. Access should be open for reading but restricted for modifications to prevent abuse.  Consider a Cloud Function triggered on write to validate data or limit write access to a service account.\n\nThis structure supports the QAPs by:\n\n1.  **Segregation:**  Each user's data is stored under their unique `userId`, preventing unauthorized access.\n2.  **Authorization Independence:** Access control information (e.g., ownership) is denormalized, avoiding costly and insecure `get()` calls in rules.\n3.  **DBAC:**  Authorization is based solely on `request.auth.uid`, simplifying role management and security rule logic.\n4.  **Rules are not Filters:** Secure `list` operations are possible because rules only need to check `request.auth.uid` against the document's `userId` or `members` map (which, again, is denormalized)."
   }
 }
+
+    

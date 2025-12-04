@@ -13,7 +13,7 @@
  * - `/users/{userId}`: A top-level collection containing individual user documents.
  * - `/users/{userId}/{subcollection}`: All personal data (profiles, quizzes, tests, etc.)
  *   are stored in subcollections under the user's document.
- * - `/rChannels`, `/leaderboardEntries`, `/fileConversions`: Top-level collections for
+ * - `/leaderboardEntries`, `/fileConversions`: Top-level collections for
  *   shared, public, or semi-public data that is not tied to a single user's
  *   data tree.
  *
@@ -24,8 +24,7 @@
  * - **Denormalization for Authorization**: Rules are designed to be fast and
  *   cost-effective by avoiding `get()` and `exists()` calls where possible.
  *   Authorization-critical data (like a `userId`) is denormalized directly onto
- *   documents. For shared data like chat channels, a `members` map on the parent
- *   document is required to manage access.
+ *   documents.
  * - **Cloud Functions for Complex Logic**: For operations requiring complex
  *   validation or elevated privileges (e.g., updating the leaderboard), writes
  *   are disabled in the rules, deferring these actions to trusted server-side
@@ -92,23 +91,6 @@ service cloud.firestore {
      */
     function hasImmutableSubcollectionData() {
       return request.resource.data.userId == resource.data.userId;
-    }
-    
-    /**
-     * @description Checks if a user is a member of a given chat channel.
-     *              Requires a 'members' map on the rChannel document.
-     *              Example: { members: { "user_abc": "member", "user_xyz": "admin" } }
-     */
-    function isChannelMember(channelId) {
-      return isSignedIn() && get(/databases/$(database)/documents/rChannels/$(channelId)).data.members[request.auth.uid] != null;
-    }
-
-    /**
-     * @description Checks if a user is an admin of a given chat channel.
-     *              Requires a 'members' map with an 'admin' role on the rChannel document.
-     */
-    function isChannelAdmin(channelId) {
-      return isSignedIn() && get(/databases/$(database)/documents/rChannels/$(channelId)).data.members[request.auth.uid] == 'admin';
     }
 
     // ------------------------------------------------------------------------
@@ -198,20 +180,6 @@ service cloud.firestore {
     }
     
     /**
-     * @description Manages user course progress.
-     * @path /users/{userId}/courseProgress/{courseProgressId}
-     * @allow (update) A user updating their own course progress.
-     * @deny (create) A user trying to create a progress record for another user.
-     * @principle Enforces strict ownership for all user-specific subcollections.
-     */
-    match /users/{userId}/courseProgress/{courseProgressId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidSubcollectionDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && hasImmutableSubcollectionData();
-      allow delete: if isExistingOwner(userId);
-    }
-    
-    /**
      * @description Manages user podcast listening history.
      * @path /users/{userId}/podcastListening/{podcastListeningId}
      * @allow (create) A user saving a record of a podcast they listened to.
@@ -272,36 +240,7 @@ service cloud.firestore {
       allow update: if false; // TODO: Writes should be handled by a Cloud Function.
       allow delete: if false; // TODO: Writes should be handled by a Cloud Function.
     }
-
-    /**
-     * @description Manages chat channel metadata.
-     * @path /rChannels/{rChannelId}
-     * @allow (create) Any signed-in user can create a new channel, making themselves the admin.
-     * @deny (update) A channel member trying to update channel details (only admins can).
-     * @principle Uses a denormalized `members` map for role-based access control.
-     *            CRITICAL: The RChannel document MUST have a `members` map like `{ "uid": "admin" }` for these rules to work.
-     */
-    match /rChannels/{rChannelId} {
-      allow get: if isChannelMember(rChannelId);
-      allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.members[request.auth.uid] == 'admin';
-      allow update: if resource != null && isChannelAdmin(rChannelId);
-      allow delete: if resource != null && isChannelAdmin(rChannelId);
-    }
-
-    /**
-     * @description Manages messages within a chat channel.
-     * @path /rChannels/{rChannelId}/rMessages/{rMessageId}
-     * @allow (create) A channel member sending a message.
-     * @deny (list) A non-member trying to list messages in a channel.
-     * @deny (delete) A regular member trying to delete another user's message (only admins or the author can).
-     * @principle Access is inherited from the parent channel by checking its `members` map.
-     */
-    match /rChannels/{rChannelId}/rMessages/{rMessageId} {
-      allow get, list: if isChannelMember(rChannelId);
-      allow create: if isChannelMember(rChannelId) && request.resource.data.userId == request.auth.uid && request.resource.data.channelId == rChannelId;
-      allow update: if resource != null && isOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId && request.resource.data.channelId == resource.data.channelId;
-      allow delete: if resource != null && (isOwner(resource.data.userId) || isChannelAdmin(rChannelId));
-    }
   }
 }
+
+    

@@ -29,7 +29,7 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Progress } from "./ui/progress";
-import { useToolsSidebar } from "./hooks/use-tools-sidebar";
+import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
 const upcomingTests = [
   {

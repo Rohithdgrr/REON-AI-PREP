@@ -41,9 +41,7 @@ const navItems = [
   { href: '/dashboard/quiz', icon: FileQuestion, label: 'Quiz' },
   { href: '/dashboard/practice', icon: TestTube2, label: 'Practice' },
   { href: '/dashboard/mock', icon: Target, label: 'Mock Test' },
-  { href: '/dashboard/courses', icon: PlayCircle, label: 'Courses' },
   { href: '/dashboard/knowledge-hub', icon: Users, label: 'Knowledge Hub' },
-  { href: '/dashboard/r-chat', icon: MessageCircle, label: 'R-Chat' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -61,13 +59,13 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
          <img
             src={appLogo.imageUrl}
             alt="REON Logo"
-            className={cn('h-8 w-8 transition-all')}
+            className={cn('h-8 w-8 transition-all rounded-full')}
         />
       ) : (
         <img
             src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
             alt="REON Logo"
-            className={cn('h-8 w-8 transition-all')}
+            className={cn('h-8 w-8 transition-all rounded-full')}
         />
       )}
      

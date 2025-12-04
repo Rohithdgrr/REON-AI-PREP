@@ -24,9 +24,9 @@ const features = [
     icon: FileQuestion,
   },
   {
-    title: "Community & Collaboration",
+    title: "Knowledge Hub",
     description: "Connect with fellow aspirants, share notes, and compete in challenges.",
-    link: "/dashboard/r-chat",
+    link: "/dashboard/knowledge-hub",
     imageId: "homepage-feature-chat",
     icon: MessageCircle,
   },
@@ -146,7 +146,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                       <div className="flex flex-col items-center gap-2"><Map className="h-8 w-8 text-primary"/><span>Roadmap</span></div>
                       <div className="flex flex-col items-center gap-2"><FileQuestion className="h-8 w-8 text-primary"/><span>AI Quiz</span></div>
-                      <div className="flex flex-col items-center gap-2"><MessageCircle className="h-8 w-8 text-primary"/><span>R-Chat</span></div>
+                      <div className="flex flex-col items-center gap-2"><MessageCircle className="h-8 w-8 text-primary"/><span>Community</span></div>
                       <div className="flex flex-col items-center gap-2"><Bot className="h-8 w-8 text-primary"/><span>LIBRA AI</span></div>
                   </div>
                 </div>
@@ -200,3 +200,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
