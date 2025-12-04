@@ -302,25 +302,32 @@ export function PracticePage() {
         specialization,
     });
 
-    const processStream = async (response: Response) => {
+    const processStream = async (response: Response): Promise<string> => {
         if (!response.body) throw new Error("Response body is empty.");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
+        
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+
             for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6);
-                    if (data.trim() === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || '';
-                        if (content) fullResponse += content;
-                    } catch (e) { /* Ignore partial JSON */ }
+                const jsonStr = line.substring(6);
+                if (jsonStr.trim() === '[DONE]') {
+                    break;
+                }
+                try {
+                    const json = JSON.parse(jsonStr);
+                    if (json.choices && json.choices[0] && json.choices[0].delta) {
+                        fullResponse += json.choices[0].delta.content || '';
+                    }
+                } catch (e) {
+                     // In a streaming context, it's possible to get partial JSON.
+                     // We'll let the final parse handle errors.
                 }
             }
         }
@@ -334,7 +341,13 @@ export function PracticePage() {
         });
         if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
         const mistralResult = await processStream(mistralResponse);
+
         const result: GenerateQuizOutput = JSON.parse(mistralResult);
+        
+        if (!result.title || !result.questions || !Array.isArray(result.questions)) {
+            throw new Error("Invalid JSON format received from AI.");
+        }
+
         const shuffledQuestions = shuffleArray(result.questions);
         const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
         handleStartTest(testData);
@@ -655,3 +668,4 @@ Explanation: ${question.explanation}`;
     
 
     
+
