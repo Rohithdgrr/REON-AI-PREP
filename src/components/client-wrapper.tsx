@@ -21,6 +21,7 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
     document.body.setAttribute('data-gramm', 'false');
     document.body.setAttribute('data-gramm_id', 'false');
     document.body.setAttribute('data-gramm-editor', 'false');
+    document.body.setAttribute('suppressHydrationWarning', 'true');
 
     document.addEventListener('contextmenu', handleContextmenu);
     document.addEventListener('keydown', handleKeydown);

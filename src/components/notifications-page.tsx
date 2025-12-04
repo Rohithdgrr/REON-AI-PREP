@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ExternalLink, ShieldAlert, FileText, SquarePen, Ticket, BadgeCheck, School, Banknote, Building, Landmark, Train } from "lucide-react";
+import { ExternalLink, ShieldAlert, FileText, SquarePen, Ticket, BadgeCheck, School } from "lucide-react";
 import { officialSitesData } from "@/lib/official-sites-data";
 import { Button } from "./ui/button";
 
@@ -28,7 +28,43 @@ const icons: { [key: string]: React.ElementType } = {
   "Main Portal": School,
 };
 
-function ResourceTable({ resources }: { resources: any[] }) {
+function ResourceTable({ resources, isNestedTable = false }: { resources: any[], isNestedTable?: boolean }) {
+    if (!resources) return <p className="text-muted-foreground">No resources found for this section.</p>;
+
+    if (isNestedTable) {
+        return (
+             <div className="w-full overflow-x-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>RRB Region</TableHead>
+                            <TableHead>States/UTs</TableHead>
+                            <TableHead>Official Link</TableHead>
+                            <TableHead>Metadata (2025 Updates)</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {resources.map((resource:any, index: number) => (
+                             <TableRow key={index}>
+                                <TableCell className="font-semibold">{resource.resource}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">{resource.states}</TableCell>
+                                <TableCell>
+                                    <Button asChild variant="link" className="p-0 h-auto">
+                                        <a href={resource.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm">
+                                            {new URL(resource.link).hostname} <ExternalLink className="h-3 w-3" />
+                                        </a>
+                                    </Button>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">{resource.metadata}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        )
+    }
+
+
     return (
         <div className="w-full overflow-x-auto">
             <Table>
@@ -101,11 +137,13 @@ export function NotificationsPage() {
             <TabsContent key={exam} value={exam} className="mt-6">
                 {data.nested ? (
                      <Tabs defaultValue={Object.keys(data.nested)[0]} className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
-                           {Object.keys(data.nested).map(nestedTab => (
-                               <TabsTrigger key={nestedTab} value={nestedTab}>{nestedTab}</TabsTrigger>
-                           ))}
-                        </TabsList>
+                        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+                            <TabsList className="grid w-full grid-cols-3 min-w-[500px]">
+                            {Object.keys(data.nested).map(nestedTab => (
+                                <TabsTrigger key={nestedTab} value={nestedTab}>{nestedTab}</TabsTrigger>
+                            ))}
+                            </TabsList>
+                        </div>
                          {Object.entries(data.nested).map(([nestedTab, nestedData]: [string, any]) => (
                              <TabsContent key={nestedTab} value={nestedTab} className="mt-6">
                                 <Card>
@@ -114,7 +152,10 @@ export function NotificationsPage() {
                                         <CardDescription>{nestedData.description}</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <ResourceTable resources={nestedData.resources} />
+                                        <ResourceTable 
+                                            resources={nestedData.resources} 
+                                            isNestedTable={nestedTab === "RRB Regions" || nestedTab === "RRC Regions"}
+                                        />
                                     </CardContent>
                                 </Card>
                             </TabsContent>
