@@ -30,7 +30,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { answerQuestionsWithAI } from '@/ai/flows/answer-questions-with-ai';
 
 type AIMode = 'Chat' | 'History';
 
@@ -137,16 +136,16 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     
     setSessionHistory(prev => [...prev, newSession]);
     
-    const systemPrompt = `You are LIBRA AI, a helpful assistant for the REON AI PREP exam preparation platform. You were created by the REON TEAM. Your goal is to help users prepare for competitive exams in India, like Railway and Bank exams. Only answer questions related to this context. Do not provide information outside of this scope unless it is directly related to a user's study needs. If asked who you are, say "I am LIBRA AI". If asked who created you, say "I was created by the REON TEAM". Use markdown for formatting, including bold (**text**), italics (*text*), and lists (- item or 1. item).`;
-
     try {
-        const fullPrompt = `${systemPrompt}\n\nUser: ${textToProcess}`;
-        // Note: The answerQuestionsWithAI flow might not support streaming responses directly.
-        // This simulates a streaming effect by updating the state with the final result.
-        const response = await answerQuestionsWithAI({
-            prompt: fullPrompt,
-            model: 'L1'
-        });
+        // Placeholder response as the AI flow has been removed
+        const response = `This is a placeholder response for your query: "${textToProcess}". The AI flow has been removed to make the application more lightweight. You can re-implement AI functionality here.`;
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (abortControllerRef.current?.signal.aborted) {
+            throw new Error('AbortError');
+        }
 
         setSessionHistory(prevHistory => {
             const newHistory = [...prevHistory];
@@ -160,6 +159,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
+          setSessionHistory(prev => prev.filter(s => s.id !== newSession.id));
         } else {
              console.error(`API Error:`, error);
               toast({
