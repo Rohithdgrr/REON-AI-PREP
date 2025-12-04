@@ -12,10 +12,15 @@ export function ClientWrapper({ children }: { children: React.ReactNode }) {
     document.body.setAttribute('data-gramm_editor', 'false');
     document.body.setAttribute('data-enable-grammarly', 'false');
     
+    // Explicitly add this attribute on the client to avoid hydration mismatch warnings
+    // caused by browser extensions manipulating the DOM.
+    document.body.setAttribute('suppressHydrationWarning', 'true');
+
     const handleContextmenu = (e: MouseEvent) => {
       e.preventDefault();
     };
     document.addEventListener("contextmenu", handleContextmenu);
+    
     return () => {
       document.removeEventListener("contextmenu", handleContextmenu);
     };
