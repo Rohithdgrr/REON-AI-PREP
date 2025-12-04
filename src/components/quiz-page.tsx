@@ -23,98 +23,26 @@ import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
-const manualQuizzes = [
-    {
-      id: "quiz1",
-      title: "Quantitative Aptitude: Time & Work",
-      questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Time & Work Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
-    },
-    {
-        id: "quiz2",
-        title: "Reasoning: Blood Relations",
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Blood Relations Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
-    },
-    {
-        id: "quiz3",
-        title: "General Knowledge: Indian History",
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian History Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
-    },
-    {
-        id: 'quiz4',
-        title: 'English: Synonyms & Antonyms',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Synonym/Antonym Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
-    },
-    {
-        id: 'quiz5',
-        title: 'Quant: Percentages',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Percentage Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
-    },
-    {
-        id: 'quiz6',
-        title: 'Reasoning: Analogies',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Analogy Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
-    },
-    {
-        id: 'quiz7',
-        title: 'GK: Indian Geography',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian Geography Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
-    },
-    {
-        id: 'quiz8',
-        title: 'English: Idioms and Phrases',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Idiom/Phrase Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
-    },
-    {
-        id: 'quiz9',
-        title: 'Quant: Simple & Compound Interest',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Interest Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
-    },
-    {
-        id: 'quiz10',
-        title: 'Reasoning: Seating Arrangement',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Seating Arrangement Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
-    },
-    {
-        id: 'quiz11',
-        title: 'GK: Indian Polity',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Indian Polity Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
-    },
-    {
-        id: 'quiz12',
-        title: 'English: Prepositions',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Preposition Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
-    },
-    {
-        id: 'quiz13',
-        title: 'Quant: Speed, Time & Distance',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Speed/Time/Distance Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
-    },
-    {
-        id: 'quiz14',
-        title: 'Reasoning: Coding-Decoding',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Coding-Decoding Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
-    },
-    {
-        id: 'quiz15',
-        title: 'GK: Famous Personalities',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Famous Personalities Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "C" })),
-    },
-    {
-        id: 'quiz16',
-        title: 'English: Articles',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Article Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "D" })),
-    },
-    {
-        id: 'quiz17',
-        title: 'Quant: Averages',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Averages Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "A" })),
-    },
-    {
-        id: 'quiz18',
-        title: 'Reasoning: Syllogism',
-        questions: Array.from({ length: 30 }, (_, i) => ({ id: `q${i}`, question: `Syllogism Question ${i+1}`, options: ["A", "B", "C", "D"], correctAnswer: "B" })),
-    },
-].map(quiz => ({ ...quiz, questions: quiz.questions.map(q => ({ ...q, id: Math.random().toString(), question: q.question || "", explanation: "This is a placeholder explanation.", fastSolveTricks: "This is a placeholder trick.", analogies: "This is a placeholder analogy." })) }));
+const manualTopics = [
+    "Quantitative Aptitude: Time & Work",
+    "Reasoning: Blood Relations",
+    "General Knowledge: Indian History",
+    "English: Synonyms & Antonyms",
+    "Quant: Percentages",
+    "Reasoning: Analogies",
+    "GK: Indian Geography",
+    "English: Idioms and Phrases",
+    "Quant: Simple & Compound Interest",
+    "Reasoning: Seating Arrangement",
+    "GK: Indian Polity",
+    "English: Prepositions",
+    "Quant: Speed, Time & Distance",
+    "Reasoning: Coding-Decoding",
+    "GK: Famous Personalities",
+    "English: Articles",
+    "Quant: Averages",
+    "Reasoning: Syllogism",
+];
 
 
 const aiQuickQuizzes = [
@@ -223,7 +151,7 @@ export function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [score, setScore] = useState<number | null>(null);
-  const [activeQuiz, setActiveQuiz] = useState<QuizData>(manualQuizzes[0]);
+  const [activeQuiz, setActiveQuiz] = useState<QuizData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [customTopic, setCustomTopic] = useState("Indian History");
@@ -305,23 +233,28 @@ export function QuizPage() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-        
+        let buffer = "";
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep the last, possibly incomplete line
 
             for (const line of lines) {
-                const jsonStr = line.substring(6);
-                if (jsonStr.trim() === '[DONE]') {
+                 if (line.trim() === '' || !line.startsWith('data: ')) continue;
+                
+                const data = line.substring(6);
+                if (data.trim() === '[DONE]') {
                     break;
                 }
                 try {
-                    const json = JSON.parse(jsonStr);
-                    if (json.choices && json.choices[0] && json.choices[0].delta) {
-                        fullResponse += json.choices[0].delta.content || '';
+                    const json = JSON.parse(data);
+                    const content = json.choices[0]?.delta?.content || '';
+                    if (content) {
+                        fullResponse += content;
                     }
                 } catch (e) {
                      // In a streaming context, it's possible to get partial JSON.
@@ -361,14 +294,14 @@ export function QuizPage() {
   };
 
   const navigateQuestion = (newIndex: number) => {
-    if (quizState !== "in-progress") return;
+    if (quizState !== "in-progress" || !activeQuiz) return;
     const currentQuestionId = activeQuiz.questions[currentQuestionIndex].id;
     recordQuestionTime(currentQuestionId);
     setCurrentQuestionIndex(newIndex);
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < activeQuiz.questions.length - 1) {
+    if (activeQuiz && currentQuestionIndex < activeQuiz.questions.length - 1) {
       navigateQuestion(currentQuestionIndex + 1);
     }
   };
@@ -380,6 +313,7 @@ export function QuizPage() {
   };
 
   const handleSubmitQuiz = () => {
+    if (!activeQuiz) return;
     recordQuestionTime(activeQuiz.questions[currentQuestionIndex].id);
     let correctAnswers = 0;
     activeQuiz.questions.forEach((q) => {
@@ -413,14 +347,14 @@ Explanation: ${question.explanation}`;
         <Card>
             <CardHeader>
                 <CardTitle>Topic-wise Quizzes</CardTitle>
-                <CardDescription>Test your knowledge on specific topics with our manually curated quizzes.</CardDescription>
+                <CardDescription>Test your knowledge on specific topics. A fresh quiz will be generated by AI.</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {manualQuizzes.map(quiz => (
-                    <Button key={quiz.id} variant="outline" className="h-auto py-4" onClick={() => handleStartQuiz(quiz)}>
+                {manualTopics.map(topic => (
+                    <Button key={topic} variant="outline" className="h-auto py-4" onClick={() => handleGenerateAndStartQuiz(topic, 30, undefined, "Medium")}>
                         <div className="flex flex-col items-center text-center">
-                            <p className="font-semibold">{quiz.title}</p>
-                            <p className="text-xs text-muted-foreground">{quiz.questions.length} questions</p>
+                            <p className="font-semibold">{topic}</p>
+                            <p className="text-xs text-muted-foreground">30 questions</p>
                         </div>
                     </Button>
                 ))}
@@ -537,6 +471,15 @@ Explanation: ${question.explanation}`;
         </Card>
       </div>
     );
+  }
+
+  if (!activeQuiz) {
+    return (
+        <div className="flex h-full flex-col items-center justify-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading quiz...</p>
+        </div>
+    )
   }
 
   if (quizState === "finished") {

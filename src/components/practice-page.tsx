@@ -24,91 +24,26 @@ import { Checkbox } from "./ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useToolsSidebar } from "@/hooks/use-tools-sidebar";
 
-const manualQuizzes = [
-    {
-      id: "quiz1",
-      title: "Quantitative Aptitude: Time & Work",
-    },
-    {
-        id: "quiz2",
-        title: "Reasoning: Blood Relations",
-    },
-    {
-        id: "quiz3",
-        title: "General Knowledge: Indian History",
-    },
-    {
-        id: 'quiz4',
-        title: 'English: Synonyms & Antonyms',
-    },
-    {
-        id: 'quiz5',
-        title: 'Quant: Percentages',
-    },
-    {
-        id: 'quiz6',
-        title: 'Reasoning: Analogies',
-    },
-    {
-        id: 'quiz7',
-        title: 'GK: Indian Geography',
-    },
-    {
-        id: 'quiz8',
-        title: 'English: Idioms and Phrases',
-    },
-    {
-        id: 'quiz9',
-        title: 'Quant: Simple & Compound Interest',
-    },
-    {
-        id: 'quiz10',
-        title: 'Reasoning: Seating Arrangement',
-    },
-    {
-        id: 'quiz11',
-        title: 'GK: Indian Polity',
-    },
-    {
-        id: 'quiz12',
-        title: 'English: Prepositions',
-    },
-    {
-        id: 'quiz13',
-        title: 'Quant: Speed, Time & Distance',
-    },
-    {
-        id: 'quiz14',
-        title: 'Reasoning: Coding-Decoding',
-    },
-    {
-        id: 'quiz15',
-        title: 'GK: Famous Personalities',
-    },
-    {
-        id: 'quiz16',
-        title: 'English: Articles',
-    },
-    {
-        id: 'quiz17',
-        title: 'Quant: Averages',
-    },
-    {
-        id: 'quiz18',
-        title: 'Reasoning: Syllogism',
-    },
-].map(quiz => ({ 
-    ...quiz, 
-    questions: Array.from({ length: 30 }, (_, i) => ({ 
-        id: Math.random().toString(), 
-        question: `${quiz.title.split(': ')[1]} Question ${i + 1}`, 
-        options: ["Option A", "Option B", "Option C", "Option D"], 
-        correctAnswer: "Option A",
-        explanation: "This is a placeholder explanation for the correct answer, providing detailed reasoning.",
-        fastSolveTricks: "Use this quick trick to solve the problem faster next time.",
-        analogies: "Think of it like this analogy to better understand the concept."
-    })) 
-}));
+const manualTopics = [
+    "Quantitative Aptitude: Time & Work",
+    "Reasoning: Blood Relations",
+    "General Knowledge: Indian History",
+    "English: Synonyms & Antonyms",
+    "Quant: Percentages",
+    "Reasoning: Analogies",
+    "GK: Indian Geography",
+    "English: Idioms and Phrases",
+    "Quant: Simple & Compound Interest",
+    "Reasoning: Seating Arrangement",
+    "GK: Indian Polity",
+    "English: Prepositions",
+    "Quant: Speed, Time & Distance",
+    "Reasoning: Coding-Decoding",
+    "GK: Famous Personalities",
+    "English: Articles",
+    "Quant: Averages",
+    "Reasoning: Syllogism",
+];
 
 
 const aiQuickQuizzes = [
@@ -223,7 +158,7 @@ export function PracticePage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [score, setScore] = useState<number | null>(null);
-  const [activeTest, setActiveTest] = useState<ActiveTest>(manualQuizzes[0]);
+  const [activeTest, setActiveTest] = useState<ActiveTest | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [customTopic, setCustomTopic] = useState("Reasoning: Advanced Puzzles");
@@ -308,23 +243,28 @@ export function PracticePage() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-        
+        let buffer = "";
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
 
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep the last, possibly incomplete line
+            
             for (const line of lines) {
-                const jsonStr = line.substring(6);
-                if (jsonStr.trim() === '[DONE]') {
+                if (line.trim() === '' || !line.startsWith('data: ')) continue;
+                
+                const data = line.substring(6);
+                if (data.trim() === '[DONE]') {
                     break;
                 }
                 try {
-                    const json = JSON.parse(jsonStr);
-                    if (json.choices && json.choices[0] && json.choices[0].delta) {
-                        fullResponse += json.choices[0].delta.content || '';
+                    const json = JSON.parse(data);
+                    const content = json.choices[0]?.delta?.content || '';
+                    if (content) {
+                        fullResponse += content;
                     }
                 } catch (e) {
                      // In a streaming context, it's possible to get partial JSON.
@@ -366,14 +306,14 @@ export function PracticePage() {
   };
 
   const navigateQuestion = (newIndex: number) => {
-    if (testState !== "in-progress") return;
+    if (testState !== "in-progress" || !activeTest) return;
     const currentQuestionId = activeTest.questions[currentQuestionIndex].id;
     recordQuestionTime(currentQuestionId);
     setCurrentQuestionIndex(newIndex);
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < activeTest.questions.length - 1) {
+    if (activeTest && currentQuestionIndex < activeTest.questions.length - 1) {
       navigateQuestion(currentQuestionIndex + 1);
     }
   };
@@ -385,6 +325,7 @@ export function PracticePage() {
   };
 
   const handleSubmitTest = () => {
+    if(!activeTest) return;
     recordQuestionTime(activeTest.questions[currentQuestionIndex].id);
     let correctAnswers = 0;
     activeTest.questions.forEach((q) => {
@@ -418,14 +359,14 @@ Explanation: ${question.explanation}`;
         <Card>
             <CardHeader>
                 <CardTitle>Topic-wise Practice Tests</CardTitle>
-                <CardDescription>Test your knowledge on specific topics with our manually curated practice tests.</CardDescription>
+                <CardDescription>Test your knowledge on specific topics with our AI-generated practice tests.</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {manualQuizzes.map(quiz => (
-                    <Button key={quiz.id} variant="outline" className="h-auto py-4" onClick={() => handleStartTest(quiz)}>
+                {manualTopics.map(topic => (
+                    <Button key={topic} variant="outline" className="h-auto py-4" onClick={() => handleGenerateAndStart(topic, 30, undefined, 'Medium')}>
                         <div className="flex flex-col items-center text-center">
-                            <p className="font-semibold">{quiz.title}</p>
-                            <p className="text-xs text-muted-foreground">{quiz.questions.length} questions</p>
+                            <p className="font-semibold">{topic}</p>
+                            <p className="text-xs text-muted-foreground">30 questions</p>
                         </div>
                     </Button>
                 ))}
@@ -560,6 +501,15 @@ Explanation: ${question.explanation}`;
 
       </div>
     );
+  }
+
+  if (!activeTest) {
+    return (
+        <div className="flex h-full flex-col items-center justify-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading test...</p>
+        </div>
+    )
   }
 
   if (testState === "finished") {
