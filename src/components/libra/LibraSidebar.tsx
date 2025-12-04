@@ -25,11 +25,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import Groq from 'groq-sdk';
+import { cn } from '@/lib/utils';
+
 
 type AIMode = 'Chat' | 'History';
 
@@ -84,6 +85,11 @@ const suggestionCards = [
   },
 ];
 
+const groq = new Groq({
+    apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+    dangerouslyAllowBrowser: true
+});
+
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
   const [input, setInput] = useState('');
@@ -137,24 +143,27 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     setSessionHistory(prev => [...prev, newSession]);
     
     try {
-        // Placeholder response as the AI flow has been removed
-        const response = `This is a placeholder response for your query: "${textToProcess}". The AI flow has been removed to make the application more lightweight. You can re-implement AI functionality here.`;
-
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        if (abortControllerRef.current?.signal.aborted) {
-            throw new Error('AbortError');
-        }
-
-        setSessionHistory(prevHistory => {
-            const newHistory = [...prevHistory];
-            const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
-            if (sessionIndex > -1) {
-                newHistory[sessionIndex].response = response;
-            }
-            return newHistory;
+        const stream = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: textToProcess }],
+            model: 'llama3-8b-8192',
+            stream: true,
         });
+
+        for await (const chunk of stream) {
+             if (abortControllerRef.current?.signal.aborted) {
+                stream.controller.abort();
+                throw new Error('AbortError');
+            }
+            const content = chunk.choices[0]?.delta?.content || '';
+            setSessionHistory(prevHistory => {
+                const newHistory = [...prevHistory];
+                const sessionIndex = newHistory.findIndex(s => s.id === newSession.id);
+                if (sessionIndex > -1) {
+                    newHistory[sessionIndex].response += content;
+                }
+                return newHistory;
+            });
+        }
 
     } catch (error: any) {
         if (error.name === 'AbortError') {

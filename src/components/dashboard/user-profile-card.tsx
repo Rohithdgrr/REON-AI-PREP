@@ -9,6 +9,7 @@ import { Bot } from 'lucide-react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export function UserProfileCard() {
     const { user } = useUser();
@@ -47,7 +48,7 @@ export function UserProfileCard() {
     }
 
     return (
-        <Card className="w-full rounded-2xl shadow-lg overflow-hidden bg-card">
+        <Card className="w-full rounded-2xl shadow-lg overflow-hidden bg-gradient-to-br from-primary/10 via-card to-accent/10">
             <div className="flex flex-col md:flex-row items-center gap-6 p-6 md:p-8">
                 <div className="relative flex-shrink-0">
                     <div className="absolute -inset-2 bg-gradient-to-br from-primary to-accent rounded-full animate-pulse blur-xl" />

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -11,6 +12,7 @@ import {
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "../ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export function StatsCards() {
   const { user } = useUser();
@@ -38,7 +40,8 @@ export function StatsCards() {
 
   return (
     <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 shimmer-gradient opacity-0 hover:opacity-100 transition-opacity duration-300" />
         <CardHeader>
           <CardTitle>Level</CardTitle>
           <CardDescription>Your current level</CardDescription>
@@ -48,7 +51,8 @@ export function StatsCards() {
           <p className="text-xs text-muted-foreground">Based on your XP</p>
         </CardContent>
       </Card>
-      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 shimmer-gradient opacity-0 hover:opacity-100 transition-opacity duration-300" />
         <CardHeader>
           <CardTitle>Rank</CardTitle>
           <CardDescription>Your overall rank</CardDescription>
@@ -58,7 +62,8 @@ export function StatsCards() {
            <p className="text-xs text-muted-foreground">in Telangana</p>
         </CardContent>
       </Card>
-      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+      <Card className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 shimmer-gradient opacity-0 hover:opacity-100 transition-opacity duration-300" />
         <CardHeader>
           <CardTitle>RAX-Score</CardTitle>
           <CardDescription>Your readiness score</CardDescription>

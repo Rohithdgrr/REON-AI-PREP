@@ -176,3 +176,22 @@
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  .shimmer-gradient {
+    animation: shimmer 5s infinite linear;
+    background: linear-gradient(110deg,
+      hsl(var(--primary) / 0.1),
+      hsl(var(--primary) / 0.25),
+      hsl(var(--primary) / 0.1)
+    );
+    background-size: 200% 100%;
+  }
+}
