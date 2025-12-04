@@ -2,7 +2,6 @@
 'use client';
 import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { MissionsCard } from "@/components/dashboard/missions-card";
-import { ProgressCard } from "@/components/dashboard/progress-card";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { TasksCard } from "@/components/dashboard/tasks-card";
 import { TodaysPlan } from "@/components/dashboard/todays-plan";
@@ -18,8 +17,7 @@ export default function DashboardPage() {
             
             <StatsCards />
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <ProgressCard />
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <WeaknessRadar />
                 <TodaysPlan />
             </div>
