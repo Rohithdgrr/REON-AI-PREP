@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ExternalLink, ShieldAlert, FileText, SquarePen, Ticket, BadgeCheck, School } from "lucide-react";
+import { ExternalLink, ShieldAlert, FileText, SquarePen, Ticket, BadgeCheck, School, Banknote, Building, Landmark, Train } from "lucide-react";
 import { officialSitesData } from "@/lib/official-sites-data";
 import { Button } from "./ui/button";
 
@@ -29,7 +29,54 @@ const icons: { [key: string]: React.ElementType } = {
   "Main Portal": School,
 };
 
+function ResourceTable({ resources }: { resources: any[] }) {
+    return (
+        <div className="w-full overflow-x-auto">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[150px]">Resource</TableHead>
+                        <TableHead>Official Link</TableHead>
+                        <TableHead>Metadata & Key Information</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {resources.map((resource) => {
+                        const Icon = icons[resource.resource] || FileText;
+                        return (
+                        <TableRow key={resource.resource}>
+                            <TableCell className="font-semibold">
+                                <div className="flex items-center gap-2">
+                                    <Icon className="h-4 w-4 text-primary" />
+                                    {resource.resource}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Button asChild variant="link" className="p-0 h-auto">
+                                    <a href={resource.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm">
+                                        {new URL(resource.link).hostname} <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                </Button>
+                                {resource.secondaryLink && resource.secondaryLink !== 'regional redirect' && resource.secondaryLink !== 'RRB-specific' && (
+                                    <Button asChild variant="link" className="p-0 h-auto">
+                                        <a href={resource.secondaryLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-muted-foreground">
+                                            or {new URL(resource.secondaryLink).hostname} <ExternalLink className="h-3 w-3" />
+                                        </a>
+                                    </Button>
+                                )}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{resource.metadata}</TableCell>
+                        </TableRow>
+                    )})}
+                </TableBody>
+            </Table>
+        </div>
+    );
+}
+
 export function NotificationsPage() {
+
+  const mainTabs = ["Bank", "Railway", "SSC", "UPSC", "GATE", "PSU"];
 
   return (
     <div className="flex flex-col gap-8">
@@ -42,63 +89,49 @@ export function NotificationsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="SSC" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-            {Object.keys(officialSitesData).map((exam) => (
-                <TabsTrigger key={exam} value={exam}>{exam}</TabsTrigger>
-            ))}
-        </TabsList>
+      <Tabs defaultValue="Bank" className="w-full">
+        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 min-w-[600px]">
+                {mainTabs.map((exam) => (
+                    <TabsTrigger key={exam} value={exam}>{exam}</TabsTrigger>
+                ))}
+            </TabsList>
+        </div>
         
         {Object.entries(officialSitesData).map(([exam, data]) => (
             <TabsContent key={exam} value={exam} className="mt-6">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>{data.title}</CardTitle>
-                        <CardDescription>{data.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="w-full overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[150px]">Resource</TableHead>
-                                        <TableHead>Official Link</TableHead>
-                                        <TableHead>Metadata & Key Information</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {data.resources.map((resource) => {
-                                        const Icon = icons[resource.resource] || FileText;
-                                        return (
-                                        <TableRow key={resource.resource}>
-                                            <TableCell className="font-semibold">
-                                                <div className="flex items-center gap-2">
-                                                    <Icon className="h-4 w-4 text-primary" />
-                                                    {resource.resource}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Button asChild variant="link" className="p-0 h-auto">
-                                                    <a href={resource.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm">
-                                                        {new URL(resource.link).hostname} <ExternalLink className="h-3 w-3" />
-                                                    </a>
-                                                </Button>
-                                                {resource.secondaryLink && (
-                                                    <Button asChild variant="link" className="p-0 h-auto">
-                                                        <a href={resource.secondaryLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                            or {new URL(resource.secondaryLink).hostname} <ExternalLink className="h-3 w-3" />
-                                                        </a>
-                                                    </Button>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{resource.metadata}</TableCell>
-                                        </TableRow>
-                                    )})}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </CardContent>
-                 </Card>
+                {data.nested ? (
+                     <Tabs defaultValue={Object.keys(data.nested)[0]} className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                           {Object.keys(data.nested).map(nestedTab => (
+                               <TabsTrigger key={nestedTab} value={nestedTab}>{nestedTab}</TabsTrigger>
+                           ))}
+                        </TabsList>
+                         {Object.entries(data.nested).map(([nestedTab, nestedData]) => (
+                             <TabsContent key={nestedTab} value={nestedTab} className="mt-6">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>{nestedData.title}</CardTitle>
+                                        <CardDescription>{nestedData.description}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ResourceTable resources={nestedData.resources} />
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                         ))}
+                     </Tabs>
+                ) : (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{data.title}</CardTitle>
+                            <CardDescription>{data.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ResourceTable resources={data.resources} />
+                        </CardContent>
+                    </Card>
+                )}
             </TabsContent>
         ))}
       </Tabs>
