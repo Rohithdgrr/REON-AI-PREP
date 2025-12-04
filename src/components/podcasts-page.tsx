@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -67,6 +68,8 @@ export function PodcastsPage() {
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const audioRef = useRef<HTMLAudioElement>(null);
+
 
   const handleGeneratePodcast = async () => {
     if (!textToConvert.trim()) {
@@ -86,6 +89,17 @@ export function PodcastsPage() {
         setIsLoading(false);
     }
   };
+
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -109,6 +123,7 @@ export function PodcastsPage() {
             <div className="w-48 h-48 bg-primary/10 rounded-lg flex items-center justify-center">
               <Mic className="w-24 h-24 text-primary" />
             </div>
+            <audio ref={audioRef} src={currentTrack.source} onEnded={() => setIsPlaying(false)} className="hidden" />
             <div className="w-full space-y-2">
               <Slider defaultValue={[33]} max={100} step={1} />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -123,7 +138,7 @@ export function PodcastsPage() {
               <Button
                 size="lg"
                 className="w-16 h-16 rounded-full"
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={handlePlayPause}
               >
                 {isPlaying ? <Pause /> : <Play />}
               </Button>
@@ -150,7 +165,10 @@ export function PodcastsPage() {
                         key={track.id}
                         variant={currentTrack.id === track.id ? "secondary" : "ghost"}
                         className="w-full justify-start h-auto py-3"
-                        onClick={() => setCurrentTrack(track)}
+                        onClick={() => {
+                            setCurrentTrack(track);
+                            setIsPlaying(false);
+                        }}
                     >
                         <div className="flex flex-col items-start text-left">
                             <span className="font-semibold">{track.title}</span>

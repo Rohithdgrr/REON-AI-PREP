@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -147,7 +148,7 @@ const subjectsOptions = ["Quantitative Aptitude", "Reasoning", "English", "Gener
 function buildPlanPrompt(input: {targetExam: string, weakSubjects: string[], availableHours: number, previousPerformance: string}): string {
     let prompt = `You are an expert AI career counselor who creates personalized study plans for competitive exam aspirants in India.
 
-Generate a detailed, actionable, and encouraging study plan based on the following user inputs:
+Generate a detailed, actionable, and encouraging weekly study plan for 4 weeks based on the following user inputs:
 
 - Target Exam: ${input.targetExam}
 - Weak Subjects: ${input.weakSubjects.join(', ')}
@@ -161,40 +162,32 @@ Generate a detailed, actionable, and encouraging study plan based on the followi
     prompt += `
 **Instructions for the Output:**
 
-1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, bullet points, and horizontal rules (\`---\`) for separation.
+1.  **Format**: The entire output must be a single string formatted in clean **Markdown**. Use headings, bold text, and bullet points.
 2.  **Structure**:
-    *   Start with a main heading, like \`# 🚀 Your Personalized Study Plan for ${input.targetExam}\`.
-    *   Create sections for different timeframes (e.g., \`## ⏰ Daily Schedule\`, \`## 🗓️ Weekly Breakdown\`, \`## 📚 Subject-wise Focus\`). Use horizontal rules (\`---\`) to separate these major sections.
-    *   Use bullet points (\`-\`) or numbered lists (\`1.\`) for tasks and topics.
+    *   Start with a main heading, like \`# 🚀 Your Personalized 4-Week Study Plan for ${input.targetExam}\`.
+    *   Create a section for each of the 4 weeks (e.g., \`## Week 1: Foundation Building\`).
+    *   Under each week, create sub-headings for each day of the week (e.g., \`### Day 1: Monday\`).
+    *   For each day, provide a bulleted list of specific, actionable tasks.
     *   Use bold (\`**\`) to highlight key subjects, topics, or actions for emphasis.
 3.  **Content**:
-    *   Allocate more time to the specified **weak subjects**.
-    *   The plan should be realistic for the given \`availableHours\`.
-    *   Include a mix of learning new concepts, practice sessions, and revision.
-    *   Suggest specific, actionable tasks (e.g., "Solve 20 PYQs of Profit & Loss," "Take a sectional mock test for Reasoning").
+    *   Allocate more time and priority to the specified **weak subjects**.
+    *   The daily plan should be realistic for the given \`availableHours\`.
+    *   Include a mix of learning new concepts, practice sessions (e.g., "Solve 20 PYQs"), and revision.
+    *   The plan should logically progress from foundational topics in Week 1 to advanced topics and mock tests in Week 4.
     *   Add a concluding motivational sentence.
 4.  **Tone**: Make the plan encouraging and motivational. Use relevant emojis to make it more engaging (e.g., 🚀, 📚, 💪).
 
-
-Example Snippet:
+**Example Snippet:**
 \`\`\`markdown
-# 🚀 Your Personalized Study Plan for SBI PO
+# 🚀 Your Personalized 4-Week Study Plan for SBI PO
 
 Here is a plan tailored to your needs. Let's get started! 💪
 
----
+## Week 1: Mastering the Basics
 
-## ⏰ Daily Schedule (${input.availableHours} hours)
-- **🧠 Reasoning (Weak Subject)**: 1.5 hours
-- **📊 Quantitative Aptitude**: 1 hour
-- **📖 English**: 1 hour
-- **🔁 Revision & Current Affairs**: 0.5 hours
-
----
-
-## 🗓️ Weekly Breakdown
-- **Monday**: Focus on Puzzles (Reasoning) & Percentages (Quant).
-- **Tuesday**: English Grammar rules & Reading Comprehension practice.
+### Day 1: Monday
+- **🧠 Reasoning (Weak Subject)**: 1.5 hours - Practice 2 sets of Puzzles.
+- **📊 Quantitative Aptitude**: 1 hour - Revise Percentage formulas and solve 20 basic questions.
 ...
 \`\`\`
 `;
@@ -221,10 +214,9 @@ function markdownToHtml(markdown: string) {
         return `<ol class="list-decimal list-inside space-y-2 mb-4">${items}</ol>`;
     });
 
-    // Replace any remaining newlines with <br> for spacing, but not inside list items
-    // A bit of a hacky way to prevent double line breaks in lists
-    html = html.replace(/<\/li><br \/>/g, '</li>');
     html = html.replace(/\n/g, '<br />');
+    html = html.replace(/<\/li><br \/>/g, '</li>');
+
 
     return html;
 }
@@ -467,5 +459,3 @@ export function RoadmapPage() {
     </div>
   );
 }
-
-    

@@ -260,8 +260,19 @@ export function QuizPage() {
       setPerQuestionTime(0);
   }
 
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  };
+
   const handleStartQuiz = (quizData: QuizData) => {
-    setActiveQuiz(quizData);
+    const shuffledQuizData = { ...quizData, questions: shuffleArray([...quizData.questions]) };
+    setActiveQuiz(shuffledQuizData);
     setQuizState("in-progress");
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -271,7 +282,7 @@ export function QuizPage() {
     setQuestionTimes({});
   };
 
-  const handleGenerateAndStartQuiz = async (
+ const handleGenerateAndStartQuiz = async (
     topic: string, 
     numQuestions: number, 
     subTopics?: string[], 
@@ -386,7 +397,7 @@ Question: "${question.question}"
 Options: ${question.options.join(", ")}
 Correct Answer: ${question.correctAnswer}
 Explanation: ${question.explanation}`;
-    setActiveTool({ id: 'libra', payload: { prompt } });
+    setActiveTool({ id: 'libra', payload: { initialPrompt: prompt } });
   };
 
   if (quizState === "not-started") {
@@ -587,7 +598,7 @@ Explanation: ${question.explanation}`;
             <CardTitle className="text-xl">{activeQuiz.title}</CardTitle>
             <div className="flex items-center gap-4 text-sm font-semibold">
                 <div className="flex items-center gap-1.5"><Timer className="h-4 w-4"/> {formatTime(perQuestionTime)}</div>
-                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4 text-primary"/> {formatTime(overallTime)}</div>
+                <div className="flex items-center gap-1.5 text-primary"><Timer className="h-4 w-4"/> {formatTime(overallTime)}</div>
             </div>
           </div>
           <CardDescription>Question {currentQuestionIndex + 1} of {activeQuiz.questions.length}</CardDescription>
@@ -630,8 +641,3 @@ Explanation: ${question.explanation}`;
     </div>
   );
 }
-
-    
-
-    
-

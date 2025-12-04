@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from "react";
@@ -201,7 +202,15 @@ export function SuggestionsPage() {
             if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
             const result = await mistralResponse.json();
             const content = result.choices[0].message.content;
-            setAiSuggestions(JSON.parse(content));
+            
+            // It's possible the API returns a stringified JSON, so we parse it.
+            const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+            
+            if (!parsedContent || !parsedContent.suggestions) {
+                 throw new Error("Invalid format received from AI.");
+            }
+
+            setAiSuggestions(parsedContent);
             toast({ title: "AI Suggestions Generated!", description: "Your personalized suggestions are ready." });
         } catch (error: any) {
             console.error("Failed to generate suggestions", error);

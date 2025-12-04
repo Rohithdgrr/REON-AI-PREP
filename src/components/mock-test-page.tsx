@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -230,8 +231,19 @@ export function MockTestPage() {
       setPerQuestionTime(0);
   }
 
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  };
+
   const handleStartTest = (testData: ActiveTest) => {
-    setActiveTest(testData);
+    const shuffledTest = { ...testData, questions: shuffleArray([...testData.questions]) };
+    setActiveTest(shuffledTest);
     setTestState("in-progress");
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -299,6 +311,11 @@ export function MockTestPage() {
         if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
         const mistralResult = await processStream(mistralResponse);
         const result: GenerateQuizOutput = JSON.parse(mistralResult);
+
+        if (!result.title || !result.questions || !Array.isArray(result.questions)) {
+            throw new Error("Invalid JSON format received from AI.");
+        }
+
         const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: result.questions.map((q, i) => ({ ...q, id: `q-${i}` })) };
         handleStartTest(testData);
         toast({ title: "Mock Test Generated!", description: `Your custom mock test "${result.title}" is ready. Starting now...` });

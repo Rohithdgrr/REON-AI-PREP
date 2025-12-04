@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -123,7 +124,7 @@ function buildSystemPrompt(): string {
 *User:* "Explain Syllogism."
 
 *Your Ideal Response:*
-"Of course! Let's break down Syllogism.
+Of course! Let's break down Syllogism.
 
 **What is Syllogism?**
 Syllogism is a part of logical reasoning where you are given a few statements (also called premises) and you have to deduce a conclusion from them. The key is to assume the statements are 100% true, even if they don't make sense in the real world.
@@ -137,7 +138,7 @@ Let's try a simple example:
 - **Statement 2:** All B are C.
 - **Conclusion:** All A are C.
 
-In this case, the conclusion is valid. The best way to solve these is by using Venn diagrams. Would you like me to explain how to use Venn diagrams for Syllogism?"
+In this case, the conclusion is valid. The best way to solve these is by using Venn diagrams. Would you like me to explain how to use Venn diagrams for Syllogism?
 `;
 }
 
@@ -167,8 +168,9 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
   useEffect(() => {
     if (initialPrompt) {
-      setInput(initialPrompt);
+      handleAiRequest(initialPrompt);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrompt]);
 
   useEffect(() => {
@@ -272,8 +274,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
-          // Remove the user message and the empty assistant message
-          setMessages(prev => prev.slice(0, -2));
         } else {
              console.error(`API Error:`, error);
               toast({
@@ -294,6 +294,14 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     if (abortControllerRef.current) {
         abortControllerRef.current.abort();
         setIsLoading(false);
+        setMessages(prev => {
+            const lastMessage = prev[prev.length - 1];
+            // If the last message was the empty assistant placeholder, remove it and the user's prompt
+            if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
+                return prev.slice(0, -2);
+            }
+            return prev;
+        });
     }
   }
 
@@ -460,7 +468,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                         <Bot className="h-5 w-5 text-primary" />
                       </div>
                       <div className="p-3 rounded-2xl bg-muted max-w-sm">
-                        {(message.content || isLoading) ? (
+                        {(message.content || (isLoading && index === messages.length - 1)) ? (
                           <>
                             <FormattedAIResponse response={message.content} />
                             {isLoading && index === messages.length -1 && (

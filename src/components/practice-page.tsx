@@ -274,7 +274,8 @@ export function PracticePage() {
   };
 
   const handleStartTest = (testData: ActiveTest) => {
-    setActiveTest(testData);
+    const shuffledTest = { ...testData, questions: shuffleArray([...testData.questions]) };
+    setActiveTest(shuffledTest);
     setTestState("in-progress");
     setCurrentQuestionIndex(0);
     setUserAnswers({});
@@ -348,8 +349,7 @@ export function PracticePage() {
             throw new Error("Invalid JSON format received from AI.");
         }
 
-        const shuffledQuestions = shuffleArray(result.questions);
-        const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: shuffledQuestions.map((q, i) => ({ ...q, id: `q-${i}` })) };
+        const testData: ActiveTest = { id: `ai-test-${Date.now()}`, title: result.title, questions: result.questions.map((q, i) => ({ ...q, id: `q-${i}` })) };
         handleStartTest(testData);
 
     } catch (error: any) {
@@ -402,7 +402,7 @@ Question: "${question.question}"
 Options: ${question.options.join(", ")}
 Correct Answer: ${question.correctAnswer}
 Explanation: ${question.explanation}`;
-    setActiveTool({ id: 'libra', payload: { prompt } });
+    setActiveTool({ id: 'libra', payload: { initialPrompt: prompt } });
   };
 
   if (testState === "not-started") {
@@ -621,7 +621,7 @@ Explanation: ${question.explanation}`;
             <CardTitle className="text-xl">{activeTest.title}</CardTitle>
             <div className="flex items-center gap-4 text-sm font-semibold">
                 <div className="flex items-center gap-1.5"><Timer className="h-4 w-4"/> {formatTime(perQuestionTime)}</div>
-                <div className="flex items-center gap-1.5"><Timer className="h-4 w-4 text-primary"/> {formatTime(overallTime)}</div>
+                <div className="flex items-center gap-1.5 text-primary"><Timer className="h-4 w-4"/> {formatTime(overallTime)}</div>
             </div>
           </div>
           <CardDescription>Question {currentQuestionIndex + 1} of {activeTest.questions.length}</CardDescription>
@@ -664,8 +664,3 @@ Explanation: ${question.explanation}`;
     </div>
   );
 }
-
-    
-
-    
-
