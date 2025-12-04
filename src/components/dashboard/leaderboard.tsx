@@ -1,4 +1,3 @@
-
 import { ArrowDown, ArrowUp, Crown, Star } from "lucide-react";
 import {
   Card,

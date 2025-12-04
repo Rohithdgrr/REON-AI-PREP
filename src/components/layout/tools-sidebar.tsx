@@ -1,4 +1,3 @@
-
 'use client';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { cn } from '@/lib/utils';

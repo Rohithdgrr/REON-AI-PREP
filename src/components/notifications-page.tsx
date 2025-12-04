@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -41,7 +40,7 @@ function ResourceTable({ resources }: { resources: any[] }) {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {resources.map((resource) => {
+                    {resources.map((resource:any) => {
                         const Icon = icons[resource.resource] || FileText;
                         return (
                         <TableRow key={resource.resource}>
@@ -107,7 +106,7 @@ export function NotificationsPage() {
                                <TabsTrigger key={nestedTab} value={nestedTab}>{nestedTab}</TabsTrigger>
                            ))}
                         </TabsList>
-                         {Object.entries(data.nested).map(([nestedTab, nestedData]) => (
+                         {Object.entries(data.nested).map(([nestedTab, nestedData]: [string, any]) => (
                              <TabsContent key={nestedTab} value={nestedTab} className="mt-6">
                                 <Card>
                                     <CardHeader>
@@ -124,11 +123,11 @@ export function NotificationsPage() {
                 ) : (
                     <Card>
                         <CardHeader>
-                            <CardTitle>{data.title}</CardTitle>
-                            <CardDescription>{data.description}</CardDescription>
+                            <CardTitle>{(data as any).title}</CardTitle>
+                            <CardDescription>{(data as any).description}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResourceTable resources={data.resources} />
+                            <ResourceTable resources={(data as any).resources} />
                         </CardContent>
                     </Card>
                 )}
