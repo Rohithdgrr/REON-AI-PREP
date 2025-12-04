@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -247,7 +246,7 @@ export function RoadmapPage() {
         toast({
             variant: "destructive",
             title: "Target Exam Required",
-            description: "Please enter your target exam.",
+            description: "Please select your target exam.",
         });
         return;
     }
@@ -267,35 +266,6 @@ export function RoadmapPage() {
         previousPerformance
     });
 
-    const streamResponse = async (response: Response) => {
-        if (!response.body) throw new Error("Response body is empty.");
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = "";
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6);
-                    if (data.trim() === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || '';
-                        if (content) {
-                            fullResponse += content;
-                            setAiPlan(markdownToHtml(fullResponse));
-                        }
-                    } catch (e) {
-                        console.error('Error parsing streaming JSON:', e);
-                    }
-                }
-            }
-        }
-    };
-
     try {
         const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
             method: "POST",
@@ -303,11 +273,13 @@ export function RoadmapPage() {
             body: JSON.stringify({
                 model: "open-mistral-7b",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.7, max_tokens: 2048, stream: true,
+                temperature: 0.7, max_tokens: 2048
             })
         });
         if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
-        await streamResponse(mistralResponse);
+        const result = await mistralResponse.json();
+        const planMarkdown = result.choices[0].message.content;
+        setAiPlan(markdownToHtml(planMarkdown));
         toast({ title: "AI Plan Generated!", description: "Your personalized study plan is ready below." });
 
     } catch (error: any) {
@@ -409,7 +381,20 @@ export function RoadmapPage() {
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="target-exam">Target Exam</Label>
-                            <Input id="target-exam" value={targetExam} onChange={e => setTargetExam(e.target.value)} placeholder="e.g. Railway NTPC, SBI PO" />
+                            <Select value={targetExam} onValueChange={setTargetExam}>
+                                <SelectTrigger id="target-exam">
+                                    <SelectValue placeholder="Select your target exam" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Railway">Railway</SelectItem>
+                                    <SelectItem value="Bank">Bank</SelectItem>
+                                    <SelectItem value="Both">Both (Railway & Bank)</SelectItem>
+                                    <SelectItem value="GATE">GATE</SelectItem>
+                                    <SelectItem value="SSC">SSC (CGL/CHSL)</SelectItem>
+                                    <SelectItem value="PSU">PSU</SelectItem>
+                                    <SelectItem value="UPSC">UPSC</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="available-hours">Available Hours per Day</Label>

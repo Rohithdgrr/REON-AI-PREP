@@ -33,8 +33,11 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
           if (!docSnap.exists()) {
             // User is new, create a document for them.
             const dobString = localStorage.getItem(`temp_user_dob_${user.uid}`);
+            const examString = localStorage.getItem(`temp_user_exam_${user.uid}`);
             const dob = dobString ? new Date(dobString) : new Date(); // Fallback
             localStorage.removeItem(`temp_user_dob_${user.uid}`);
+            localStorage.removeItem(`temp_user_exam_${user.uid}`);
+
 
             const formattedDob = format(dob, 'yyyyMMdd');
             const userFirstLetter = (user.displayName || 'X').charAt(0).toUpperCase();
@@ -47,7 +50,7 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
               fullName: user.displayName || 'New User',
               email: user.email,
               dateOfBirth: dob.toISOString(),
-              targetExam: 'Both', // Default value
+              targetExam: examString || 'Both', // Use selected exam or default
               profilePhoto: user.photoURL,
               createdAt: new Date().toISOString(),
               lastLogin: new Date().toISOString(),
@@ -71,3 +74,5 @@ export default function withAuth<P extends object>(Component: ComponentType<P>) 
     return <Component {...props} />;
   };
 }
+
+    

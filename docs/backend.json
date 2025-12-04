@@ -35,7 +35,7 @@
         },
         "targetExam": {
           "type": "string",
-          "description": "User's target exam (Railway, Bank, or Both)."
+          "description": "User's target exam (e.g., Railway, Bank, SSC, GATE, PSU, UPSC)."
         },
         "profilePhoto": {
           "type": "string",

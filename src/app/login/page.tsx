@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -30,6 +31,7 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [dob, setDob] = useState<Date>();
   const [showPassword, setShowPassword] = useState(false);
+  const [targetExam, setTargetExam] = useState('Railway');
 
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
 
@@ -86,7 +88,7 @@ export default function LoginPage() {
   const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
-    if (!name || !dob || !email || !password) {
+    if (!name || !dob || !email || !password || !targetExam) {
         toast({ variant: 'destructive', title: "Missing Information", description: "Please fill out all fields to register." });
         return;
     }
@@ -105,6 +107,7 @@ export default function LoginPage() {
         });
         
         localStorage.setItem(`temp_user_dob_${userCredential.user.uid}`, format(dob, 'yyyy-MM-dd'));
+        localStorage.setItem(`temp_user_exam_${userCredential.user.uid}`, targetExam);
 
     } catch (error) {
         handleAuthError(error as AuthError);
@@ -209,6 +212,23 @@ export default function LoginPage() {
                                     </PopoverContent>
                                 </Popover>
                              </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="target-exam">Target Exam</Label>
+                                <Select value={targetExam} onValueChange={setTargetExam} disabled={isSubmitting}>
+                                    <SelectTrigger id="target-exam">
+                                        <SelectValue placeholder="Select your target exam" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Railway">Railway</SelectItem>
+                                        <SelectItem value="Bank">Bank</SelectItem>
+                                        <SelectItem value="Both">Both (Railway & Bank)</SelectItem>
+                                        <SelectItem value="GATE">GATE</SelectItem>
+                                        <SelectItem value="SSC">SSC (CGL/CHSL)</SelectItem>
+                                        <SelectItem value="PSU">PSU</SelectItem>
+                                        <SelectItem value="UPSC">UPSC</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <Button type="submit" className="w-full" disabled={isSubmitting}>
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Create Account
@@ -233,9 +253,11 @@ export default function LoginPage() {
          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
          <div className="absolute bottom-8 left-8 right-8 p-6 bg-black/50 backdrop-blur-md rounded-lg">
              <h3 className="text-2xl font-bold text-white font-headline">Your Personal AI Exam Partner</h3>
-             <p className="text-white/80 mt-2">Get AI-powered insights, personalized study plans, and mock tests to ace your competitive exams.</p>
+             <p className="text-white/80 mt-2">Get AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
          </div>
       </div>
     </div>
   )
 }
+
+    

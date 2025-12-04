@@ -194,6 +194,9 @@ export function NotificationsPage() {
                       <SelectItem value="Railway">Railway</SelectItem>
                       <SelectItem value="Bank">Bank</SelectItem>
                       <SelectItem value="SSC">SSC</SelectItem>
+                      <SelectItem value="GATE">GATE</SelectItem>
+                      <SelectItem value="PSU">PSU</SelectItem>
+                      <SelectItem value="UPSC">UPSC</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -328,3 +331,5 @@ export function NotificationsPage() {
     </div>
   );
 }
+
+    
