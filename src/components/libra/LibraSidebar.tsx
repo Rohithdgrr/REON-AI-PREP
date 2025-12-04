@@ -41,9 +41,7 @@ type Message = {
 
 type Session = {
   id: number;
-  mode: AIMode;
-  input: string;
-  response: string;
+  messages: Message[];
 };
 
 const FormattedAIResponse = ({ response }: { response: string }) => {
@@ -125,7 +123,7 @@ const allSuggestionCards = [
 ];
 
 function buildSystemPrompt(): string {
-    return `You are LIBRA, an expert AI assistant for REON AI PREP, specializing in Indian competitive exams (UPSC, SSC, Banking, Railways, GATE). Your goal is to provide structured, accurate, and encouraging answers that are highly useful for aspirants.
+  return `You are LIBRA, an expert AI assistant for REON AI PREP, specializing in Indian competitive exams (UPSC, SSC, Banking, Railways, GATE). Your goal is to provide structured, accurate, and encouraging answers that are highly useful for aspirants.
 
 **Your Core Directives:**
 
@@ -186,13 +184,33 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
   const [suggestionCards, setSuggestionCards] = useState(allSuggestionCards.slice(0, 4));
 
+  // Load history from localStorage on initial mount
+  useEffect(() => {
+    try {
+      const storedHistory = localStorage.getItem('libra-chat-history');
+      if (storedHistory) {
+        setSessionHistory(JSON.parse(storedHistory));
+      }
+    } catch (e) {
+      console.error("Failed to load chat history from localStorage", e);
+    }
+  }, []);
+
+  const saveHistory = (newHistory: Session[]) => {
+    setSessionHistory(newHistory);
+    try {
+      localStorage.setItem('libra-chat-history', JSON.stringify(newHistory));
+    } catch(e) {
+      console.error("Failed to save chat history to localStorage", e);
+    }
+  }
+  
   const shuffleSuggestions = () => {
     const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
     setSuggestionCards(shuffled.slice(0, 4));
   };
   
   useEffect(() => {
-    // Shuffle suggestions on initial mount (client-side only)
     shuffleSuggestions();
   }, []);
 
@@ -205,7 +223,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
   useEffect(() => {
     if (messages.length === 0) {
-      // Reshuffle suggestions when starting a new chat
       shuffleSuggestions();
     }
   }, [messages]);
@@ -236,7 +253,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     const newMessages: Message[] = [...messages, { role: 'user', content: textToProcess }];
     setMessages(newMessages);
 
-    // Add an empty assistant message to stream into
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     const systemPrompt = buildSystemPrompt();
@@ -269,7 +285,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        
         let buffer = '';
 
         while (true) {
@@ -279,15 +294,13 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             buffer += decoder.decode(value, { stream: true });
             
             const lines = buffer.split('\n');
-            buffer = lines.pop() || ''; // Keep the last, possibly incomplete line
+            buffer = lines.pop() || ''; 
 
             for (const line of lines) {
                 if (line.trim() === '' || !line.startsWith('data: ')) continue;
                 
                 const data = line.substring(6);
-                if (data.trim() === '[DONE]') {
-                    break;
-                }
+                if (data.trim() === '[DONE]') break;
                 
                 try {
                     const json = JSON.parse(data);
@@ -308,7 +321,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             }
         }
         
-        // After streaming is complete, parse for suggestions
+        let finalMessages: Message[] = [];
         setMessages(prev => {
             const lastMessage = prev[prev.length -1];
             if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content.includes('[SUGGESTIONS]')) {
@@ -316,19 +329,20 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                 lastMessage.content = parts[0].trim();
                 lastMessage.suggestions = parts[1].trim().split('\n').filter(s => s.trim() !== '');
             }
-            return [...prev];
+            finalMessages = [...prev];
+            return finalMessages;
         });
+
+        saveHistory([...sessionHistory, { id: Date.now(), messages: finalMessages }]);
 
     } catch (error: any) {
         if (error.name === 'AbortError') {
           console.log('Fetch aborted by user.');
-           // If aborted, clean up the empty assistant message
             setMessages(prev => {
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
                     return prev.slice(0, -1);
                 }
-                // Also remove the user message that triggered this
                 if(messages.length === prev.length -1) {
                     return prev.slice(0,-2);
                 }
@@ -341,7 +355,6 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                   title: 'AI Error',
                   description: error.message || 'The model failed to respond. Please check console.',
               });
-              // Remove the user message and the empty assistant message on error
              setMessages(prev => prev.slice(0, -2));
         }
     } finally {
@@ -363,7 +376,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   };
 
   const handleClearHistory = () => {
-    setSessionHistory([]);
+    saveHistory([]);
   };
 
   const copyToClipboard = (text: string) => {
@@ -382,10 +395,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   };
   
   const handleHistoryClick = (session: Session) => {
-    setMessages([
-        { role: 'user', content: session.input },
-        { role: 'assistant', content: session.response },
-    ]);
+    setMessages(session.messages);
     setCurrentMode('Chat');
   };
 
@@ -469,9 +479,9 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                   className="text-xs p-2 border rounded-md bg-muted/50 cursor-pointer hover:bg-muted transition"
                   onClick={() => handleHistoryClick(session)}
                 >
-                  <p className="font-bold truncate">{session.input || 'Untitled Chat'}</p>
+                  <p className="font-bold truncate">{session.messages[0]?.content || 'Untitled Chat'}</p>
                   <p className="truncate text-muted-foreground mt-1">
-                    {session.response}
+                    {session.messages[1]?.content || '...'}
                   </p>
                 </div>
               ))
@@ -631,4 +641,3 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     </div>
   );
 }
-
