@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Bot,
   X,
@@ -16,6 +15,10 @@ import {
   Send,
   Paperclip,
   Square,
+  Check,
+  BookOpen,
+  GraduationCap,
+  Lightbulb,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,147 +32,356 @@ import { useToast } from '@/hooks/use-toast';
 import { useToolsSidebar } from '@/hooks/use-tools-sidebar';
 import { Card } from '../ui/card';
 import { cn } from '@/lib/utils';
-
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type AIMode = 'Chat' | 'History';
 
 type Message = {
-    role: 'user' | 'assistant';
-    content: string;
-    suggestions?: string[];
-}
+  role: 'user' | 'assistant';
+  content: string;
+  suggestions?: string[];
+  timestamp?: Date;
+};
 
 type Session = {
   id: number;
   messages: Message[];
+  title?: string;
+  createdAt?: Date;
 };
 
+// Professional Markdown Renderer Component
 const FormattedAIResponse = ({ response }: { response: string }) => {
-    // Enhanced to process markdown tables, lists, and text formatting.
-    const htmlContent = response
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')       // Italic
-        .replace(/(\n|^)---(\n|$)/g, '$1<hr class="my-4 border-border" />$2') // Horizontal rule
-        // Unordered lists
-        .replace(/(\n|^)([-*] .+(\n|$))+/g, (match) => {
-            const items = match.trim().split('\n').map(item => `<li>${item.replace(/[-*] /, '').trim()}</li>`).join('');
-            return `<ul class="list-disc list-inside space-y-1 my-3">${items}</ul>`;
-        })
-        // Ordered lists
-        .replace(/(\n|^)(\d+\. .+(\n|$))+/g, (match) => {
-            const items = match.trim().split('\n').map(item => `<li>${item.replace(/\d+\. /, '').trim()}</li>`).join('');
-            return `<ol class="list-decimal list-inside space-y-1 my-3">${items}</ol>`;
-        })
-         // Markdown Tables
-        .replace(/\|(.+?)\|\n *\|( *:?-+:? *\|)+ */g, (match) => {
-            const lines = match.trim().split('\n');
-            const headerLine = lines[0];
-            const headers = headerLine.split('|').map(h => h.trim()).filter(Boolean);
-            const rows = lines.slice(2);
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      className="prose prose-sm dark:prose-invert max-w-none"
+      components={{
+        // Headings
+        h1: ({ children }) => (
+          <h1 className="text-xl font-bold text-primary border-b border-border pb-2 mb-4 mt-2">
+            {children}
+          </h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="text-lg font-semibold text-foreground border-b border-border/50 pb-1 mb-3 mt-4">
+            {children}
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="text-base font-semibold text-foreground mb-2 mt-3 flex items-center gap-2">
+            <span className="w-1 h-4 bg-primary rounded-full" />
+            {children}
+          </h3>
+        ),
+        h4: ({ children }) => (
+          <h4 className="text-sm font-semibold text-foreground mb-2 mt-2">
+            {children}
+          </h4>
+        ),
 
-            const thead = `<thead><tr class="border-b">${headers.map(h => `<th class="p-2 text-left font-semibold">${h}</th>`).join('')}</tr></thead>`;
-            
-            const tbody = `<tbody>${rows.map(rowLine => {
-                const cells = rowLine.split('|').map(c => c.trim()).filter(Boolean);
-                return `<tr class="border-b">${cells.map(c => `<td class="p-2">${c}</td>`).join('')}</tr>`;
-            }).join('')}</tbody>`;
+        // Paragraphs
+        p: ({ children }) => (
+          <p className="text-sm leading-relaxed text-foreground/90 mb-3">
+            {children}
+          </p>
+        ),
 
-            return `<div class="overflow-x-auto my-4"><table class="w-full text-sm">${thead}${tbody}</table></div>`;
-        });
+        // Lists
+        ul: ({ children }) => (
+          <ul className="list-disc list-outside ml-4 space-y-1.5 mb-3 text-sm">
+            {children}
+          </ul>
+        ),
+        ol: ({ children }) => (
+          <ol className="list-decimal list-outside ml-4 space-y-1.5 mb-3 text-sm">
+            {children}
+          </ol>
+        ),
+        li: ({ children }) => (
+          <li className="text-foreground/90 leading-relaxed pl-1">
+            {children}
+          </li>
+        ),
 
-    return (
-        <div
-            className="prose prose-sm dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
-    );
+        // Strong and Emphasis
+        strong: ({ children }) => (
+          <strong className="font-semibold text-foreground">{children}</strong>
+        ),
+        em: ({ children }) => (
+          <em className="italic text-foreground/80">{children}</em>
+        ),
+
+        // Code blocks
+        code: ({ className, children, ...props }) => {
+          const isInline = !className;
+          if (isInline) {
+            return (
+              <code className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-primary">
+                {children}
+              </code>
+            );
+          }
+          return (
+            <code
+              className={cn(
+                "block bg-muted/50 rounded-lg p-3 text-xs font-mono overflow-x-auto border",
+                className
+              )}
+              {...props}
+            >
+              {children}
+            </code>
+          );
+        },
+        pre: ({ children }) => (
+          <pre className="bg-muted/50 rounded-lg p-3 overflow-x-auto mb-3 border">
+            {children}
+          </pre>
+        ),
+
+        // Tables - Professional styling
+        table: ({ children }) => (
+          <div className="overflow-x-auto my-4 rounded-lg border shadow-sm">
+            <table className="w-full text-sm">{children}</table>
+          </div>
+        ),
+        thead: ({ children }) => (
+          <thead className="bg-muted/70 border-b">{children}</thead>
+        ),
+        tbody: ({ children }) => (
+          <tbody className="divide-y divide-border">{children}</tbody>
+        ),
+        tr: ({ children }) => (
+          <tr className="hover:bg-muted/30 transition-colors">{children}</tr>
+        ),
+        th: ({ children }) => (
+          <th className="px-3 py-2.5 text-left font-semibold text-foreground text-xs uppercase tracking-wider">
+            {children}
+          </th>
+        ),
+        td: ({ children }) => (
+          <td className="px-3 py-2.5 text-foreground/90">{children}</td>
+        ),
+
+        // Blockquotes - for tips and notes
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-4 border-primary bg-primary/5 pl-4 pr-3 py-2 my-3 rounded-r-lg">
+            <div className="flex items-start gap-2">
+              <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-foreground/90">{children}</div>
+            </div>
+          </blockquote>
+        ),
+
+        // Horizontal Rule
+        hr: () => <hr className="my-4 border-border" />,
+
+        // Links
+        a: ({ href, children }) => (
+          <a
+            href={href}
+            className="text-primary hover:underline font-medium"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {response}
+    </ReactMarkdown>
+  );
 };
 
+// Enhanced Suggestion Cards
 const allSuggestionCards = [
   {
-    title: 'Explain Topic',
-    prompt: "Explain the topic of 'Data Interpretation' for bank exams.",
+    title: 'Explain a Topic',
+    prompt: "Explain the topic of 'Data Interpretation' with examples and practice tips for bank exams.",
+    icon: BookOpen,
   },
   {
-    title: 'Create Quiz',
-    prompt: 'Create a 5-question quiz on Indian Polity.',
+    title: 'Create a Quiz',
+    prompt: 'Create a 5-question quiz on Indian Polity with answers and explanations.',
+    icon: GraduationCap,
   },
   {
-    title: 'Plan my day',
-    prompt:
-      'I have 3 hours to study for my Railway exam. My weak subject is Reasoning. Create a study plan for me.',
+    title: 'Study Plan',
+    prompt: 'I have 3 hours to study for my Railway exam. My weak subject is Reasoning. Create a detailed study plan for me.',
+    icon: Lightbulb,
   },
   {
     title: 'Summarize Notes',
-    prompt:
-      'Summarize my notes on the Mughal Empire into 5 key points.',
+    prompt: 'Summarize the key concepts of the Mughal Empire into 5 essential points for competitive exams.',
+    icon: BookOpen,
   },
   {
-      title: 'Compare Exams',
-      prompt: 'What are the main differences between the syllabus of SSC CGL and Bank PO?'
+    title: 'Compare Exams',
+    prompt: 'What are the main differences between the syllabus of SSC CGL and Bank PO? Present in a table format.',
+    icon: GraduationCap,
   },
   {
-      title: 'Give me a shortcut',
-      prompt: 'Give me a quick math shortcut for calculating compound interest.'
+    title: 'Quick Shortcut',
+    prompt: 'Give me a quick and reliable math shortcut for calculating compound interest with examples.',
+    icon: Lightbulb,
   },
   {
-      title: 'Suggest a Book',
-      prompt: 'What is the best book for preparing Quantitative Aptitude for the GATE exam?'
+    title: 'Book Recommendation',
+    prompt: 'What are the best books for preparing Quantitative Aptitude for the GATE exam? Provide a comparison table.',
+    icon: BookOpen,
   },
   {
-      title: 'Explain a Concept',
-      prompt: 'Explain the concept of "Judicial Review" in the context of the Indian Constitution for UPSC prep.'
-  }
+    title: 'Concept Explanation',
+    prompt: 'Explain the concept of "Judicial Review" in the context of the Indian Constitution for UPSC preparation.',
+    icon: GraduationCap,
+  },
 ];
 
+// Enhanced System Prompt for Professional Educational Responses
 function buildSystemPrompt(): string {
-  return `You are LIBRA, an expert AI assistant for REON AI PREP, specializing in Indian competitive exams (UPSC, SSC, Banking, Railways, GATE). Your goal is to provide structured, accurate, and encouraging answers that are highly useful for aspirants.
+  return `You are LIBRA, a highly professional AI educational assistant developed for REON AI PREP. You specialize in helping students prepare for Indian competitive examinations including UPSC, SSC, Banking, Railways, GATE, and other government exams.
 
-**Your Core Directives:**
+## YOUR CORE IDENTITY
 
-1.  **Expert Persona**: Act as an expert tutor. Provide well-researched, clear, and actionable information.
-2.  **Structured Formatting (CRITICAL)**: Use Markdown to structure your responses. This is essential.
-    *   **Headings**: Use \`#\`, \`##\`, and \`###\` for titles and sub-sections.
-    *   **Bold/Italic**: Use \`**bold**\` for key terms and headings.
-    *   **Lists**: Use bullet points (\`-\` or \`*\`) for lists.
-    *   **Tables**: When comparing items, listing resources, or showing data, YOU MUST USE MARKDOWN TABLES. This is crucial for clarity.
-        *   **Table Example:**
-            \`\`\`
-            | Feature         | Details                               |
-            |-----------------|---------------------------------------|
-            | Key Articles    | Art 14-18 (Right to Equality)         |
-            | Important Cases | Kesavananda Bharati vs. State of Kerala |
-            \`\`\`
-3.  **Content Guidelines**:
-    *   **Be Specific**: When asked about a topic like "Polity," don't just define it. Explain its importance for exams, list key sub-topics, mention important articles, suggest study resources, and provide recent updates.
-    *   **Use Tables for Data**: For exam weightage, book recommendations, or topic breakdowns, a table is always better than a list.
-    *   **Stay Relevant**: Keep your answers focused on the context of Indian competitive exams.
-    *   **Encourage and Engage**: End your responses with a positive and encouraging note. Use emojis (like 📚, 🚀, 💪) to make the content engaging.
-4.  **Proactive Suggestions (IMPORTANT!)**: At the end of every response, you MUST suggest 2-3 relevant follow-up questions or actions. Format these suggestions using a special separator: \`[SUGGESTIONS]\`. Each suggestion should be on a new line. This helps guide the user's learning journey.
+- **Role**: Expert Educational Tutor and Mentor
+- **Tone**: Professional, encouraging, clear, and supportive
+- **Language**: Always use correct grammar, spelling, and punctuation. Write in clear, concise English.
+- **Expertise**: Indian competitive exams, study strategies, subject matter expertise, exam patterns
 
-**Example of a High-Quality Response:**
+## RESPONSE QUALITY STANDARDS (CRITICAL)
 
-*User:* "What is Polity?"
+### Language and Grammar Rules
+1. **Perfect Grammar**: Always use grammatically correct sentences. Double-check subject-verb agreement.
+2. **Correct Spelling**: Never make spelling mistakes. Use standard spellings.
+3. **Professional Vocabulary**: Use academic and professional language appropriate for education.
+4. **Clear Sentences**: Write clear, well-structured sentences. Avoid run-on sentences.
+5. **Proper Punctuation**: Use correct punctuation marks throughout your response.
 
-*Your Ideal Response:*
+### Formatting Guidelines (MANDATORY)
 
-### What is Polity? (Simple & Clear Explanation)
-Polity refers to the system of government and the rules by which a country is governed. For Indian competitive exams, **Indian Polity** is a core subject that covers the Constitution, governmental structure, and administrative processes.
+You MUST format all responses using proper Markdown for readability:
 
-### Why is Polity Important for Government Exams?
-| Exam              | Approx. Questions | Topics Asked Most                                    |
-|-------------------|-------------------|------------------------------------------------------|
-| UPSC CSE Prelims  | 12–18             | Constitution, Fundamental Rights, Parliament, Judiciary |
-| SSC CGL/CHSL      | 6–12              | President, PM, Parliament, FR/DPSP, Amendments        |
+1. **Headings**: Use hierarchical headings
+   - # for main titles
+   - ## for major sections
+   - ### for subsections
 
-Keep up the great work! Let me know if you want to dive deeper into any of these topics. 💪
+2. **Emphasis**:
+   - Use **bold** for key terms, important concepts, and definitions
+   - Use *italics* for emphasis and technical terms
+
+3. **Lists**:
+   - Use bullet points (-) for unordered lists
+   - Use numbers (1. 2. 3.) for sequential steps or ranked items
+
+4. **Tables**: YOU MUST USE TABLES when presenting:
+   - Comparisons between topics, exams, or concepts
+   - Data, statistics, or numerical information
+   - Book/resource recommendations
+   - Syllabus breakdowns
+   - Exam patterns and weightage
+
+   Table Format:
+   | Column 1 | Column 2 | Column 3 |
+   |----------|----------|----------|
+   | Data 1   | Data 2   | Data 3   |
+
+5. **Blockquotes**: Use > for tips, notes, and important callouts
+   > **Pro Tip**: This is how you highlight important advice.
+
+6. **Code blocks**: Use \`inline code\` for formulas or specific terms
+
+## CONTENT STRUCTURE
+
+Every response should follow this structure:
+
+1. **Introduction** (2-3 sentences)
+   - Directly address the question
+   - Provide context for the answer
+
+2. **Main Content** (Detailed explanation)
+   - Use headings to organize sections
+   - Include relevant examples
+   - Use tables for comparisons
+   - Add bullet points for clarity
+
+3. **Practical Application**
+   - Exam-specific tips
+   - How to apply the knowledge
+   - Common mistakes to avoid
+
+4. **Summary** (Brief recap of key points)
+
+5. **Encouragement** (Motivational closing)
+   - End with positive, encouraging words
+   - Use appropriate emojis sparingly (📚 💪 🎯 ✅)
+
+## SUGGESTIONS (MANDATORY)
+
+At the END of EVERY response, you MUST provide follow-up suggestions.
+
+Format: Add \`[SUGGESTIONS]\` on a new line, followed by 2-3 relevant follow-up questions or actions, each on a new line.
+
+Example:
 [SUGGESTIONS]
 Can you explain Fundamental Rights in detail?
-What's the difference between the Lok Sabha and Rajya Sabha?
-Create a 3-question quiz on the Preamble.
-`;
-}
+Create a practice quiz on this topic
+What are the most important amendments to know?
 
+## RESPONSE EXAMPLES
+
+### Good Response Structure:
+
+# Understanding the Indian Constitution
+
+The Indian Constitution is the supreme law of India, adopted on **26th November 1949** and came into effect on **26th January 1950**.
+
+## Key Features
+
+| Feature | Description | Importance for Exams |
+|---------|-------------|---------------------|
+| Longest Written Constitution | 395 Articles, 22 Parts, 12 Schedules | High - frequently asked |
+| Federal with Unitary Bias | Division of powers with strong center | Very High |
+
+### Important Articles to Remember
+
+- **Article 14**: Right to Equality
+- **Article 19**: Freedom of Speech
+- **Article 21**: Right to Life
+
+> **Exam Tip**: Focus on Articles 12-35 for Fundamental Rights questions.
+
+This topic carries significant weightage in UPSC and SSC exams. Keep revising! 💪
+
+[SUGGESTIONS]
+Explain the Preamble of the Constitution
+What are Directive Principles vs Fundamental Rights?
+List important Constitutional Amendments
+
+## STRICT PROHIBITIONS
+
+1. ❌ Never use casual or slang language
+2. ❌ Never make spelling or grammar errors
+3. ❌ Never give vague or incomplete answers
+4. ❌ Never skip the suggestions section
+5. ❌ Never provide unformatted walls of text
+6. ❌ Never use incorrect facts - if unsure, mention it
+7. ❌ Never be discouraging or negative about a student's abilities
+
+## SUBJECT EXPERTISE
+
+You are an expert in:
+- **General Studies**: History, Geography, Polity, Economy, Science
+- **Quantitative Aptitude**: Arithmetic, Algebra, Geometry, Data Interpretation
+- **Reasoning**: Logical, Verbal, Non-verbal, Analytical
+- **English**: Grammar, Vocabulary, Comprehension
+- **Current Affairs**: National, International, Economic, Sports
+
+Always provide exam-relevant content with practical application for competitive exam success.`;
+}
 
 export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [currentMode, setCurrentMode] = useState<AIMode>('Chat');
@@ -177,6 +389,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -199,17 +412,19 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const saveHistory = (newHistory: Session[]) => {
     setSessionHistory(newHistory);
     try {
-      localStorage.setItem('libra-chat-history', JSON.stringify(newHistory));
-    } catch(e) {
+      // Keep only last 50 sessions to manage storage
+      const limitedHistory = newHistory.slice(-50);
+      localStorage.setItem('libra-chat-history', JSON.stringify(limitedHistory));
+    } catch (e) {
       console.error("Failed to save chat history to localStorage", e);
     }
-  }
-  
+  };
+
   const shuffleSuggestions = () => {
     const shuffled = [...allSuggestionCards].sort(() => 0.5 - Math.random());
     setSuggestionCards(shuffled.slice(0, 4));
   };
-  
+
   useEffect(() => {
     shuffleSuggestions();
   }, []);
@@ -218,7 +433,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     if (initialPrompt) {
       handleAiRequest(initialPrompt);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrompt]);
 
   useEffect(() => {
@@ -229,19 +444,17 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop =
-        scrollAreaRef.current.scrollHeight;
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
-
   const handleAiRequest = async (promptOverride?: string) => {
     const textToProcess = promptOverride || input;
-    if (!textToProcess) {
+    if (!textToProcess.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Input required',
-        description: 'Please type a message.',
+        title: 'Input Required',
+        description: 'Please type a message to continue.',
       });
       return;
     }
@@ -249,114 +462,144 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     setIsLoading(true);
     setInput('');
     abortControllerRef.current = new AbortController();
-    
-    const newMessages: Message[] = [...messages, { role: 'user', content: textToProcess }];
+
+    const newMessages: Message[] = [
+      ...messages,
+      { role: 'user', content: textToProcess, timestamp: new Date() },
+    ];
     setMessages(newMessages);
 
-    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+    setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
     const systemPrompt = buildSystemPrompt();
 
     try {
-       const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: "open-mistral-nemo",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    ...newMessages.map(m => ({ role: m.role, content: m.content }))
-                ],
-                stream: true,
-            }),
-            signal: abortControllerRef.current.signal,
-        });
+      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "open-mistral-nemo",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...newMessages.map((m) => ({ role: m.role, content: m.content })),
+          ],
+          stream: true,
+          temperature: 0.7,
+          top_p: 0.9,
+          max_tokens: 2048,
+        }),
+        signal: abortControllerRef.current.signal,
+      });
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
-        }
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
 
-        if (!response.body) {
-            throw new Error("Response body is empty.");
-        }
+      if (!response.body) {
+        throw new Error("Response body is empty.");
+      }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
-            
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || ''; 
+        buffer += decoder.decode(value, { stream: true });
 
-            for (const line of lines) {
-                if (line.trim() === '' || !line.startsWith('data: ')) continue;
-                
-                const data = line.substring(6);
-                if (data.trim() === '[DONE]') break;
-                
-                try {
-                    const json = JSON.parse(data);
-                    const content = json.choices[0]?.delta?.content || '';
-                    if (content) {
-                        setMessages(prevMessages => {
-                            const updatedMessages = [...prevMessages];
-                            const lastMessage = updatedMessages[updatedMessages.length - 1];
-                            if (lastMessage && lastMessage.role === 'assistant') {
-                                lastMessage.content += content;
-                            }
-                            return updatedMessages;
-                        });
-                    }
-                } catch (e) {
-                     console.error('Error parsing streaming JSON:', e, 'line:', line);
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.trim() === '' || !line.startsWith('data: ')) continue;
+
+          const data = line.substring(6);
+          if (data.trim() === '[DONE]') break;
+
+          try {
+            const json = JSON.parse(data);
+            const content = json.choices[0]?.delta?.content || '';
+            if (content) {
+              setMessages((prevMessages) => {
+                const updatedMessages = [...prevMessages];
+                const lastMessage = updatedMessages[updatedMessages.length - 1];
+                if (lastMessage && lastMessage.role === 'assistant') {
+                  lastMessage.content += content;
                 }
-            }
-        }
-        
-        let finalMessages: Message[] = [];
-        setMessages(prev => {
-            const lastMessage = prev[prev.length -1];
-            if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content.includes('[SUGGESTIONS]')) {
-                const parts = lastMessage.content.split('[SUGGESTIONS]');
-                lastMessage.content = parts[0].trim();
-                lastMessage.suggestions = parts[1].trim().split('\n').filter(s => s.trim() !== '');
-            }
-            finalMessages = [...prev];
-            return finalMessages;
-        });
-
-        saveHistory([...sessionHistory, { id: Date.now(), messages: finalMessages }]);
-
-    } catch (error: any) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch aborted by user.');
-            setMessages(prev => {
-                const lastMessage = prev[prev.length - 1];
-                if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === '') {
-                    return prev.slice(0, -1);
-                }
-                if(messages.length === prev.length -1) {
-                    return prev.slice(0,-2);
-                }
-                return prev;
-            });
-        } else {
-             console.error(`API Error:`, error);
-              toast({
-                  variant: "destructive",
-                  title: 'AI Error',
-                  description: error.message || 'The model failed to respond. Please check console.',
+                return updatedMessages;
               });
-             setMessages(prev => prev.slice(0, -2));
+            }
+          } catch (e) {
+            console.error('Error parsing streaming JSON:', e, 'line:', line);
+          }
         }
+      }
+
+      let finalMessages: Message[] = [];
+      setMessages((prev) => {
+        const lastMessage = prev[prev.length - 1];
+        if (
+          lastMessage &&
+          lastMessage.role === 'assistant' &&
+          lastMessage.content.includes('[SUGGESTIONS]')
+        ) {
+          const parts = lastMessage.content.split('[SUGGESTIONS]');
+          lastMessage.content = parts[0].trim();
+          lastMessage.suggestions = parts[1]
+            .trim()
+            .split('\n')
+            .filter((s) => s.trim() !== '')
+            .map((s) => s.trim());
+        }
+        finalMessages = [...prev];
+        return finalMessages;
+      });
+
+      // Save to history with a meaningful title
+      const sessionTitle = textToProcess.length > 50 
+        ? textToProcess.substring(0, 50) + '...' 
+        : textToProcess;
+      
+      saveHistory([
+        ...sessionHistory,
+        {
+          id: Date.now(),
+          messages: finalMessages,
+          title: sessionTitle,
+          createdAt: new Date(),
+        },
+      ]);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Fetch aborted by user.');
+        setMessages((prev) => {
+          const lastMessage = prev[prev.length - 1];
+          if (
+            lastMessage &&
+            lastMessage.role === 'assistant' &&
+            lastMessage.content === ''
+          ) {
+            return prev.slice(0, -1);
+          }
+          if (messages.length === prev.length - 1) {
+            return prev.slice(0, -2);
+          }
+          return prev;
+        });
+      } else {
+        console.error(`API Error:`, error);
+        toast({
+          variant: "destructive",
+          title: 'AI Error',
+          description: error.message || 'The model failed to respond. Please try again.',
+        });
+        setMessages((prev) => prev.slice(0, -2));
+      }
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;
@@ -365,9 +608,9 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
   const handleStopGeneration = () => {
     if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+      abortControllerRef.current.abort();
     }
-  }
+  };
 
   const handleNewChat = () => {
     setMessages([]);
@@ -377,15 +620,29 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
   const handleClearHistory = () => {
     saveHistory([]);
+    toast({
+      title: 'History Cleared',
+      description: 'All conversation history has been deleted.',
+    });
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: 'Copied to clipboard!' });
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({ title: 'Copied to clipboard!' });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to copy',
+        description: 'Please try again.',
+      });
+    }
   };
 
   const downloadResponse = (text: string, filename: string) => {
-    const blob = new Blob([text], { type: 'text/plain' });
+    const blob = new Blob([text], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -393,25 +650,41 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     a.click();
     URL.revokeObjectURL(url);
   };
-  
+
   const handleHistoryClick = (session: Session) => {
     setMessages(session.messages);
     setCurrentMode('Chat');
   };
 
+  const formatDate = (date: Date | string | undefined) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <div className="flex h-full max-h-screen min-h-0 flex-col bg-card text-card-foreground border-l">
       {/* Header */}
-      <div className="p-2 border-b flex items-center justify-between flex-shrink-0">
+      <div className="p-3 border-b flex items-center justify-between flex-shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center gap-2">
-          <Bot className="h-6 w-6 text-primary" />
-          <h2 className="text-lg font-semibold font-headline">LIBRA AI</h2>
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Bot className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold font-headline">LIBRA AI</h2>
+            <p className="text-[10px] text-muted-foreground">Educational Assistant</p>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleNewChat}>
+                <Button variant="ghost" size="icon" onClick={handleNewChat} className="h-8 w-8">
                   <Plus className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -424,10 +697,9 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                 <Button
                   variant={currentMode === 'History' ? 'secondary' : 'ghost'}
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() =>
-                    setCurrentMode(
-                      currentMode === 'History' ? 'Chat' : 'History'
-                    )
+                    setCurrentMode(currentMode === 'History' ? 'Chat' : 'History')
                   }
                 >
                   <History className="h-4 w-4" />
@@ -442,6 +714,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => setActiveTool(null)}
                 >
                   <X className="h-4 w-4" />
@@ -464,53 +737,76 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-sm">Conversation History</h3>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleClearHistory}
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Clear All
-              </Button>
+              {sessionHistory.length > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleClearHistory}
+                >
+                  <Trash2 className="mr-2 h-3 w-3" /> Clear All
+                </Button>
+              )}
             </div>
             {sessionHistory.length > 0 ? (
-              sessionHistory.map((session) => (
-                <div
-                  key={session.id}
-                  className="text-xs p-2 border rounded-md bg-muted/50 cursor-pointer hover:bg-muted transition"
-                  onClick={() => handleHistoryClick(session)}
-                >
-                  <p className="font-bold truncate">{session.messages[0]?.content || 'Untitled Chat'}</p>
-                  <p className="truncate text-muted-foreground mt-1">
-                    {session.messages[1]?.content || '...'}
-                  </p>
-                </div>
-              ))
+              <div className="space-y-2">
+                {[...sessionHistory].reverse().map((session) => (
+                  <Card
+                    key={session.id}
+                    className="p-3 cursor-pointer hover:bg-muted/50 transition-all hover:shadow-sm"
+                    onClick={() => handleHistoryClick(session)}
+                  >
+                    <p className="font-medium text-sm truncate">
+                      {session.title || session.messages[0]?.content || 'Untitled Chat'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                      {session.messages[1]?.content?.substring(0, 80) || '...'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      {formatDate(session.createdAt)}
+                    </p>
+                  </Card>
+                ))}
+              </div>
             ) : (
-              <p className="text-center text-muted-foreground py-10 text-sm">
-                No history yet.
-              </p>
+              <div className="text-center py-12">
+                <History className="mx-auto h-12 w-12 opacity-10 mb-3" />
+                <p className="text-muted-foreground text-sm">No history yet</p>
+                <p className="text-muted-foreground text-xs mt-1">
+                  Your conversations will appear here
+                </p>
+              </div>
             )}
           </div>
         ) : messages.length === 0 ? (
           <div className="text-center h-full flex flex-col justify-center items-center">
-            <BotMessageSquare className="mx-auto h-16 w-16 opacity-10 mb-4" />
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <BotMessageSquare className="h-8 w-8 text-primary" />
+            </div>
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
-            <p className="text-xs text-muted-foreground mt-1 mb-4">
-              Ask anything related to your competitive exam prep.
+            <p className="text-xs text-muted-foreground mt-1 mb-6 max-w-xs">
+              Ask anything related to your competitive exam preparation. I&apos;m here to help!
             </p>
-            <div className="grid grid-cols-2 gap-3 mt-2 max-w-md w-full">
-              {suggestionCards.map((card) => (
-                <Card
-                  key={card.title}
-                  className="p-3 hover:bg-muted cursor-pointer text-left transition"
-                  onClick={() => handleAiRequest(card.prompt)}
-                >
-                  <p className="font-semibold text-sm mb-1">{card.title}</p>
-                  <p className="text-[11px] text-muted-foreground line-clamp-2">
-                    {card.prompt}
-                  </p>
-                </Card>
-              ))}
+            <div className="grid grid-cols-2 gap-3 max-w-md w-full">
+              {suggestionCards.map((card) => {
+                const IconComponent = card.icon;
+                return (
+                  <Card
+                    key={card.title}
+                    className="p-3 hover:bg-muted/50 cursor-pointer text-left transition-all hover:shadow-sm hover:border-primary/30 group"
+                    onClick={() => handleAiRequest(card.prompt)}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <IconComponent className="h-3.5 w-3.5 text-primary" />
+                      <p className="font-semibold text-sm group-hover:text-primary transition-colors">
+                        {card.title}
+                      </p>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground line-clamp-2">
+                      {card.prompt}
+                    </p>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -518,67 +814,89 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             {messages.map((message, index) => (
               <React.Fragment key={index}>
                 {message.role === 'user' ? (
-                    <div className="flex items-start gap-3 justify-end">
-                      <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-sm">
-                        <p className="text-sm">{message.content}</p>
-                      </div>
+                  <div className="flex items-start gap-3 justify-end">
+                    <div className="p-3 rounded-2xl bg-primary text-primary-foreground max-w-[85%]">
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
+                  </div>
                 ) : (
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Bot className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="w-full max-w-sm space-y-3">
-                         <div className="p-3 rounded-2xl bg-muted">
-                            {(message.content || (isLoading && index === messages.length - 1)) ? (
-                            <>
-                                <FormattedAIResponse response={message.content} />
-                                {isLoading && index === messages.length -1 && (
-                                <Sparkles className="animate-spin h-5 w-5 text-muted-foreground mt-2" />
-                                )}
-                            </>
-                            ) : (
-                            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                <Sparkles className="animate-spin h-5 w-5" /> Thinking...
-                                </div>
-                            )}
-                         </div>
-                        {message.content && !isLoading && index === messages.length -1 && (
-                            <div className="flex items-center gap-2 justify-end">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => copyToClipboard(message.content)}
-                            >
-                                <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() =>
-                                downloadResponse(
-                                    message.content,
-                                    `libra-response.txt`
-                                )
-                                }
-                            >
-                                <Download className="h-4 w-4" />
-                            </Button>
-                            </div>
-                        )}
-                        {message.suggestions && message.suggestions.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {message.suggestions.map((suggestion, i) => (
-                                    <Button key={i} variant="outline" size="sm" className="text-xs h-auto py-1" onClick={() => handleAiRequest(suggestion)}>
-                                        {suggestion}
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-5 w-5 text-primary" />
                     </div>
+                    <div className="w-full max-w-[85%] space-y-3">
+                      <div className="p-4 rounded-2xl bg-muted/50 border">
+                        {message.content || (isLoading && index === messages.length - 1) ? (
+                          <>
+                            <FormattedAIResponse response={message.content} />
+                            {isLoading && index === messages.length - 1 && (
+                              <div className="flex items-center gap-2 mt-3 text-muted-foreground">
+                                <Sparkles className="animate-spin h-4 w-4" />
+                                <span className="text-xs">Generating response...</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                            <Sparkles className="animate-spin h-4 w-4" />
+                            <span>Thinking...</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Action buttons */}
+                      {message.content && !isLoading && index === messages.length - 1 && (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => copyToClipboard(message.content)}
+                          >
+                            {copied ? (
+                              <Check className="h-3 w-3 mr-1" />
+                            ) : (
+                              <Copy className="h-3 w-3 mr-1" />
+                            )}
+                            {copied ? 'Copied' : 'Copy'}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() =>
+                              downloadResponse(message.content, `libra-response-${Date.now()}.md`)
+                            }
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {/* Suggestions */}
+                      {message.suggestions && message.suggestions.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-xs text-muted-foreground font-medium">
+                            Continue learning:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {message.suggestions.map((suggestion, i) => (
+                              <Button
+                                key={i}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-auto py-1.5 px-3 font-normal hover:bg-primary/5 hover:border-primary/30"
+                                onClick={() => handleAiRequest(suggestion)}
+                              >
+                                {suggestion}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
               </React.Fragment>
             ))}
@@ -587,15 +905,19 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
       </div>
 
       {/* INPUT AREA - FIXED */}
-      <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background">
+      <div className="p-4 border-t flex-shrink-0 space-y-3 bg-background/95 backdrop-blur-sm">
         {isLoading && (
-            <Button variant="outline" className="w-full" onClick={handleStopGeneration}>
-                <Square className="mr-2 h-4 w-4" /> Stop Generating
-            </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleStopGeneration}
+          >
+            <Square className="mr-2 h-3 w-3" /> Stop Generating
+          </Button>
         )}
-        <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end">
+        <div className="relative rounded-xl border bg-background shadow-sm p-2 flex gap-2 items-end focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
           <Textarea
-            placeholder="Ask LIBRA anything..."
+            placeholder="Ask LIBRA anything about your exam preparation..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -605,7 +927,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
               }
             }}
             rows={1}
-            className="resize-none w-full border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0 text-sm shadow-none"
+            className="resize-none w-full border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-2 text-sm shadow-none min-h-[40px] max-h-[120px]"
             disabled={isLoading}
           />
           <TooltipProvider>
@@ -634,8 +956,8 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <div className="text-[11px] text-muted-foreground text-center">
-          LIBRA AI can make mistakes. Check important info.
+        <div className="text-[10px] text-muted-foreground text-center">
+          LIBRA AI is designed to assist with educational content. Always verify important information.
         </div>
       </div>
     </div>
