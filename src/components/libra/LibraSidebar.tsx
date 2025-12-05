@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -788,7 +787,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             </div>
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
             <p className="text-xs text-muted-foreground mt-1 mb-6 max-w-xs">
-              Ask anything related to your competitive exam preparation. I&apos;m here to help!
+              Ask anything related to your competitive exam preparation. I'm here to help!
             </p>
             <div className="grid grid-cols-2 gap-3 max-w-md w-full">
               {suggestionCards.map((card) => {
