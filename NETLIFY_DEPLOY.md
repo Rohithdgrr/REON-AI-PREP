@@ -45,7 +45,7 @@ This guide will help you deploy the REON AI PREP application to Netlify.
    - Go to Site settings → Environment variables
    - Add any required environment variables:
      - Firebase configuration (if using environment variables)
-     - API keys for AI services (OpenRouter, etc.)
+     - API keys for AI services (Mistral AI, etc.)
    - Note: Currently, Firebase config is hardcoded in `src/firebase/config.ts`
 
 7. **Deploy**

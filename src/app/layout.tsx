@@ -40,6 +40,14 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    images: [
+      {
+        url: "https://reon.ai/wolf_logo_like_roy_group_circle.svg",
+        width: 1024,
+        height: 1024,
+        alt: "REON AI PREP Logo",
+      },
+    ],
   },
   twitter: {
     card: "summary",
@@ -48,6 +56,11 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    images: ["https://reon.ai/wolf_logo_like_roy_group_circle.svg"],
+  },
+  icons: {
+    icon: "/wolf_logo_like_roy_group_circle.svg",
+    apple: "/wolf_logo_like_roy_group_circle.svg",
   },
 };
 

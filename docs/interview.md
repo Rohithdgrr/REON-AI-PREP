@@ -97,7 +97,7 @@ These questions test your knowledge of the backend implementation. Refer to `doc
 
 These questions focus on the AI implementation.
 
-#### Q1: The LIBRA AI assistant uses the OpenRouter API. Can you walk me through how a user's query is processed and how the streaming response is handled on the frontend?
+#### Q1: The LIBRA AI assistant uses the Mistral AI API. Can you walk me through how a user's query is processed and how the streaming response is handled on the frontend?
 
 **Strategy**: Describe the end-to-end flow from the user typing a message to the response appearing on screen. Refer to `LibraSidebar.tsx`.
 
@@ -105,7 +105,7 @@ These questions focus on the AI implementation.
 > "The entire process is handled within the `LibraSidebar.tsx` component.
 >
 > 1.  When a user sends a message, the `handleAiRequest` function is triggered. It constructs a payload containing the conversation history and a detailed system prompt that instructs the AI on its persona and response format.
-> 2.  A `fetch` request is made to the **OpenRouter API endpoint**, passing the API key in the Authorization header and including the required `HTTP-Referer`. The request specifies `stream: true`.
+> 2.  A `fetch` request is made to the **Mistral AI API endpoint** (`https://api.mistral.ai/v1/chat/completions`), passing the API key in the Authorization header. The request specifies `stream: true` for real-time streaming responses.
 > 3.  The frontend then processes the streaming response. We use `response.body.getReader()` to read the incoming data chunks. A `TextDecoder` converts these chunks into text.
 > 4.  The code iterates through the stream, parsing each line of data. It looks for lines starting with `data: `, extracts the JSON content, and appends the `delta.content` to the last message in our React state.
 > 5.  This state update causes React to re-render, displaying the AI's response token-by-token, which provides a smooth, real-time experience for the user. We also have an `AbortController` to allow the user to stop the generation mid-stream."

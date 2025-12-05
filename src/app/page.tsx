@@ -54,14 +54,14 @@ export default function HomePage() {
                   "name": "REON AI",
                   "logo": {
                     "@type": "ImageObject",
-                    "url": "https://logopond.com/logos/e35d00520f8db085f6e0f3c5f70fd9e6.png"
+                    "url": "https://reon.ai/wolf_logo_like_roy_group_circle.svg"
                   }
                 }
             }) }}
         />
         <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm sticky top-0 z-20 border-b">
             <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
-              <Bot className="h-7 w-7 text-primary" />
+              <img src="/wolf_logo_like_roy_group_circle.svg" alt="REON Logo" className="h-8 w-8 rounded-full" />
               <span className="hidden sm:inline">REON AI PREP</span>
             </Link>
             <nav className='hidden md:flex gap-6 items-center'>
@@ -77,7 +77,7 @@ export default function HomePage() {
         </header>
 
         <main className="flex-1">
-             <section className="relative h-[70vh] flex items-center justify-center text-center text-white">
+             <section className="relative h-[60vh] sm:h-[70vh] flex items-center justify-center text-center text-white">
                 {heroImage && (
                     <Image
                     src={heroImage.imageUrl}
@@ -89,22 +89,22 @@ export default function HomePage() {
                     />
                 )}
                  <div className="absolute inset-0 bg-black/60" />
-                 <div className="relative z-10 p-4 max-w-4xl mx-auto">
-                     <h1 className="text-4xl md:text-6xl font-bold font-headline leading-tight">Your Personal AI Exam Partner</h1>
-                     <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-white/80">Stop guessing, start preparing. REON AI PREP provides AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
-                     <Button size="lg" className="mt-8 text-base" asChild>
+                 <div className="relative z-10 p-4 sm:p-6 max-w-4xl mx-auto">
+                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-headline leading-tight">Your Personal AI Exam Partner</h1>
+                     <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl mx-auto text-white/80">Stop guessing, start preparing. REON AI PREP provides AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
+                     <Button size="lg" className="mt-6 sm:mt-8 text-sm sm:text-base" asChild>
                         <Link href="/login">Start Your Free Trial</Link>
                      </Button>
                  </div>
             </section>
             
-             <section id="features" className="py-16 lg:py-24 bg-background">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                      <h2 className="text-3xl lg:text-4xl font-bold font-headline">Everything You Need to Succeed</h2>
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">From AI-driven plans to collaborative tools, we've got you covered.</p>
+             <section id="features" className="py-12 sm:py-16 lg:py-24 bg-background">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="text-center mb-8 sm:mb-12">
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-headline">Everything You Need to Succeed</h2>
+                      <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-2xl mx-auto">From AI-driven plans to collaborative tools, we've got you covered.</p>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                         {features.map((feature) => {
                           const featureImage = PlaceHolderImages.find((img) => img.id === feature.imageId);
                           return (
@@ -134,13 +134,13 @@ export default function HomePage() {
                 </div>
             </section>
             
-             <section id="how-it-works" className="py-16 lg:py-24 bg-muted/50">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                      <h2 className="text-3xl lg:text-4xl font-bold font-headline">How It Works</h2>
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">A simple, effective path to exam readiness.</p>
+             <section id="how-it-works" className="py-12 sm:py-16 lg:py-24 bg-muted/50">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="text-center mb-8 sm:mb-12">
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-headline">How It Works</h2>
+                      <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-2xl mx-auto">A simple, effective path to exam readiness.</p>
                     </div>
-                    <div className="relative grid md:grid-cols-3 gap-8 md:gap-0">
+                    <div className="relative grid sm:grid-cols-3 gap-6 sm:gap-8 md:gap-0">
                        <div className="absolute left-1/2 top-0 md:top-8 w-0.5 h-full md:h-0.5 md:w-2/3 bg-border -translate-x-1/2 -translate-y-0 md:-translate-y-1/2" />
                        <div className="flex flex-col items-center text-center relative bg-muted/50 p-4">
                           <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4 z-10">1</div>
@@ -161,11 +161,11 @@ export default function HomePage() {
                 </div>
             </section>
 
-             <section id="tools" className="py-16 lg:py-24 bg-background">
-                <div className="container mx-auto px-4 text-center">
-                  <h2 className="text-3xl lg:text-4xl font-bold font-headline">More Than Just a Study App</h2>
-                  <p className="text-muted-foreground mt-2 max-w-2xl mx-auto mb-12">REON AI PREP comes packed with tools to keep you focused and productive.</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+             <section id="tools" className="py-12 sm:py-16 lg:py-24 bg-background">
+                <div className="container mx-auto px-4 sm:px-6 text-center">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-headline">More Than Just a Study App</h2>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-2xl mx-auto mb-8 sm:mb-12">REON AI PREP comes packed with tools to keep you focused and productive.</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
                       <div className="flex flex-col items-center gap-2"><Map className="h-8 w-8 text-primary"/><span>Roadmap</span></div>
                       <div className="flex flex-col items-center gap-2"><FileQuestion className="h-8 w-8 text-primary"/><span>AI Quiz</span></div>
                       <div className="flex flex-col items-center gap-2"><MessageCircle className="h-8 w-8 text-primary"/><span>Community</span></div>
@@ -176,10 +176,10 @@ export default function HomePage() {
         </main>
         
         <footer className="bg-muted/30 border-t">
-          <div className="container mx-auto px-4 py-12 grid md:grid-cols-4 gap-8">
+          <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               <div className="col-span-4 md:col-span-1">
                  <Link href="/" className="flex items-center gap-2 font-bold text-xl font-headline">
-                    <Bot className="h-7 w-7 text-primary" />
+                    <img src="/wolf_logo_like_roy_group_circle.svg" alt="REON Logo" className="h-7 w-7 rounded-full" />
                     <span>REON AI PREP</span>
                   </Link>
                   <p className="text-sm text-muted-foreground mt-2">Your personal AI partner for acing competitive exams.</p>

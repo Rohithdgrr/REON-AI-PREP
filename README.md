@@ -9,7 +9,7 @@ REON AI PREP is a comprehensive, AI-powered learning platform designed to help a
 - **Dynamic Content Generation**:
   - **Quiz & Practice Arenas**: Create unlimited quizzes and practice tests on any topic with varying difficulty levels.
   - **Mock Test Arena**: Simulate real exam conditions with full-length mock tests, including AI-generated custom tests.
-- **LIBRA AI Assistant**: An integrated AI chatbot (powered by Mistral via OpenRouter) that can explain concepts, create quizzes, and provide detailed study advice.
+- **LIBRA AI Assistant**: An integrated AI chatbot (powered by Mistral AI) that can explain concepts, create quizzes, and provide detailed study advice.
 - **Knowledge Hub**: A community space to connect with other aspirants, share notes, and participate in challenges.
 - **Preparation Hub**: Access a curated library of study materials, including notes, previous year question papers (PYQs), cheatsheets, and video lectures.
 - **AI-Generated Podcasts**: Convert any text or study material into a spoken-word audio file to listen on the go.
@@ -68,7 +68,7 @@ This project is built upon the work of many open-source projects and free-to-use
 
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **AI Models**: [Mistral AI](https://mistral.ai/), [Google AI](https://ai.google.com/), and the [OpenRouter](https://openrouter.ai/) service.
+- **AI Models**: [Mistral AI](https://mistral.ai/) and [Google AI](https://ai.google.com/).
 - **Images**: Placeholder images are provided by [Unsplash](https://unsplash.com/) and [Picsum Photos](https://picsum.photos/).
 - **Fonts**: [Google Fonts](https://fonts.google.com/)
 

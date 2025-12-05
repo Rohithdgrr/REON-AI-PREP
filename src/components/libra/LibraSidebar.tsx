@@ -369,6 +369,9 @@ List important Constitutional Amendments
 5. ❌ Never provide unformatted walls of text
 6. ❌ Never use incorrect facts - if unsure, mention it
 7. ❌ Never be discouraging or negative about a student's abilities
+8. ❌ NEVER repeat the same content multiple times - each sentence should be unique
+9. ❌ NEVER duplicate headers, paragraphs, or sections - write each part only once
+10. ❌ NEVER append previous text when continuing - only write new, unique content
 
 ## SUBJECT EXPERTISE
 
@@ -393,7 +396,12 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [apiKey] = useState("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");
+  const [apiKey] = useState(() => {
+    // Use environment variable or fallback to default Mistral API key
+    return typeof window !== 'undefined' 
+      ? (process.env.NEXT_PUBLIC_MISTRAL_API_KEY || "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI")
+      : "nJCcmgS1lSo13OVE79Q64QndL3nCDjQI";
+  });
   const [suggestionCards, setSuggestionCards] = useState(allSuggestionCards.slice(0, 4));
 
   // Load history from localStorage on initial mount
@@ -473,15 +481,14 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     const systemPrompt = buildSystemPrompt();
 
     try {
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://reon.ai/",
         },
         body: JSON.stringify({
-          model: "mistralai/mistral-7b-instruct",
+          model: "mistral-large-latest",
           messages: [
             { role: "system", content: systemPrompt },
             ...newMessages.map((m) => ({ role: m.role, content: m.content })),
@@ -489,13 +496,22 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
           stream: true,
           temperature: 0.7,
           top_p: 0.9,
-          max_tokens: 2048,
+          max_tokens: 4096,
         }),
         signal: abortControllerRef.current.signal,
       });
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errorText = await response.text();
+        let errorMessage = `Mistral API Error: ${response.statusText}`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.error?.message || errorMessage;
+        } catch {
+          // If parsing fails, use the text as is
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       if (!response.body) {
@@ -504,47 +520,93 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      const dataRegex = /data: (.*)/g;
+      let buffer = '';
 
-      // This function processes the stream and is the core of the fix.
-      const processStream = async () => {
-        let buffer = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      // Process the stream correctly to avoid duplication
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          let match;
-          while ((match = dataRegex.exec(buffer)) !== null) {
-            const line = match[1];
-            if (line.trim() === '[DONE]') {
-              return; // End of stream
+        // Decode the chunk and add to buffer
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Split buffer by lines, keeping incomplete line in buffer
+        const lines = buffer.split('\n');
+        // Keep the last line in buffer if it doesn't end with \n (might be incomplete)
+        buffer = lines.pop() || '';
+
+        // Process each complete line
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          
+          // Skip empty lines
+          if (!trimmedLine) continue;
+          
+          // Check for end of stream
+          if (trimmedLine === 'data: [DONE]') {
+            return;
+          }
+          
+          // Process data lines
+          if (trimmedLine.startsWith('data: ')) {
+            const jsonStr = trimmedLine.slice(6); // Remove 'data: ' prefix
+            
+            // Skip [DONE] marker
+            if (jsonStr.trim() === '[DONE]') {
+              continue;
             }
+            
             try {
-              const json = JSON.parse(line);
-              const content = json.choices[0]?.delta?.content || '';
+              const json = JSON.parse(jsonStr);
+              const content = json.choices?.[0]?.delta?.content || '';
+              
               if (content) {
                 setMessages((prevMessages) => {
                   const updatedMessages = [...prevMessages];
                   const lastMessage = updatedMessages[updatedMessages.length - 1];
                   if (lastMessage && lastMessage.role === 'assistant') {
-                    lastMessage.content += content;
+                    // Only append if content is not already at the end (prevent duplication)
+                    if (!lastMessage.content.endsWith(content)) {
+                      lastMessage.content += content;
+                    }
                   }
                   return updatedMessages;
                 });
               }
             } catch (e) {
-              // This is expected if a JSON object is split across chunks.
-              // The incomplete part will be processed in the next iteration.
+              // Skip invalid JSON - might be incomplete or malformed
+              console.debug('Skipping invalid JSON line:', jsonStr);
             }
           }
-          // The buffer now only contains the part after the last complete data line.
-          buffer = buffer.slice(dataRegex.lastIndex);
-          dataRegex.lastIndex = 0; // Reset regex index for next chunk.
         }
-      };
+      }
       
-      await processStream();
+      // Process any remaining buffer content
+      if (buffer.trim()) {
+        const trimmedLine = buffer.trim();
+        if (trimmedLine.startsWith('data: ') && trimmedLine !== 'data: [DONE]') {
+          const jsonStr = trimmedLine.slice(6);
+          try {
+            const json = JSON.parse(jsonStr);
+            const content = json.choices?.[0]?.delta?.content || '';
+            if (content) {
+              setMessages((prevMessages) => {
+                const updatedMessages = [...prevMessages];
+                const lastMessage = updatedMessages[updatedMessages.length - 1];
+                if (lastMessage && lastMessage.role === 'assistant') {
+                  // Only append if content is not already at the end (prevent duplication)
+                  if (!lastMessage.content.endsWith(content)) {
+                    lastMessage.content += content;
+                  }
+                }
+                return updatedMessages;
+              });
+            }
+          } catch (e) {
+            // Ignore parsing errors for incomplete final chunk
+          }
+        }
+      }
 
 
       let finalMessages: Message[] = [];

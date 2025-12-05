@@ -54,19 +54,11 @@ function Logo({ isCollapsed }: { isCollapsed: boolean }) {
         isCollapsed ? 'justify-center' : 'px-2'
       )}
     >
-      {appLogo ? (
-         <img
-            src={appLogo.imageUrl}
-            alt="REON Logo"
-            className={cn('h-8 w-8 transition-all rounded-full')}
-        />
-      ) : (
-        <img
-            src="https://i.ibb.co/VMy9fR1/Screenshot-2024-07-28-at-4-11-20-PM.png"
-            alt="REON Logo"
-            className={cn('h-8 w-8 transition-all rounded-full')}
-        />
-      )}
+      <img
+        src="/wolf_logo_like_roy_group_circle.svg"
+        alt="REON Logo"
+        className={cn('h-8 w-8 transition-all rounded-full')}
+      />
      
       <span
         className={cn(

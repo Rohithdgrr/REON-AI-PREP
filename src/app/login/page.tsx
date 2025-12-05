@@ -150,25 +150,74 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = async () => {
-    if (!auth) return;
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Authentication service is not available. Please refresh the page.",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     const provider = new GoogleAuthProvider();
+    // Add additional scopes if needed
+    provider.addScope('profile');
+    provider.addScope('email');
+    // Set custom parameters
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
 
     try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        // User successfully signed in
+        console.log('Google sign-in successful:', result.user.email);
         // On success, the useEffect will handle the redirect.
+        // Don't set isSubmitting to false here as redirect will happen
     } catch (error: any) {
-         if (error.code === 'auth/account-exists-with-different-credential') {
-             toast({
+        setIsSubmitting(false);
+        
+        // Handle specific error cases
+        if (error.code === 'auth/popup-closed-by-user') {
+            toast({
+                variant: "destructive",
+                title: "Sign-in Cancelled",
+                description: "The sign-in popup was closed. Please try again.",
+            });
+            return;
+        }
+        
+        if (error.code === 'auth/popup-blocked') {
+            toast({
+                variant: "destructive",
+                title: "Popup Blocked",
+                description: "Please allow popups for this site and try again.",
+            });
+            return;
+        }
+        
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            toast({
                 variant: "destructive",
                 title: "Account Exists",
                 description: "This email is already registered with a password. Please sign in with your password to link your Google account.",
-             });
-        } else {
-            handleAuthError(error);
+            });
+            return;
         }
-        setIsSubmitting(false);
+        
+        if (error.code === 'auth/network-request-failed') {
+            toast({
+                variant: "destructive",
+                title: "Network Error",
+                description: "Please check your internet connection and try again.",
+            });
+            return;
+        }
+        
+        // Handle other errors
+        handleAuthError(error);
     }
   }
   
@@ -190,12 +239,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
-      <div className="flex items-center justify-center py-12 px-4">
-        <Card className="mx-auto w-full max-w-[380px] p-6 shadow-xl">
-            <CardHeader className="p-0 mb-6 text-center">
-              <h1 className="text-3xl font-bold font-headline">Welcome to REON AI PREP</h1>
-              <p className="text-balance text-muted-foreground">
+    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
+      <div className="flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6">
+        <Card className="mx-auto w-full max-w-[380px] sm:max-w-[420px] p-4 sm:p-6 shadow-xl">
+            <CardHeader className="p-0 mb-4 sm:mb-6 text-center">
+              <div className="flex justify-center mb-4">
+                <img src="/wolf_logo_like_roy_group_circle.svg" alt="REON Logo" className="h-16 w-16 rounded-full" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold font-headline">Welcome to REON AI PREP</h1>
+              <p className="text-sm sm:text-base text-balance text-muted-foreground mt-2">
                 Sign in or create an account to continue
               </p>
             </CardHeader>
@@ -208,47 +260,47 @@ export default function LoginPage() {
                     <TabsContent value="login">
                         <form onSubmit={handleEmailLogin} className="space-y-4 pt-4">
                              <div className="space-y-2">
-                                <Label htmlFor="login-email">Email</Label>
-                                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting}/>
+                                <Label htmlFor="login-email" className="text-sm font-medium">Email</Label>
+                                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting} className="h-11"/>
                              </div>
                               <div className="space-y-2 relative">
-                                <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting}/>
-                                <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
+                                <Label htmlFor="login-password" className="text-sm font-medium">Password</Label>
+                                <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting} className="h-11 pr-10"/>
+                                <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-9 w-9" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                              </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Login
+                            <Button type="submit" className="w-full h-11 text-base font-medium" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                                Sign In
                             </Button>
                         </form>
                     </TabsContent>
                      <TabsContent value="register">
                         <form onSubmit={handleEmailRegister} className="space-y-4 pt-4">
                             <div className="space-y-2">
-                                <Label htmlFor="register-name">Full Name</Label>
-                                <Input id="register-name" placeholder="John Doe" required value={name} onChange={e => setName(e.target.value)} disabled={isSubmitting}/>
+                                <Label htmlFor="register-name" className="text-sm font-medium">Full Name</Label>
+                                <Input id="register-name" placeholder="John Doe" required value={name} onChange={e => setName(e.target.value)} disabled={isSubmitting} className="h-11"/>
                              </div>
                              <div className="space-y-2">
-                                <Label htmlFor="register-email">Email</Label>
-                                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting}/>
+                                <Label htmlFor="register-email" className="text-sm font-medium">Email</Label>
+                                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} disabled={isSubmitting} className="h-11"/>
                              </div>
                               <div className="space-y-2 relative">
-                                <Label htmlFor="register-password">Password</Label>
-                                <Input id="register-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting}/>
-                                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-8 w-8" onClick={() => setShowPassword(!showPassword)}>
+                                <Label htmlFor="register-password" className="text-sm font-medium">Password</Label>
+                                <Input id="register-password" type={showPassword ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} disabled={isSubmitting} className="h-11 pr-10"/>
+                                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 bottom-1 h-9 w-9" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                              </div>
                              <div className="space-y-2">
-                                <Label htmlFor="register-dob">Date of Birth</Label>
+                                <Label htmlFor="register-dob" className="text-sm font-medium">Date of Birth</Label>
                                  <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-full justify-start text-left font-normal",
+                                            "w-full h-11 justify-start text-left font-normal",
                                             !dob && "text-muted-foreground"
                                         )}
                                         disabled={isSubmitting}
@@ -271,9 +323,9 @@ export default function LoginPage() {
                                 </Popover>
                              </div>
                              <div className="space-y-2">
-                                <Label htmlFor="target-exam">Target Exam</Label>
+                                <Label htmlFor="target-exam" className="text-sm font-medium">Target Exam</Label>
                                 <Select value={targetExam} onValueChange={setTargetExam} disabled={isSubmitting}>
-                                    <SelectTrigger id="target-exam">
+                                    <SelectTrigger id="target-exam" className="h-11">
                                         <SelectValue placeholder="Select your target exam" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -287,8 +339,8 @@ export default function LoginPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <Button type="submit" className="w-full h-11 text-base font-medium" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                                 Create Account
                             </Button>
                         </form>
@@ -304,13 +356,13 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+                <Button variant="outline" className="w-full h-11 text-base font-medium" onClick={handleGoogleSignIn} disabled={isSubmitting}>
                     {isSubmitting ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : (
                         <GoogleIcon className="mr-2 h-5 w-5" />
                     )}
-                    Google
+                    Continue with Google
                 </Button>
 
             </CardContent>
@@ -328,8 +380,8 @@ export default function LoginPage() {
         )}
          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
          <div className="absolute bottom-8 left-8 right-8 p-6 bg-black/50 backdrop-blur-md rounded-lg">
-             <h3 className="text-2xl font-bold text-white font-headline">Your Personal AI Exam Partner</h3>
-             <p className="text-white/80 mt-2">Get AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
+             <h3 className="text-xl sm:text-2xl font-bold text-white font-headline">Your Personal AI Exam Partner</h3>
+             <p className="text-sm sm:text-base text-white/80 mt-2">Get AI-powered insights, personalized study plans, and adaptive mock tests to help you conquer competitive exams in India.</p>
          </div>
       </div>
     </div>

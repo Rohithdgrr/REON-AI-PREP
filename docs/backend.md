@@ -55,14 +55,14 @@ The `firestore.rules` file implements the security strategy defined by the data 
 
 The application's intelligent features are powered by a combination of AI models accessed through different services.
 
-### 2.1. LIBRA AI Assistant (OpenRouter + Mistral)
+### 2.1. LIBRA AI Assistant (Mistral AI)
 
 **Purpose**: To provide an interactive chatbot for doubt-solving, content generation, and study advice.
 
 **Working Logic**:
 - The LIBRA AI assistant is implemented in `src/components/libra/LibraSidebar.tsx`.
-- It makes direct, client-side API calls to the **[OpenRouter](https://openrouter.ai/)** service, which acts as a gateway to various large language models.
-- The model used is **Mistral** (`mistralai/mistral-7b-instruct`), which is a powerful and cost-effective model suitable for conversational AI.
+- It makes direct, client-side API calls to the **[Mistral AI](https://mistral.ai/)** API service.
+- The model used is **Mistral Large** (`mistral-large-latest`), which is a powerful and cost-effective model suitable for conversational AI and educational assistance.
 - **System Prompt**: A detailed system prompt is sent with every API request. This prompt instructs the AI on its persona ("LIBRA, a professional educational assistant"), its required tone, the expected response structure (using Markdown), and its areas of expertise. This is crucial for ensuring consistent and high-quality responses.
 - **Streaming Responses**: The integration uses the `stream: true` parameter to receive the AI's response as a real-time stream of text. This provides a much better user experience, as the user sees the response being generated token-by-token, rather than waiting for the full response to be ready.
 
