@@ -72,6 +72,10 @@ export default function LoginPage() {
     let description = 'An unexpected error occurred. Please try again.';
 
     switch (error.code) {
+      case 'auth/unauthorized-domain':
+        title = "Domain Not Authorized";
+        description = 'This domain is not authorized for Firebase authentication. Please add "reon-ai-prep.netlify.app" to your Firebase project\'s authorized domains in the Firebase Console.';
+        break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
@@ -212,6 +216,15 @@ export default function LoginPage() {
                 variant: "destructive",
                 title: "Network Error",
                 description: "Please check your internet connection and try again.",
+            });
+            return;
+        }
+        
+        if (error.code === 'auth/unauthorized-domain') {
+            toast({
+                variant: "destructive",
+                title: "Domain Not Authorized",
+                description: 'This domain is not authorized for Firebase authentication. Please add "reon-ai-prep.netlify.app" to your Firebase project\'s authorized domains in the Firebase Console (Authentication > Settings > Authorized domains).',
             });
             return;
         }
