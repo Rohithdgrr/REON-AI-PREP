@@ -16,6 +16,40 @@ REON AI PREP is a comprehensive, AI-powered learning platform designed to help a
 - **Authentication**: Secure user authentication with Email/Password and Google Sign-In, managed by Firebase Authentication.
 - **User Profile & Settings**: Manage your profile, customize the app's appearance with multiple themes, and access support.
 
+## 🎯 Target Audience
+
+This platform is designed for students and aspirants in India preparing for a wide range of competitive government and public sector examinations. This includes:
+
+- **Railway Exams**: RRB NTPC, Group D, ALP, etc.
+- **Banking Exams**: IBPS PO/Clerk, SBI PO/Clerk, RBI Grade B.
+- **Staff Selection Commission (SSC)**: CGL, CHSL.
+- **Union Public Service Commission (UPSC)**: Civil Services Examination (CSE).
+- **Graduate Aptitude Test in Engineering (GATE)**: For PSU recruitment and higher studies.
+
+## 🌟 Advantages
+
+- **Personalized Learning**: Moves away from a one-size-fits-all approach by using AI to create study plans and quizzes tailored to an individual's strengths and weaknesses.
+- **Time Efficiency**: The "Weakness Radar" and AI-driven suggestions help users focus their efforts on areas that need the most improvement, saving valuable preparation time.
+- **Enhanced Engagement**: Gamified elements like levels, XP points, missions, and a live leaderboard keep users motivated and consistent with their studies.
+- **24/7 AI Assistance**: The LIBRA AI assistant acts as a personal tutor, available anytime to explain complex topics, generate practice questions, or offer study advice.
+- **Accessibility**: With features like AI-generated podcasts, users can turn any study material into an audio file, enabling learning on the go.
+
+## 💡 Uses
+
+- **End-to-End Exam Preparation**: From creating a study plan to taking mock tests and analyzing performance.
+- **Targeted Practice**: Hone skills in specific subjects or topics using the Quiz and Practice Arenas.
+- **Performance Tracking**: Monitor progress through the dashboard analytics, RAX-Score, and leaderboard rank.
+- **Doubt Clarification**: Use the LIBRA AI assistant to get instant explanations for difficult concepts.
+- **Community Learning**: Share notes, ask questions, and compete in challenges with fellow aspirants in the Knowledge Hub.
+
+## 🚀 Future Scope
+
+- **Advanced AI Integration**: Incorporate more sophisticated AI models for video analysis, personalized feedback on written answers, and more accurate performance prediction.
+- **Expanded Language Support**: Add support for more regional languages in both the UI and AI-generated content.
+- **Live Classes & Mentorship**: Integrate features for live online classes with educators and one-on-one mentorship sessions.
+- **Mobile Applications**: Develop dedicated mobile apps for iOS and Android to provide a more seamless on-the-go experience.
+- **Enhanced Proctoring**: Implement advanced AI-based proctoring for mock tests to ensure a cheat-proof exam environment.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
