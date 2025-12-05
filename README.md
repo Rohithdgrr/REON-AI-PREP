@@ -60,7 +60,7 @@ This platform is designed for students and aspirants in India preparing for a wi
 
 - **Authentication & Database**: **[Firebase](https://firebase.google.com/)** serves as the backend-as-a-service (BaaS) platform.
   - **Firebase Authentication** provides a secure and easy-to-implement solution for user sign-up, login (Email/Password & Google), and session management.
-  - **Firestore** is used as the NoSQL, cloud-hosted database for storing user data, progress, and other application information in a scalable and real-time manner.
+  - **Firestore** is used as the NoSQL, cloud-hosted database for storing user data, progress, and other application information in a scalable and real-time manner. The database structure and security are defined in `firestore.rules`, which enforces a strict user-ownership model to ensure data privacy. The data schemas are documented in `docs/backend.json`, providing a clear blueprint for the database structure.
 
 - **Generative AI**: The application leverages multiple AI services for its intelligent features:
   - **Chat & Content Generation**: **[Mistral](https://mistral.ai/)** models are accessed via **[OpenRouter](https://openrouter.ai/)** to power the LIBRA AI assistant and generate dynamic content like quizzes and study plans.
