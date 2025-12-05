@@ -27,6 +27,16 @@ REON AI PREP is a comprehensive, AI-powered learning platform designed to help a
   - **Text-to-Speech**: Google AI
 - **Deployment**: Firebase App Hosting
 
+## 🙏 Citations & Acknowledgements
+
+This project is built upon the work of many open-source projects and free-to-use services. We gratefully acknowledge their contributions.
+
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **AI Models**: [Mistral AI](https://mistral.ai/), [Google AI](https://ai.google/), and the [OpenRouter](https://openrouter.ai/) service.
+- **Images**: Placeholder images are provided by [Unsplash](https://unsplash.com/) and [Picsum Photos](https://picsum.photos/).
+- **Fonts**: [Google Fonts](https://fonts.google.com/)
+
 ## 🚀 Getting Started
 
 This is a Next.js project bootstrapped with `create-next-app` and configured for Firebase Studio.
@@ -52,7 +62,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Project Structure
+## Project Structure
 
 ```
 .
