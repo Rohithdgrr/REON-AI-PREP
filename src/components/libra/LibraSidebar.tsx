@@ -478,7 +478,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://reon-ai-prep.web.app",
+          "HTTP-Referer": "https://reon.ai/",
         },
         body: JSON.stringify({
           model: "mistralai/mistral-7b-instruct",
@@ -504,44 +504,48 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      
       const dataRegex = /data: (.*)/g;
-      let buffer = '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      // This function processes the stream and is the core of the fix.
+      const processStream = async () => {
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-
-        let match;
-        while ((match = dataRegex.exec(buffer)) !== null) {
-          const line = match[1];
-          if (line.trim() === '[DONE]') {
-             break;
-          }
-          try {
-            const json = JSON.parse(line);
-            const content = json.choices[0]?.delta?.content || '';
-
-            if (content) {
-              setMessages((prevMessages) => {
-                const updatedMessages = [...prevMessages];
-                const lastMessage = updatedMessages[updatedMessages.length - 1];
-                if (lastMessage && lastMessage.role === 'assistant') {
-                  lastMessage.content += content;
-                }
-                return updatedMessages;
-              });
+          buffer += decoder.decode(value, { stream: true });
+          let match;
+          while ((match = dataRegex.exec(buffer)) !== null) {
+            const line = match[1];
+            if (line.trim() === '[DONE]') {
+              return; // End of stream
             }
-          } catch (e) {
-             // Incomplete JSON, wait for more data in the buffer
+            try {
+              const json = JSON.parse(line);
+              const content = json.choices[0]?.delta?.content || '';
+              if (content) {
+                setMessages((prevMessages) => {
+                  const updatedMessages = [...prevMessages];
+                  const lastMessage = updatedMessages[updatedMessages.length - 1];
+                  if (lastMessage && lastMessage.role === 'assistant') {
+                    lastMessage.content += content;
+                  }
+                  return updatedMessages;
+                });
+              }
+            } catch (e) {
+              // This is expected if a JSON object is split across chunks.
+              // The incomplete part will be processed in the next iteration.
+            }
           }
+          // The buffer now only contains the part after the last complete data line.
+          buffer = buffer.slice(dataRegex.lastIndex);
+          dataRegex.lastIndex = 0; // Reset regex index for next chunk.
         }
-        // Reset buffer to only contain the incomplete part
-        buffer = buffer.slice(dataRegex.lastIndex);
-        dataRegex.lastIndex = 0;
-      }
+      };
+      
+      await processStream();
+
 
       let finalMessages: Message[] = [];
       setMessages((prev) => {
@@ -601,6 +605,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
           title: 'AI Error',
           description: error.message || 'The model failed to respond. Please try again.',
         });
+        // Remove the empty assistant message and the user's message that caused the error.
         setMessages((prev) => prev.slice(0, -2));
       }
     } finally {
@@ -787,7 +792,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
             </div>
             <h3 className="text-lg font-semibold">How can I help you today?</h3>
             <p className="text-xs text-muted-foreground mt-1 mb-6 max-w-xs">
-              Ask anything related to your competitive exam preparation. I'm here to help!
+              Ask anything related to your competitive exam preparation. I&apos;m here to help!
             </p>
             <div className="grid grid-cols-2 gap-3 max-w-md w-full">
               {suggestionCards.map((card) => {
@@ -966,5 +971,3 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     </div>
   );
 }
-
-    

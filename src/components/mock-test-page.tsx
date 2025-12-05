@@ -198,8 +198,6 @@ export function MockTestPage() {
   const { toast } = useToast();
   const { setActiveTool } = useToolsSidebar();
 
-  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
-
   const [customTopic, setCustomTopic] = useState("Full Syllabus Mock");
   const [customSubTopic, setCustomSubTopic] = useState<string>('Previous Year Questions');
   const [customOtherSubTopic, setCustomOtherSubTopic] = useState("");
@@ -278,40 +276,19 @@ export function MockTestPage() {
         specialization: specialization,
     });
 
-    const processStream = async (response: Response) => {
-        if (!response.body) throw new Error("Response body is empty.");
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = "";
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.substring(6);
-                    if (data.trim() === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || '';
-                        if (content) fullResponse += content;
-                    } catch (e) { /* Ignore partial JSON */ }
-                }
-            }
-        }
-        return fullResponse;
-    };
-    
     try {
-        const mistralResponse = await fetch("https://api.mistral.ai/v1/chat/completions", {
-            method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-            body: JSON.stringify({ model: "open-mistral-nemo", messages: [{ role: "user", content: prompt }], stream: true, response_format: { type: "json_object" } })
+        const response = await fetch("/api/generate-quiz", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
         });
-        if (!mistralResponse.ok) throw new Error(`Mistral API Error: ${mistralResponse.statusText}`);
-        const mistralResult = await processStream(mistralResponse);
-        const result: GenerateQuizOutput = JSON.parse(mistralResult);
 
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
+        }
+
+        const result: GenerateQuizOutput = await response.json();
+        
         if (!result.title || !result.questions || !Array.isArray(result.questions)) {
             throw new Error("Invalid JSON format received from AI.");
         }
