@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/google-genai';
-import { z } from 'genkit/zod';
+import { z } from 'zod';
 import wav from 'wav';
 
 // Define the schema for the flow's output
