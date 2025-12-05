@@ -394,7 +394,7 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
   const { setActiveTool } = useToolsSidebar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [apiKey] = useState("nJCcmgS1lSo13OVE79Q64QndL3nCDjQI");
+  const [apiKey] = useState("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");
   const [suggestionCards, setSuggestionCards] = useState(allSuggestionCards.slice(0, 4));
 
   // Load history from localStorage on initial mount
@@ -474,14 +474,15 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     const systemPrompt = buildSystemPrompt();
 
     try {
-      const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://reon-ai-prep.web.app",
         },
         body: JSON.stringify({
-          model: "open-mistral-nemo",
+          model: "mistralai/mistral-7b-instruct",
           messages: [
             { role: "system", content: systemPrompt },
             ...newMessages.map((m) => ({ role: m.role, content: m.content })),
@@ -505,23 +506,23 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       
-      let chunk = '';
       const dataRegex = /data: (.*)/g;
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        chunk += decoder.decode(value, { stream: true });
-        
+        buffer += decoder.decode(value, { stream: true });
+
         let match;
-        while ((match = dataRegex.exec(chunk)) !== null) {
-          const data = match[1];
-          if (data.trim() === '[DONE]') {
-            break;
+        while ((match = dataRegex.exec(buffer)) !== null) {
+          const line = match[1];
+          if (line.trim() === '[DONE]') {
+             break;
           }
           try {
-            const json = JSON.parse(data);
+            const json = JSON.parse(line);
             const content = json.choices[0]?.delta?.content || '';
 
             if (content) {
@@ -535,13 +536,13 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
               });
             }
           } catch (e) {
-            // Incomplete JSON, wait for more data
+             // Incomplete JSON, wait for more data in the buffer
           }
         }
-        chunk = chunk.substring(dataRegex.lastIndex);
+        // Reset buffer to only contain the incomplete part
+        buffer = buffer.slice(dataRegex.lastIndex);
         dataRegex.lastIndex = 0;
       }
-
 
       let finalMessages: Message[] = [];
       setMessages((prev) => {
@@ -966,3 +967,5 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
     </div>
   );
 }
+
+    
