@@ -68,7 +68,7 @@ This project is built upon the work of many open-source projects and free-to-use
 
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **AI Models**: [Mistral AI](https://mistral.ai/), [Google AI](https://ai.google/), and the [OpenRouter](https://openrouter.ai/) service.
+- **AI Models**: [Mistral AI](https://mistral.ai/), [Google AI](https://ai.google.com/), and the [OpenRouter](https://openrouter.ai/) service.
 - **Images**: Placeholder images are provided by [Unsplash](https://unsplash.com/) and [Picsum Photos](https://picsum.photos/).
 - **Fonts**: [Google Fonts](https://fonts.google.com/)
 
