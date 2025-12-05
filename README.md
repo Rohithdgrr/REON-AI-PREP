@@ -58,13 +58,7 @@ This platform is designed for students and aspirants in India preparing for a wi
 
 - **Styling**: The UI is built with **[Tailwind CSS](https://tailwindcss.com/)**, a utility-first CSS framework that allows for rapid development of custom designs without leaving the HTML. This is paired with **[shadcn/ui](https://ui.shadcn.com/)**, a collection of beautifully designed, accessible, and reusable components that can be easily customized.
 
-- **Authentication & Database**: **[Firebase](https://firebase.google.com/)** serves as the backend-as-a-service (BaaS) platform.
-  - **Firebase Authentication** provides a secure and easy-to-implement solution for user sign-up, login (Email/Password & Google), and session management.
-  - **Firestore** is used as the NoSQL, cloud-hosted database for storing user data, progress, and other application information in a scalable and real-time manner. The database structure and security are defined in `firestore.rules`, which enforces a strict user-ownership model to ensure data privacy. The data schemas are documented in `docs/backend.json`, providing a clear blueprint for the database structure.
-
-- **Generative AI**: The application leverages multiple AI services for its intelligent features:
-  - **Chat & Content Generation**: **[Mistral](https://mistral.ai/)** models are accessed via **[OpenRouter](https://openrouter.ai/)** to power the LIBRA AI assistant and generate dynamic content like quizzes and study plans.
-  - **Text-to-Speech**: **Google AI** is used for the AI-generated podcast feature, converting text-based study materials into high-quality audio files.
+- **Backend & AI**: The application uses a robust backend built on **[Firebase](https://firebase.google.com/)** and **Google AI** for its data management, authentication, and intelligent features. For a detailed explanation of the backend architecture, data models, and security rules, please see the **[Backend Documentation](./docs/backend.md)**.
 
 - **Deployment**: The entire application is deployed on **Firebase App Hosting**, which provides a secure, fast, and globally-distributed hosting solution optimized for modern web frameworks like Next.js.
 
@@ -132,6 +126,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 │       ├── placeholder-images.ts # Static data for placeholder images
 │       └── utils.ts          # Utility functions (e.g., cn for Tailwind)
 ├── docs
+│   ├── backend.md          # In-depth backend documentation
 │   └── backend.json        # Schema definitions for Firebase (entities, Firestore structure)
 ├── firestore.rules           # Security rules for Firestore database
 ├── next.config.ts            # Next.js configuration file
