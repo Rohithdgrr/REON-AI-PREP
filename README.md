@@ -52,14 +52,21 @@ This platform is designed for students and aspirants in India preparing for a wi
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/) for components.
-- **Authentication & Database**: [Firebase](https://firebase.google.com/) (Authentication and Firestore)
-- **Generative AI**:
-  - **Chat & Content**: [Mistral](https://mistral.ai/) via [OpenRouter](https://openrouter.ai/)
-  - **Text-to-Speech**: Google AI
-- **Deployment**: Firebase App Hosting
+- **Framework**: **[Next.js](https://nextjs.org/) (App Router)** was chosen for its powerful features like server-side rendering (SSR), static site generation (SSG), and the modern App Router, which enables performant, SEO-friendly, and highly scalable web applications. Server Components are used to reduce client-side JavaScript and improve initial load times.
+
+- **Language**: **[TypeScript](https://www.typescriptlang.org/)** is used throughout the project to provide strong typing, which helps catch errors during development, improves code quality, and makes the codebase more maintainable and easier to refactor.
+
+- **Styling**: The UI is built with **[Tailwind CSS](https://tailwindcss.com/)**, a utility-first CSS framework that allows for rapid development of custom designs without leaving the HTML. This is paired with **[shadcn/ui](https://ui.shadcn.com/)**, a collection of beautifully designed, accessible, and reusable components that can be easily customized.
+
+- **Authentication & Database**: **[Firebase](https://firebase.google.com/)** serves as the backend-as-a-service (BaaS) platform.
+  - **Firebase Authentication** provides a secure and easy-to-implement solution for user sign-up, login (Email/Password & Google), and session management.
+  - **Firestore** is used as the NoSQL, cloud-hosted database for storing user data, progress, and other application information in a scalable and real-time manner.
+
+- **Generative AI**: The application leverages multiple AI services for its intelligent features:
+  - **Chat & Content Generation**: **[Mistral](https://mistral.ai/)** models are accessed via **[OpenRouter](https://openrouter.ai/)** to power the LIBRA AI assistant and generate dynamic content like quizzes and study plans.
+  - **Text-to-Speech**: **Google AI** is used for the AI-generated podcast feature, converting text-based study materials into high-quality audio files.
+
+- **Deployment**: The entire application is deployed on **Firebase App Hosting**, which provides a secure, fast, and globally-distributed hosting solution optimized for modern web frameworks like Next.js.
 
 ## 🙏 Citations & Acknowledgements
 
