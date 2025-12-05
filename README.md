@@ -54,14 +54,35 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Project Structure
 
-- `src/app/`: Contains the main application pages and layouts using the Next.js App Router.
-  - `src/app/dashboard/`: Protected routes for the user dashboard.
-  - `src/app/login/`: The authentication page.
-- `src/components/`: Contains all React components used throughout the application.
-  - `src/components/libra/`: Components related to the LIBRA AI assistant.
-  - `src/components/ui/`: Reusable UI components from shadcn/ui.
-- `src/firebase/`: Firebase configuration, providers, and custom hooks (`useUser`, `useCollection`, etc.).
-- `src/ai/`: Contains AI-related logic, primarily for generating content.
-- `src/lib/`: Utility functions and static data.
-- `docs/`: Contains backend configuration files like `backend.json`.
-- `firestore.rules`: Security rules for the Firestore database.
+```
+.
+├── src
+│   ├── app
+│   │   ├── dashboard         # Protected routes for the user dashboard
+│   │   │   ├── page.tsx
+│   │   │   └── layout.tsx
+│   │   ├── login             # Authentication page
+│   │   │   └── page.tsx
+│   │   ├── page.tsx          # Main landing page
+│   │   └── layout.tsx        # Root layout for the entire app
+│   ├── components
+│   │   ├── dashboard         # Components specific to the dashboard page
+│   │   ├── layout            # Reusable layout components (Header, Sidebars)
+│   │   ├── libra             # Components for the LIBRA AI assistant
+│   │   └── ui                # Shadcn/ui components (Button, Card, etc.)
+│   ├── firebase
+│   │   ├── auth              # Firebase Auth hooks (useUser)
+│   │   ├── firestore         # Firestore hooks (useCollection, useDoc)
+│   │   ├── config.ts         # Firebase configuration keys
+│   │   └── provider.tsx      # Core Firebase context provider
+│   ├── ai
+│   │   └── flows             # Genkit flows for AI content generation
+│   └── lib
+│       ├── placeholder-images.ts # Static data for placeholder images
+│       └── utils.ts          # Utility functions (e.g., cn for Tailwind)
+├── docs
+│   └── backend.json        # Schema definitions for Firebase (entities, Firestore structure)
+├── firestore.rules           # Security rules for Firestore database
+├── next.config.ts            # Next.js configuration file
+└── package.json              # Project dependencies and scripts
+```
