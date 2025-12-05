@@ -504,26 +504,26 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = '';
+      
+      let chunk = '';
+      const dataRegex = /data: (.*)/g;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.trim() === '' || !line.startsWith('data: ')) continue;
-
-          const data = line.substring(6);
-          if (data.trim() === '[DONE]') break;
-
+        chunk += decoder.decode(value, { stream: true });
+        
+        let match;
+        while ((match = dataRegex.exec(chunk)) !== null) {
+          const data = match[1];
+          if (data.trim() === '[DONE]') {
+            break;
+          }
           try {
             const json = JSON.parse(data);
             const content = json.choices[0]?.delta?.content || '';
+
             if (content) {
               setMessages((prevMessages) => {
                 const updatedMessages = [...prevMessages];
@@ -535,10 +535,13 @@ export function LibraSidebar({ initialPrompt }: { initialPrompt?: string }) {
               });
             }
           } catch (e) {
-            console.error('Error parsing streaming JSON:', e, 'line:', line);
+            // Incomplete JSON, wait for more data
           }
         }
+        chunk = chunk.substring(dataRegex.lastIndex);
+        dataRegex.lastIndex = 0;
       }
+
 
       let finalMessages: Message[] = [];
       setMessages((prev) => {
